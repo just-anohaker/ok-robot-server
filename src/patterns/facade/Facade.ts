@@ -9,6 +9,7 @@ import IMediator from "../../interfaces/IMediator";
 import IObserver from "../../interfaces/IObserver";
 import INotification from "../../interfaces/INotification";
 import Notification from "../../patterns/observer/Notification";
+import { MaybeUndefined } from "../../base/Common";
 
 class Facade implements IFacade {
     private static _instance: IFacade;
@@ -20,8 +21,8 @@ class Facade implements IFacade {
         return Facade._instance;
     }
 
-    private _models: IModel;
-    private _controllers: IController;
+    private _models?: IModel;
+    private _controllers?: IController;
     private _observers: Map<string, IObserver[]>
 
     constructor() {
@@ -47,39 +48,39 @@ class Facade implements IFacade {
     }
 
     registerProxy(proxy: IProxy): void {
-        this._models.registerProxy(proxy);
+        this._models!.registerProxy(proxy);
     }
 
-    removeProxy(proxyName: string): IProxy {
-        return this._models.removeProxy(proxyName);
+    removeProxy(proxyName: string): MaybeUndefined<IProxy> {
+        return this._models!.removeProxy(proxyName);
     }
 
-    retrieveProxy<T extends IProxy>(proxyName: string, cls: Class<T>): T {
-        return this._models.retriveProxy<T>(proxyName, cls);
+    retrieveProxy<T extends IProxy>(proxyName: string, cls: Class<T>): MaybeUndefined<T> {
+        return this._models!.retriveProxy<T>(proxyName, cls);
     }
 
     hasProxy(proxyName: string): boolean {
-        return this._models.hasProxy(proxyName);
+        return this._models!.hasProxy(proxyName);
     }
 
     registerMediator(mediator: IMediator): void {
-        this._controllers.registerMediator(mediator);
+        this._controllers!.registerMediator(mediator);
     }
 
-    removeMediator(mediatorName: string): IMediator {
-        return this._controllers.removeMediator(mediatorName);
+    removeMediator(mediatorName: string): MaybeUndefined<IMediator> {
+        return this._controllers!.removeMediator(mediatorName);
     }
 
-    retrieveMediator<T extends IMediator>(mediatorName: string, cls: Class<T>): T {
-        return this._controllers.retrieveMediator<T>(mediatorName, cls);
+    retrieveMediator<T extends IMediator>(mediatorName: string, cls: Class<T>): MaybeUndefined<T> {
+        return this._controllers!.retrieveMediator<T>(mediatorName, cls);
     }
 
     hasMediator(mediatorName: string): boolean {
-        return this._controllers.hasMediator(mediatorName);
+        return this._controllers!.hasMediator(mediatorName);
     }
 
     registerObserver(notificationName: string, observer: IObserver): void {
-        const observers: IObserver[] = this._observers.get(notificationName);
+        const observers = this._observers.get(notificationName);
         if (observers == null) {
             this._observers.set(notificationName, [observer]);
         } else {
@@ -88,7 +89,7 @@ class Facade implements IFacade {
     }
 
     removeObserver(notificationName: string, notifyContext: any): void {
-        const observers: IObserver[] = this._observers.get(notificationName);
+        const observers = this._observers.get(notificationName);
         if (observers == null) {
             return;
         }

@@ -1,0 +1,31 @@
+import IFacade from "../../interfaces/IFacade";
+import IProxy from "../../interfaces/IProxy";
+import Class from "../../interfaces/IClass";
+import IMediator from "../../interfaces/IMediator";
+import IObserver from "../../interfaces/IObserver";
+import INotification from "../../interfaces/INotification";
+import { MaybeUndefined } from "../../base/Common";
+declare class Facade implements IFacade {
+    private static _instance;
+    static getInstance(): IFacade;
+    private _models?;
+    private _controllers?;
+    private _observers;
+    constructor();
+    private initializeFacade;
+    private initializeModel;
+    private initializeController;
+    registerProxy(proxy: IProxy): void;
+    removeProxy(proxyName: string): MaybeUndefined<IProxy>;
+    retrieveProxy<T extends IProxy>(proxyName: string, cls: Class<T>): MaybeUndefined<T>;
+    hasProxy(proxyName: string): boolean;
+    registerMediator(mediator: IMediator): void;
+    removeMediator(mediatorName: string): MaybeUndefined<IMediator>;
+    retrieveMediator<T extends IMediator>(mediatorName: string, cls: Class<T>): MaybeUndefined<T>;
+    hasMediator(mediatorName: string): boolean;
+    registerObserver(notificationName: string, observer: IObserver): void;
+    removeObserver(notificationName: string, notifyContext: any): void;
+    notifyObservers(notification: INotification): void;
+    sendNotification(name: string, body?: any, type?: string): void;
+}
+export default Facade;

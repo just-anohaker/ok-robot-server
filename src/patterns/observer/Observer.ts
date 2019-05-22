@@ -11,7 +11,7 @@ class Observer implements IObserver {
     }
 
     private getNotifyMethod(): Function {
-        return this.notify;
+        return this.notify!;
     }
 
     setNotifyMethod(notifyMethod: Function): void {

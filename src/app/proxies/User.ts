@@ -44,7 +44,7 @@ class UserProxy extends Proxy {
         return results;
     }
 
-    addAccount(groupName: string, account: IAccount): boolean {
+    add(groupName: string, account: IAccount): boolean {
         if (!this.hasGroup(groupName)) {
             const group: IGroup = { name: groupName, accounts: [account] };
             this.userGroup.push(group);
@@ -52,7 +52,7 @@ class UserProxy extends Proxy {
             return true;
         }
 
-        const group = this.userGroupMap.get(groupName);
+        const group = this.userGroupMap.get(groupName)!;
         if (group.accounts.some(value => value.name === account.name)) {
             return false;
         }
@@ -60,12 +60,12 @@ class UserProxy extends Proxy {
         return true;
     }
 
-    removeAccount(groupName: string, accountName: string): boolean {
+    remove(groupName: string, accountName: string): boolean {
         if (!this.hasGroup(groupName)) {
             return false;
         }
 
-        const group = this.userGroupMap.get(groupName);
+        const group = this.userGroupMap.get(groupName)!;
         const findIdx = group.accounts.findIndex(value => value.name === accountName);
         if (findIdx === -1) {
             return false;
@@ -79,47 +79,41 @@ class UserProxy extends Proxy {
         return true;
     }
 
-    // updateAccount(groupName: string, account: IAccount): boolean {
-    //     if (!this.hasGroup(groupName)) {
-    //         return false;
-    //     }
-
-    //     const group = this.userGroupMap.get(groupName);
-    //     const findIdx = group.accounts.findIndex(value => value.name === account.name);
-    //     if (findIdx === -1) {
-    //         return false;
-    //     }
-    //     group.accounts.splice(findIdx, 1);
-    //     group.accounts.push(account);
-    //     return true;
-    // }
-
-    queryAccount(accountName: string): IGroup[] {
-        let results: IGroup[] = [];
-        this.userGroup.forEach(value => {
-            value.accounts.forEach(val => {
-                if (val.name === accountName) {
-                    results.push({ name: value.name, accounts: [Object.assign({}, val)] });
-                }
-            })
-        });
-        return results;
-    }
-
-    queryAccountInGroup(groupName: string, accountName: string): IGroup | undefined {
-        if (!this.hasGroup(groupName)) {
-            return undefined;
+    update(oldGroup: IGroup, newGroup: IGroup): boolean {
+        if (!this.hasGroup(oldGroup.name)) {
+            return false;
         }
 
-        const group = this.userGroupMap.get(groupName);
-        let result: IGroup = { name: group.name, accounts: [] };
-        group.accounts.forEach(value => {
-            if (value.name === accountName) {
-                result.accounts.push(Object.assign({}, value));
+        let success = true;
+        oldGroup.accounts.forEach(account => {
+            success = !success || this.remove(oldGroup.name, account.name);
+        });
+        newGroup.accounts.forEach(account => {
+            success = !success || this.add(newGroup.name, account);
+        });
+        return success;
+    }
+
+    query(accountName: string, groupName?: string): IGroup[] {
+        let queryResult: IGroup[] = [];
+        let queryGroups: IGroup[] = this.userGroup;
+        if (groupName != null) {
+            if (!this.hasGroup(groupName)) {
+                return queryResult;
             }
+
+            queryGroups = [this.userGroupMap.get(groupName)!];
+        }
+
+        queryGroups.forEach(group => {
+            group.accounts.forEach(account => {
+                if (account.name === accountName) {
+                    queryResult.push({ name: group.name, accounts: [Object.assign({}, account)] });
+                }
+            });
         });
 
-        return result;
+        return queryResult;
     }
 
     private hasGroup(groupName: string): boolean {

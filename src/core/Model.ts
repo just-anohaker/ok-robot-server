@@ -1,6 +1,7 @@
 import IModel from "../interfaces/IModel";
 import IProxy from "../interfaces/IProxy";
 import Class from "../interfaces/IClass";
+import { MaybeUndefined } from "../base/Common";
 
 class Model implements IModel {
     private static _instance: IModel;
@@ -35,23 +36,23 @@ class Model implements IModel {
         proxy.onRegister();
     }
 
-    removeProxy(proxyName: string): IProxy {
+    removeProxy(proxyName: string): MaybeUndefined<IProxy> {
         if (!this.hasProxy(proxyName)) {
             return undefined;
         }
 
-        const proxyInst = this._proxies.get(proxyName);
+        const proxyInst = this._proxies.get(proxyName)!;
         this._proxies.delete(proxyName);
         proxyInst.onRemove();
         return proxyInst;
     }
 
-    retriveProxy<T extends IProxy>(proxyName: string, cls: Class<T>): T {
+    retriveProxy<T extends IProxy>(proxyName: string, cls: Class<T>): MaybeUndefined<T> {
         if (!this.hasProxy(proxyName)) {
             return undefined;
         }
 
-        const proxyInst = this._proxies.get(proxyName);
+        const proxyInst = this._proxies.get(proxyName)!;
         if (proxyInst instanceof cls) {
             return proxyInst as T;
         }

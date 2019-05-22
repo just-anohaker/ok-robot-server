@@ -1,7 +1,8 @@
 import INotification from "../../interfaces/INotification";
+import { MaybeUndefined } from "../../base/Common";
 
 class Notification implements INotification {
-    constructor(private name: string, private body: any = null, private type: string = null) { }
+    constructor(private name: string, private body?: any, private type?: string) { }
 
     getName(): string {
         return this.name;
@@ -11,7 +12,7 @@ class Notification implements INotification {
         this.body = body;
     }
 
-    getBody(): any {
+    getBody(): MaybeUndefined<any> {
         return this.body;
     }
 
@@ -19,7 +20,7 @@ class Notification implements INotification {
         this.type = type;
     }
 
-    getType(): string {
+    getType(): MaybeUndefined<string> {
         return this.type;
     }
 

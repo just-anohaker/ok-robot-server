@@ -1,6 +1,7 @@
 import IController from "../interfaces/IController";
 import IMediator from "../interfaces/IMediator";
 import Class from "../interfaces/IClass";
+import { MaybeUndefined } from "../base/Common";
 
 class Controller implements IController {
     private static _instance: IController;
@@ -34,18 +35,18 @@ class Controller implements IController {
         mediator.onRegister();
     }
 
-    removeMediator(mediatorName: string): IMediator {
+    removeMediator(mediatorName: string): MaybeUndefined<IMediator> {
         if (!this.hasMediator(mediatorName)) {
             return undefined;
         }
 
-        const mediatorInst = this._mediators.get(mediatorName);
+        const mediatorInst = this._mediators.get(mediatorName)!;
         this._mediators.delete(mediatorInst.mediatorName);
         mediatorInst.onRemove();
         return mediatorInst;
     }
 
-    retrieveMediator<T extends IMediator>(mediatorName: string, cls: Class<T>): T {
+    retrieveMediator<T extends IMediator>(mediatorName: string, cls: Class<T>): MaybeUndefined<T> {
         if (!this.hasMediator(mediatorName)) {
             return undefined;
         }
