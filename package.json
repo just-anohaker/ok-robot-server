@@ -3,14 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
-  "dependencies": {},
+  "dependencies": {
+    "uuid": "^3.3.2"
+  },
   "devDependencies": {
+    "@types/jest": "^24.0.13",
     "@types/node": "^12.0.2",
+    "@types/uuid": "^3.4.4",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
     "ts-node": "^8.1.0",
     "typescript": "^3.4.5"
   },
   "scripts": {
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "test": "npx jest ."
   },
   "repository": {
     "type": "git",
