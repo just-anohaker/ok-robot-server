@@ -40,7 +40,7 @@ class Controller {
         return undefined;
     }
     hasMediator(mediatorName) {
-        return this._mediators.has(mediatorName) !== undefined;
+        return this._mediators.has(mediatorName);
     }
 }
 exports.default = Controller;

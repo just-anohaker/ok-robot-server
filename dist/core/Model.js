@@ -41,7 +41,7 @@ class Model {
         return undefined;
     }
     hasProxy(proxyName) {
-        return this._proxies.has(proxyName) !== undefined;
+        return this._proxies.has(proxyName);
     }
 }
 exports.default = Model;

@@ -59,7 +59,7 @@ class Controller implements IController {
     }
 
     hasMediator(mediatorName: string): boolean {
-        return this._mediators.has(mediatorName) !== undefined;
+        return this._mediators.has(mediatorName);
     }
 
 }

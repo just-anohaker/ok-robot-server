@@ -61,7 +61,7 @@ class Model implements IModel {
     }
 
     hasProxy(proxyName: string): boolean {
-        return this._proxies.has(proxyName) !== undefined;
+        return this._proxies.has(proxyName);
     }
 }
 
