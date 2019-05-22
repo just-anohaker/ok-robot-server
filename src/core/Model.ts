@@ -7,7 +7,7 @@ class Model implements IModel {
     private static _instance: IModel;
 
     static getInstance(): IModel {
-        if (Model._instance) {
+        if (Model._instance === undefined) {
             Model._instance = new Model();
         }
 

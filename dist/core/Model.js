@@ -6,7 +6,7 @@ var Model = /** @class */ (function () {
         this.initializeModel();
     }
     Model.getInstance = function () {
-        if (Model._instance) {
+        if (Model._instance === undefined) {
             Model._instance = new Model();
         }
         return Model._instance;
