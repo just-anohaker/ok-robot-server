@@ -3,75 +3,75 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Model_1 = __importDefault(require("../../core/Model"));
-var Controller_1 = __importDefault(require("../../core/Controller"));
-var Notification_1 = __importDefault(require("../../patterns/observer/Notification"));
-var Facade = /** @class */ (function () {
-    function Facade() {
-        this._observers = new Map();
-        this.initializeFacade();
-    }
-    Facade.getInstance = function () {
+const Model_1 = __importDefault(require("../../core/Model"));
+const Controller_1 = __importDefault(require("../../core/Controller"));
+const Notification_1 = __importDefault(require("../../patterns/observer/Notification"));
+class Facade {
+    static getInstance() {
         if (Facade._instance === undefined) {
             Facade._instance = new Facade();
         }
         return Facade._instance;
-    };
-    Facade.prototype.initializeFacade = function () {
+    }
+    constructor() {
+        this._observers = new Map();
+        this.initializeFacade();
+    }
+    initializeFacade() {
         this.initializeModel();
         this.initializeController();
-    };
-    Facade.prototype.initializeModel = function () {
+    }
+    initializeModel() {
         if (this._models === undefined) {
             this._models = Model_1.default.getInstance();
         }
-    };
-    Facade.prototype.initializeController = function () {
+    }
+    initializeController() {
         if (this._controllers === undefined) {
             this._controllers = Controller_1.default.getInstance();
         }
-    };
-    Facade.prototype.registerProxy = function (proxy) {
+    }
+    registerProxy(proxy) {
         this._models.registerProxy(proxy);
-    };
-    Facade.prototype.removeProxy = function (proxyName) {
+    }
+    removeProxy(proxyName) {
         return this._models.removeProxy(proxyName);
-    };
-    Facade.prototype.retrieveProxy = function (proxyName, cls) {
+    }
+    retrieveProxy(proxyName, cls) {
         return this._models.retriveProxy(proxyName, cls);
-    };
-    Facade.prototype.hasProxy = function (proxyName) {
+    }
+    hasProxy(proxyName) {
         return this._models.hasProxy(proxyName);
-    };
-    Facade.prototype.registerMediator = function (mediator) {
+    }
+    registerMediator(mediator) {
         this._controllers.registerMediator(mediator);
-    };
-    Facade.prototype.removeMediator = function (mediatorName) {
+    }
+    removeMediator(mediatorName) {
         return this._controllers.removeMediator(mediatorName);
-    };
-    Facade.prototype.retrieveMediator = function (mediatorName, cls) {
+    }
+    retrieveMediator(mediatorName, cls) {
         return this._controllers.retrieveMediator(mediatorName, cls);
-    };
-    Facade.prototype.hasMediator = function (mediatorName) {
+    }
+    hasMediator(mediatorName) {
         return this._controllers.hasMediator(mediatorName);
-    };
-    Facade.prototype.registerObserver = function (notificationName, observer) {
-        var observers = this._observers.get(notificationName);
+    }
+    registerObserver(notificationName, observer) {
+        const observers = this._observers.get(notificationName);
         if (observers == null) {
             this._observers.set(notificationName, [observer]);
         }
         else {
             observers.push(observer);
         }
-    };
-    Facade.prototype.removeObserver = function (notificationName, notifyContext) {
-        var observers = this._observers.get(notificationName);
+    }
+    removeObserver(notificationName, notifyContext) {
+        const observers = this._observers.get(notificationName);
         if (observers == null) {
             return;
         }
         var idx = observers.length;
         while (idx--) {
-            var observer = observers[idx];
+            const observer = observers[idx];
             if (observer.compareNotifyContext(notifyContext)) {
                 observers.splice(idx, 1);
                 break;
@@ -80,22 +80,21 @@ var Facade = /** @class */ (function () {
         if (observers.length === 0) {
             this._observers.delete(notificationName);
         }
-    };
-    Facade.prototype.notifyObservers = function (notification) {
-        var notificationName = notification.getName();
-        var observers = this._observers.get(notificationName);
+    }
+    notifyObservers(notification) {
+        const notificationName = notification.getName();
+        const observers = this._observers.get(notificationName);
         if (observers) {
-            var shadowObservers = observers.slice();
-            var len = shadowObservers.length;
-            for (var i = 0; i < len; i++) {
-                var observer = shadowObservers[i];
+            const shadowObservers = observers.slice();
+            const len = shadowObservers.length;
+            for (let i = 0; i < len; i++) {
+                const observer = shadowObservers[i];
                 observer.notifyObserver(notification);
             }
         }
-    };
-    Facade.prototype.sendNotification = function (name, body, type) {
+    }
+    sendNotification(name, body, type) {
         this.notifyObservers(new Notification_1.default(name, body, type));
-    };
-    return Facade;
-}());
+    }
+}
 exports.default = Facade;

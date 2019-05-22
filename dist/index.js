@@ -1,16 +1,21 @@
 "use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./patterns/facade/Facade"));
-__export(require("./patterns/mediator/Mediator"));
-__export(require("./patterns/proxy/Proxy"));
-__export(require("./patterns/observer/Observer"));
-__export(require("./patterns/observer/Notifier"));
-__export(require("./patterns/observer/Notification"));
+var Facade_1 = require("./patterns/facade/Facade");
+exports.Facade = Facade_1.default;
+var Mediator_1 = require("./patterns/mediator/Mediator");
+exports.Mediator = Mediator_1.default;
+var Proxy_1 = require("./patterns/proxy/Proxy");
+exports.Proxy = Proxy_1.default;
+var Observer_1 = require("./patterns/observer/Observer");
+exports.Observer = Observer_1.default;
+var Notifier_1 = require("./patterns/observer/Notifier");
+exports.Notifier = Notifier_1.default;
+var Notification_1 = require("./patterns/observer/Notification");
+exports.Notification = Notification_1.default;
 // / user custom
 // /> mediator
-__export(require("./app/mediatores/User"));
+var User_1 = require("./app/mediatores/User");
+exports.UserMediator = User_1.default;
 // /> proxy
-__export(require("./app/proxies/User"));
+var User_2 = require("./app/proxies/User");
+exports.UserProxy = User_2.default;

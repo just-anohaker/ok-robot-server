@@ -1,28 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Observer = /** @class */ (function () {
-    function Observer(notifyMethod, notifyContext) {
+class Observer {
+    constructor(notifyMethod, notifyContext) {
         this.setNotifyMethod(notifyMethod);
         this.setNotifyContext(notifyContext);
     }
-    Observer.prototype.getNotifyMethod = function () {
+    getNotifyMethod() {
         return this.notify;
-    };
-    Observer.prototype.setNotifyMethod = function (notifyMethod) {
+    }
+    setNotifyMethod(notifyMethod) {
         this.notify = notifyMethod;
-    };
-    Observer.prototype.getNotifyContext = function () {
+    }
+    getNotifyContext() {
         this.context;
-    };
-    Observer.prototype.setNotifyContext = function (notifyContext) {
+    }
+    setNotifyContext(notifyContext) {
         this.context = notifyContext;
-    };
-    Observer.prototype.notifyObserver = function (notification) {
+    }
+    notifyObserver(notification) {
         this.getNotifyMethod().call(this.getNotifyContext(), notification);
-    };
-    Observer.prototype.compareNotifyContext = function (context) {
+    }
+    compareNotifyContext(context) {
         return context === this.context;
-    };
-    return Observer;
-}());
+    }
+}
 exports.default = Observer;
