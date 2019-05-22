@@ -9,3 +9,8 @@ __export(require("./patterns/proxy/Proxy"));
 __export(require("./patterns/observer/Observer"));
 __export(require("./patterns/observer/Notifier"));
 __export(require("./patterns/observer/Notification"));
+// / user custom
+// /> mediator
+__export(require("./app/mediatores/User"));
+// /> proxy
+__export(require("./app/proxies/User"));

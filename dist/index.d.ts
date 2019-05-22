@@ -10,3 +10,5 @@ export * from "./patterns/proxy/Proxy";
 export * from "./patterns/observer/Observer";
 export * from "./patterns/observer/Notifier";
 export * from "./patterns/observer/Notification";
+export * from "./app/mediatores/User";
+export * from "./app/proxies/User";
