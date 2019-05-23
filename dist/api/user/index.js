@@ -53,13 +53,16 @@ function get(data) {
             return Common_1.apiFailure(validation);
         }
         const user = getUserProxy().get(data.userId);
-        return Common_1.apiSuccess(user === undefined ? undefined : {
-            id: user.id,
-            groupName: user.groupName,
-            name: user.name,
-            apikey: user.apiKey,
-            apiSecret: user.apiSecret
-        });
+        if (user) {
+            return Common_1.apiSuccess({
+                id: user.id,
+                groupName: user.groupName,
+                name: user.name,
+                apikey: user.apiKey,
+                apiSecret: user.apiSecret
+            });
+        }
+        return Common_1.apiFailure(`Maybe user with userId(${data.userId}) not exists`);
     });
 }
 function add(data) {

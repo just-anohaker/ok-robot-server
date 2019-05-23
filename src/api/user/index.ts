@@ -46,13 +46,17 @@ async function get(data: MarkedMap): Promise<APIReturn> {
     }
 
     const user = getUserProxy().get(data.userId);
-    return apiSuccess(user === undefined ? undefined : {
-        id: user.id,
-        groupName: user.groupName,
-        name: user.name,
-        apikey: user.apiKey,
-        apiSecret: user.apiSecret
-    });
+    if (user) {
+        return apiSuccess({
+            id: user.id,
+            groupName: user.groupName,
+            name: user.name,
+            apikey: user.apiKey,
+            apiSecret: user.apiSecret
+        });
+    }
+
+    return apiFailure(`Maybe user with userId(${data.userId}) not exists`);
 }
 
 async function add(data: MarkedMap): Promise<APIReturn> {
