@@ -1,6 +1,9 @@
 "use strict";
 // import UserProxy from "./app/proxies/User";
 // import UserMediator from "./app/mediatores/User";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 var Facade_1 = require("./patterns/facade/Facade");
 exports.Facade = Facade_1.default;
@@ -21,3 +24,5 @@ exports.UserMediator = UserMediator_1.default;
 // /> proxy
 var UserProxy_1 = require("./app/proxies/UserProxy");
 exports.UserProxy = UserProxy_1.default;
+// /> api
+__export(require("./api"));

@@ -14,3 +14,4 @@ export { default as Notification } from "./patterns/observer/Notification";
 export { default as UserMediator } from "./app/mediatores/UserMediator";
 export { default as UserProxy } from "./app/proxies/UserProxy";
 export { IAccount, IUpdateAccount } from "./app/proxies/UserProxy";
+export * from "./api";

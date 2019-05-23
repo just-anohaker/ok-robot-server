@@ -37,3 +37,6 @@ export { default as UserMediator } from "./app/mediatores/UserMediator";
 // /> proxy
 export { default as UserProxy } from "./app/proxies/UserProxy";
 export { IAccount, IUpdateAccount } from "./app/proxies/UserProxy";
+
+// /> api
+export * from "./api";

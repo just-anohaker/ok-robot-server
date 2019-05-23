@@ -1,0 +1,133 @@
+import Facade from "../../patterns/facade/Facade";
+import UserProxy from "../../app/proxies/UserProxy";
+import UserMediator from "../../app/mediatores/UserMediator";
+
+import { APIReturn, MarkedMap, apiSuccess, apiFailure } from "../Common";
+import Schema from "./Schema";
+
+const getUserProxy: { (): UserProxy } = ((): { (): UserProxy } => {
+    let _userProxy: UserProxy | undefined = undefined;
+
+    return (): UserProxy => {
+        if (_userProxy === undefined) {
+            _userProxy = Facade.getInstance().retrieveProxy(UserProxy.NAME, UserProxy)!
+        }
+        return _userProxy!;
+    }
+})();
+
+const getUserMediator: { (): UserMediator } = ((): { (): UserMediator } => {
+    let _userMediator: UserMediator | undefined = undefined;
+
+    return (): UserMediator => {
+        if (_userMediator === undefined) {
+            _userMediator = Facade.getInstance().retrieveMediator(UserMediator.NAME, UserMediator)!
+        }
+        return _userMediator!
+    }
+})();
+
+async function getAll(): Promise<APIReturn> {
+    const allUsers = getUserMediator().getAllUsers();
+    return apiSuccess(allUsers.map(value => ({
+        id: value.id,
+        groupName: value.groupName,
+        name: value.name,
+        apiKey: value.apiKey,
+        apiSecret: value.apiSecret
+
+    })));
+}
+
+async function get(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateGetUser(data || {});
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
+
+    const user = getUserProxy().get(data.userId);
+    return apiSuccess(user === undefined ? undefined : {
+        id: user.id,
+        groupName: user.groupName,
+        name: user.name,
+        apikey: user.apiKey,
+        apiSecret: user.apiSecret
+    });
+}
+
+async function add(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateAddUser(data || {});
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
+
+    const newUser = getUserProxy().add(data.groupName, {
+        name: data.name,
+        apiKey: data.apiKey,
+        apiSecret: data.apiSecret
+    });
+    if (newUser) {
+        return apiSuccess({
+            id: newUser.id,
+            groupName: newUser.groupName,
+            name: newUser.name,
+            apiKey: newUser.apiKey,
+            apiSecret: newUser.apiSecret
+        });
+    }
+
+    return apiFailure(`Maybe user with name(${data.name}) and group(${data.groupName}) exists`);
+}
+
+async function update(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateUpdateUser(data);
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
+
+    const updateUser = getUserProxy().update(data.userId, {
+        groupName: data.options.groupName,
+        name: data.options.name,
+        apiKey: data.options.apiKey,
+        apiSecret: data.options.apiSecret
+    });
+    if (updateUser) {
+        return apiSuccess({
+            id: updateUser.id,
+            groupName: updateUser.groupName,
+            name: updateUser.name,
+            apiKey: updateUser.apiKey,
+            apiSecret: updateUser.apiSecret
+        });
+    }
+
+    return apiFailure(`Maybe user with userId(${data.userId}) not exists`);
+}
+
+async function remove(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateRemoveUser(data);
+    if (validation !== undefined) {
+        return apiSuccess(validation);
+    }
+
+    const removeUser = getUserProxy().remove(data.userId);
+    if (removeUser) {
+        return apiSuccess({
+            id: removeUser.id,
+            groupName: removeUser.groupName,
+            name: removeUser.name,
+            apiKey: removeUser.apiKey,
+            apiSecret: removeUser.apiSecret
+        });
+    }
+
+    return apiFailure(`Maybe user with userId(${data.userId}) not exists`);
+}
+
+export default {
+    getAll,
+    get,
+    add,
+    remove,
+    update
+};

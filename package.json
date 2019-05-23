@@ -4,6 +4,7 @@
   "description": "",
   "main": "./dist/index.js",
   "dependencies": {
+    "ajv": "^6.10.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
