@@ -2,14 +2,27 @@ import { UserProxy } from "../../../src";
 
 test("user add function", () => {
     const proxy = new UserProxy();
-    expect(proxy.add("A", { name: "hello", apiKey: "hello api key", apiSecret: "hello api secret" }) !== undefined).toBe(true);
-    expect(proxy.Groups.length).toBe(1);
-    expect(proxy.Groups[0].name).toBe("A");
-    expect(proxy.Groups[0].accounts.length).toBe(1);
+    const newUser = proxy.add("A", { name: "hello", apiKey: "hello api key", apiSecret: "hello api secret" });
+    expect(newUser !== undefined).toBe(true);
+    let getUser = proxy.get(newUser!.id!);
+    expect(getUser !== undefined).toBe(true);
+    expect(getUser!.id === newUser!.id).toBe(true);
+    expect(getUser!.groupName === newUser!.groupName).toBe(true);
+    expect(getUser!.name === newUser!.name).toBe(true);
+    expect(getUser!.apiKey === newUser!.apiKey).toBe(true);
+    expect(getUser!.apiSecret === newUser!.apiSecret).toBe(true);
+    expect(proxy.AllAccounts.length).toBe(1);
 
-    expect(proxy.add("A", { name: "hello", apiKey: "hello new api key", apiSecret: "hello new api secret" }) === undefined).toBe(true);
-    expect(proxy.Groups.length).toBe(1);
-    expect(proxy.Groups[0].accounts[0].apiKey === "hello api key").toBe(true);
+    const anotherNewUser = proxy.add("A", { name: "hello", apiKey: "hello new api key", apiSecret: "hello new api secret" });
+    expect(anotherNewUser === undefined).toBe(true);
+    getUser = proxy.get(newUser!.id!);
+    expect(getUser !== undefined).toBe(true);
+    expect(getUser!.id === newUser!.id).toBe(true);
+    expect(getUser!.groupName === newUser!.groupName).toBe(true);
+    expect(getUser!.name === newUser!.name).toBe(true);
+    expect(getUser!.apiKey === newUser!.apiKey).toBe(true);
+    expect(getUser!.apiSecret === newUser!.apiSecret).toBe(true);
+    expect(proxy.AllAccounts.length).toBe(1);
 });
 
 test("user remove function", () => {
@@ -37,19 +50,9 @@ test("user update function", () => {
     expect(initAccount !== undefined).toBe(true);
     const newAccount = proxy.add("A", { name: "hello", apiKey: "hello api key", apiSecret: "hello api secret" });
     expect(newAccount !== undefined).toBe(true);
-    expect(proxy.query("hello").length === 2).toBe(true);
-    expect(proxy.query("hello", "A").length === 1).toBe(true);
-    expect(proxy.query("hello", "B").length === 1).toBe(true);
-    expect(proxy.query("world", "C").length === 0).toBe(true);
-    expect(proxy.query("world").length === 0).toBe(true);
 
     let updateResult = proxy.update(newAccount!.id!, { groupName: "B" });
     expect(updateResult === undefined).toBe(true);
-    expect(proxy.query("hello").length === 2).toBe(true);
-    expect(proxy.query("hello", "A").length === 1).toBe(true);
-    expect(proxy.query("hello", "B").length === 1).toBe(true);
-    expect(proxy.query("world", "C").length === 0).toBe(true);
-    expect(proxy.query("world").length === 0).toBe(true);
     updateResult = proxy.get(newAccount!.id!);
     expect(updateResult !== undefined).toBe(true);
     expect(updateResult!.name === "hello").toBe(true);
@@ -59,21 +62,9 @@ test("user update function", () => {
     expect(updateResult !== undefined).toBe(true);
     expect(updateResult!.name === "world").toBe(true);
     expect(updateResult!.groupName === "B").toBe(true);
-    expect(proxy.query("hello").length === 1).toBe(true);
-    expect(proxy.query("hello", "A").length === 0).toBe(true);
-    expect(proxy.query("hello", "B").length === 1).toBe(true);
-    expect(proxy.query("world", "B").length === 1).toBe(true);
-    expect(proxy.query("world", "C").length === 0).toBe(true);
-    expect(proxy.query("world").length === 1).toBe(true);
 
     updateResult = proxy.update(newAccount!.id!, { groupName: "C", name: "hello" });
     expect(updateResult !== undefined).toBe(true);
     expect(updateResult!.groupName === "C").toBe(true);
     expect(updateResult!.name === "hello").toBe(true);
-    expect(proxy.query("hello").length === 2).toBe(true);
-    expect(proxy.query("hello", "A").length === 0).toBe(true);
-    expect(proxy.query("hello", "B").length === 1).toBe(true);
-    expect(proxy.query("world", "B").length === 0).toBe(true);
-    expect(proxy.query("hello", "C").length === 1).toBe(true);
-    expect(proxy.query("world").length === 0).toBe(true);
 });

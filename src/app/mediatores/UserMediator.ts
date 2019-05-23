@@ -1,7 +1,6 @@
 import Mediator from "../../patterns/mediator/Mediator";
 
 import UserProxy, { IAccount } from "../proxies/UserProxy";
-import { MaybeUndefined } from "../../base/Common";
 
 class UserMediator extends Mediator {
     static NAME: string = "MEDIATOR_USER";
@@ -20,14 +19,12 @@ class UserMediator extends Mediator {
 
     public getAllUsers(): IAccount[] {
         this._checkProxy();
-        const userGroup = this._userProxy!.Groups;
-        let result: IAccount[] = [];
-        if (userGroup) {
-            userGroup.forEach(group => {
-                group.accounts.forEach(account => result.push(account));
-            });
-        }
-        return result;
+        const allUsers = this._userProxy!.AllAccounts;
+        allUsers.sort((a: IAccount, b: IAccount): number => {
+            return a > b ? -1 : (a < b ? 1 : 0);
+        });
+
+        return allUsers;
     }
 
 }

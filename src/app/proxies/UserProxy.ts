@@ -11,20 +11,8 @@ export interface IAccount {
     apiSecret: string;
 }
 
-export interface IGroup {
-    name: string;
-    accounts: IAccount[];
-}
-
 export interface IUpdateAccount {
-    id?: string;
     groupName?: string;
-    name?: string;
-    apiKey?: string;
-    apiSecret?: string;
-}
-
-export interface IQueryOptions {
     name?: string;
     apiKey?: string;
     apiSecret?: string;
@@ -33,161 +21,121 @@ export interface IQueryOptions {
 class UserProxy extends Proxy {
     static readonly NAME: string = "PROXY_USER";
 
-    private userGroup: IGroup[];
     private userMap: Map<string, IAccount>;
 
     constructor() {
         super(UserProxy.NAME);
 
-        this.userGroup = [];
         this.userMap = new Map<string, IAccount>();
     }
 
-    get GroupNames(): string[] {
-        const names: string[] = [];
-        this.userGroup.forEach(value => names.push(value.name));
-        return names;
-    }
+    get AllAccounts(): IAccount[] {
+        // const userIds: string[] = [];
+        // for (let id of this.userMap.keys()) {
+        //     userIds.push(id);
+        // }
+        // userIds.sort((a: string, b: string): number => {
+        //     return a > b ? 1 : (a < b ? -1 : 0);
+        // });
 
-    get AccountNames(): string[] {
-        const accountNames: string[] = [];
-        this.userGroup.forEach(value => {
-            value.accounts.forEach(val => accountNames.push(val.name));
-        });
-        return accountNames;
-    }
-
-    get Groups(): IGroup[] {
-        const results: IGroup[] = [];
-        // console.log("groups:", JSON.stringify(this.userGroup));
-        this.userGroup.forEach(value => results.push(Object.assign({}, value)));
-        return results;
+        // const result: IAccount[] = [];
+        // for (let userId of userIds) {
+        //     result.push(Object.assign({}, this.userMap.get(userId)!));
+        // }
+        // return result;
+        const result: IAccount[] = [];
+        this.userMap.forEach(value => result.push(Object.assign({}, value)));
+        return result;
     }
 
     add(groupName: string, account: IAccount): MaybeUndefined<IAccount> {
-        const group = this.getGroup(groupName, true)!;
-        if (group.accounts.some(value => value.name === account.name)) {
+        if (this.isNameInGroup(account.name, groupName)) {
             return undefined;
         }
+
         account.groupName = groupName;
         account.id = uuid.v1();
-        group.accounts.push(account);
-        this.insertAccount(account);
+        this.userMap.set(account.id, account);
         return Object.assign({}, account);
     }
 
     remove(userId: string): MaybeUndefined<IAccount> {
-        if (!this.hasUser(userId)) {
+        if (!this.isUserExists(userId)) {
             return undefined;
         }
-
-        const account = this.userMap.get(userId)!;
+        const removeUser = this.userMap.get(userId)!;
         this.userMap.delete(userId);
-        this.deleteUserInGroup(userId, account.groupName!);
-
-        return Object.assign({}, account);
+        return Object.assign({}, removeUser);
     }
 
     update(userId: string, updateData: IUpdateAccount): MaybeUndefined<IAccount> {
-        if (!this.hasUser(userId)) {
+        if (!this.isUserExists(userId)) {
             return undefined;
         }
 
-        const account = this.userMap.get(userId)!;
-        const newAccount = Object.assign({}, account);
+        let changed = false;
+        const newAccount = Object.assign({}, this.userMap.get(userId)!);
         if (updateData.name && newAccount.name !== updateData.name) {
             newAccount.name = updateData.name!;
+            changed = true;
         }
         if (updateData.apiKey && newAccount.apiKey !== updateData.apiKey) {
             newAccount.apiKey = updateData.apiKey;
+            changed = true;
         }
         if (updateData.apiSecret && newAccount.apiSecret !== updateData.apiSecret) {
             newAccount.apiSecret = updateData.apiSecret;
+            changed = true;
         }
         if (updateData.groupName && newAccount.groupName !== updateData.groupName) {
-            // change group
-            newAccount.groupName = updateData.groupName;
-            const newGroup = this.getGroup(updateData.groupName!, true)!;
-            if (newGroup.accounts.some(value => value.name === newAccount.name)) {
+            if (this.isNameInGroup(newAccount.name, updateData.groupName!)) {
                 return undefined;
             }
-            this.deleteUserInGroup(userId, account.groupName!);
-            newGroup.accounts.push(newAccount);
+            newAccount.groupName = updateData.groupName;
+            changed = true;
         }
-        this.userMap.set(newAccount.id!, newAccount);
+
+        if (changed) {
+            this.userMap.set(userId, newAccount);
+        }
 
         return Object.assign({}, newAccount);
     }
 
     get(userId: string): MaybeUndefined<IAccount> {
-        if (!this.hasUser(userId)) {
+        if (!this.isUserExists(userId)) {
             return undefined;
         }
-        return this.userMap.get(userId)!;
+
+        return this.userMap.get(userId)!
     }
 
-    query(accountName: string, groupName?: string): IAccount[] {
-        let queryResult: IAccount[] = [];
-        let queryGroups: IGroup[] = this.userGroup;
-        if (groupName != null) {
-            if (!this.hasGroup(groupName!)) {
-                return queryResult;
-            }
-
-            queryGroups = [this.getGroup(groupName!)!]
-        }
-
-        queryGroups.forEach(group => {
-            group.accounts.forEach(account => {
-                if (account.name === accountName) {
-                    queryResult.push(Object.assign({}, account));
-                }
-            });
-        });
-
-        return queryResult;
-    }
-
-    private insertAccount(account: IAccount): void {
-        this.userMap.set(account.id!, account);
-    }
-
-    private hasGroup(groupName: string): boolean {
-        return this.userGroup.some(group => group.name === groupName);
-    }
-
-    private getGroup(groupName: string, build: boolean = false): MaybeUndefined<IGroup> {
-        const filter = this.userGroup.filter(group => group.name === groupName);
-        if (filter.length <= 0) {
-            if (build) {
-                const newGroup = { name: groupName, accounts: [] };
-                this.userGroup.push(newGroup);
-                return newGroup;
-            }
-            return undefined;
-        }
-        return filter[0];
-    }
-
-    private deleteUserInGroup(userId: string, groupName: string): boolean {
-        const group = this.getGroup(groupName);
-        if (group) {
-            const findIdx = group.accounts.findIndex(value => value.id === userId);
-            if (findIdx === -1) {
-                return false;
-            }
-
-            group.accounts.splice(findIdx, 1);
-            if (group.accounts.length === 0) {
-                this.userGroup.splice(this.userGroup.findIndex(value => value.name === group.name), 1);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private hasUser(userId: string): boolean {
+    private isUserExists(userId: string): boolean {
         return this.userMap.has(userId);
+    }
+
+    private isUserInGroup(userId: string, groupName: string): boolean {
+        let found: boolean = false;
+        for (let userId of this.userMap.keys()) {
+            const user = this.userMap.get(userId)!;
+            if (user.groupName === groupName && user.id === userId) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
+    private isNameInGroup(userName: string, groupName: string): boolean {
+        let found: boolean = false;
+        for (let userId of this.userMap.keys()) {
+            const user = this.userMap.get(userId)!;
+            if (user.groupName === groupName && user.name === userName) {
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 }
 
