@@ -113,8 +113,8 @@ class UserProxy extends Proxy {
             }
             this.deleteUserInGroup(userId, account.groupName!);
             newGroup.accounts.push(newAccount);
-            this.userMap.set(newAccount.id!, newAccount);
         }
+        this.userMap.set(newAccount.id!, newAccount);
 
         return Object.assign({}, newAccount);
     }
