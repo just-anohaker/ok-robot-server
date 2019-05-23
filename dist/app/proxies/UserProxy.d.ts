@@ -18,6 +18,11 @@ export interface IUpdateAccount {
     apiKey?: string;
     apiSecret?: string;
 }
+export interface IQueryOptions {
+    name?: string;
+    apiKey?: string;
+    apiSecret?: string;
+}
 declare class UserProxy extends Proxy {
     static readonly NAME: string;
     private userGroup;

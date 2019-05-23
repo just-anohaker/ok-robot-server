@@ -59,7 +59,7 @@ class UserProxy extends Proxy_1.default {
             newAccount.name = updateData.name;
         }
         if (updateData.apiKey && newAccount.apiKey !== updateData.apiKey) {
-            newAccount.name = updateData.apiKey;
+            newAccount.apiKey = updateData.apiKey;
         }
         if (updateData.apiSecret && newAccount.apiSecret !== updateData.apiSecret) {
             newAccount.apiSecret = updateData.apiSecret;

@@ -10,5 +10,6 @@ export { default as Proxy } from "./patterns/proxy/Proxy";
 export { default as Observer } from "./patterns/observer/Observer";
 export { default as Notifier } from "./patterns/observer/Notifier";
 export { default as Notification } from "./patterns/observer/Notification";
-export { default as UserMediator } from "./app/mediatores/User";
-export { default as UserProxy } from "./app/proxies/User";
+export { default as UserMediator } from "./app/mediatores/UserMediator";
+export { default as UserProxy } from "./app/proxies/UserProxy";
+export { IAccount, IGroup, IQueryOptions, IUpdateAccount } from "./app/proxies/UserProxy";
