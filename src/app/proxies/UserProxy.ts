@@ -24,6 +24,12 @@ export interface IUpdateAccount {
     apiSecret?: string;
 }
 
+export interface IQueryOptions {
+    name?: string;
+    apiKey?: string;
+    apiSecret?: string;
+}
+
 class UserProxy extends Proxy {
     static readonly NAME: string = "PROXY_USER";
 
@@ -93,7 +99,7 @@ class UserProxy extends Proxy {
             newAccount.name = updateData.name!;
         }
         if (updateData.apiKey && newAccount.apiKey !== updateData.apiKey) {
-            newAccount.name = updateData.apiKey;
+            newAccount.apiKey = updateData.apiKey;
         }
         if (updateData.apiSecret && newAccount.apiSecret !== updateData.apiSecret) {
             newAccount.apiSecret = updateData.apiSecret;
