@@ -62,3 +62,6 @@ typings/
 
 # package-lock.json
 package-lock.json
+
+# OKExPreference dir ignore
+OKExPreference
