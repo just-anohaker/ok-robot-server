@@ -10,6 +10,7 @@ import IObserver from "../../interfaces/IObserver";
 import INotification from "../../interfaces/INotification";
 import Notification from "../../patterns/observer/Notification";
 import { MaybeUndefined } from "../../base/Common";
+import Database from "../../sqlite3";
 
 class Facade implements IFacade {
     private static _instance: IFacade;
@@ -31,6 +32,7 @@ class Facade implements IFacade {
     }
 
     private initializeFacade(): void {
+        Database.getInstance();
         this.initializeModel();
         this.initializeController();
     }

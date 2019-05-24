@@ -1,10 +1,10 @@
 "use strict";
-// import UserProxy from "./app/proxies/User";
-// import UserMediator from "./app/mediatores/User";
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
+var Platform_1 = require("./base/Platform");
+exports.Platform = Platform_1.default;
 var Facade_1 = require("./patterns/facade/Facade");
 exports.Facade = Facade_1.default;
 var Mediator_1 = require("./patterns/mediator/Mediator");
@@ -17,7 +17,7 @@ var Notifier_1 = require("./patterns/observer/Notifier");
 exports.Notifier = Notifier_1.default;
 var Notification_1 = require("./patterns/observer/Notification");
 exports.Notification = Notification_1.default;
-// / user custom
+// /> factor service logic
 // /> mediator
 var UserMediator_1 = require("./app/mediatores/UserMediator");
 exports.UserMediator = UserMediator_1.default;

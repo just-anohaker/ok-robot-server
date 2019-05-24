@@ -1,0 +1,43 @@
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const path = __importStar(require("path"));
+const Sqlite3 = require("better-sqlite3");
+const Platform_1 = __importDefault(require("../base/Platform"));
+const tables_1 = require("./tables");
+class Database {
+    static getInstance() {
+        if (Database._instance === undefined) {
+            Database._instance = new Database();
+        }
+        return Database._instance;
+    }
+    constructor() {
+        const userdataDir = Platform_1.default.getInstance().getUserDataDir();
+        const dbFilePath = path.join(userdataDir, "okex.sqlite");
+        console.log(`[Database] create sqlite3 database @(${dbFilePath})`);
+        this._sqlite3Handler = new Sqlite3(dbFilePath, { verbose: console.log });
+        this.initOKExDatabase();
+    }
+    get Sqlite3Handler() {
+        return this._sqlite3Handler;
+    }
+    initOKExDatabase() {
+        tables_1.sqlTables.forEach(table => {
+            this._sqlite3Handler.exec(table);
+        });
+        tables_1.sqlAfterTables.forEach(sql => {
+            this._sqlite3Handler.exec(sql);
+        });
+    }
+}
+exports.default = Database;

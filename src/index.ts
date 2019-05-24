@@ -1,21 +1,8 @@
-// import UserProxy from "./app/proxies/User";
-// import UserMediator from "./app/mediatores/User";
-
-// import Facade from "./patterns/facade/Facade";
-
-// const facade = Facade.getInstance();
-// // /> regiter proxy
-// facade.registerProxy(new UserProxy());
-
-
-// // /> register mediator
-// facade.registerMediator(new UserMediator());
-
-
-
 // /> exports
 export * from "./base/Common";
+export { default as Platform, IPlatform } from "./base/Platform";
 
+// /> interfaces
 export { default as IFacade } from "./interfaces/IFacade";
 export { default as IMediator } from "./interfaces/IMediator";
 export { default as IProxy } from "./interfaces/IProxy";
@@ -30,10 +17,9 @@ export { default as Observer } from "./patterns/observer/Observer";
 export { default as Notifier } from "./patterns/observer/Notifier";
 export { default as Notification } from "./patterns/observer/Notification";
 
-// / user custom
+// /> factor service logic
 // /> mediator
 export { default as UserMediator } from "./app/mediatores/UserMediator";
-
 // /> proxy
 export { default as UserProxy } from "./app/proxies/UserProxy";
 export { IAccount, IUpdateAccount } from "./app/proxies/UserProxy";

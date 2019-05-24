@@ -1,4 +1,5 @@
 export * from "./base/Common";
+export { default as Platform, IPlatform } from "./base/Platform";
 export { default as IFacade } from "./interfaces/IFacade";
 export { default as IMediator } from "./interfaces/IMediator";
 export { default as IProxy } from "./interfaces/IProxy";

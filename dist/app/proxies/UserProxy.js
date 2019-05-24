@@ -5,24 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = __importDefault(require("uuid"));
 const Proxy_1 = __importDefault(require("../../patterns/proxy/Proxy"));
+const sqlite3_1 = __importDefault(require("../../sqlite3"));
+const DbHelper_1 = __importDefault(require("./DbHelper"));
 class UserProxy extends Proxy_1.default {
     constructor() {
         super(UserProxy.NAME);
         this.userMap = new Map();
+        this.dbHelper = new DbHelper_1.default(sqlite3_1.default.getInstance().Sqlite3Handler);
+    }
+    onRegister() {
+        const dbUsers = this.dbHelper.getAllValidUsers();
+        dbUsers.forEach(account => {
+            this.userMap.set(account.id, account);
+        });
     }
     get AllAccounts() {
-        // const userIds: string[] = [];
-        // for (let id of this.userMap.keys()) {
-        //     userIds.push(id);
-        // }
-        // userIds.sort((a: string, b: string): number => {
-        //     return a > b ? 1 : (a < b ? -1 : 0);
-        // });
-        // const result: IAccount[] = [];
-        // for (let userId of userIds) {
-        //     result.push(Object.assign({}, this.userMap.get(userId)!));
-        // }
-        // return result;
         const result = [];
         this.userMap.forEach(value => result.push(Object.assign({}, value)));
         return result;
@@ -33,16 +30,22 @@ class UserProxy extends Proxy_1.default {
         }
         account.groupName = groupName;
         account.id = uuid_1.default.v1();
-        this.userMap.set(account.id, account);
-        return Object.assign({}, account);
+        if (this.dbHelper.add(account)) {
+            this.userMap.set(account.id, account);
+            return Object.assign({}, account);
+        }
+        return undefined;
     }
     remove(userId) {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
         const removeUser = this.userMap.get(userId);
-        this.userMap.delete(userId);
-        return Object.assign({}, removeUser);
+        if (this.dbHelper.remove(userId)) {
+            this.userMap.delete(userId);
+            return Object.assign({}, removeUser);
+        }
+        return undefined;
     }
     update(userId, updateData) {
         if (!this.isUserExists(userId)) {
@@ -69,10 +72,11 @@ class UserProxy extends Proxy_1.default {
             newAccount.groupName = updateData.groupName;
             changed = true;
         }
-        if (changed) {
+        if (changed && this.dbHelper.update(userId, newAccount)) {
             this.userMap.set(userId, newAccount);
+            return Object.assign({}, newAccount);
         }
-        return Object.assign({}, newAccount);
+        return undefined;
     }
     get(userId) {
         if (!this.isUserExists(userId)) {

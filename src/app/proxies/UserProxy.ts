@@ -2,47 +2,31 @@ import uuid from "uuid";
 
 import Proxy from "../../patterns/proxy/Proxy";
 import { MaybeUndefined } from "../../base/Common";
-
-export interface IAccount {
-    id?: string;
-    groupName?: string;
-    name: string;
-    apiKey: string;
-    apiSecret: string;
-}
-
-export interface IUpdateAccount {
-    groupName?: string;
-    name?: string;
-    apiKey?: string;
-    apiSecret?: string;
-}
+import { IAccount, IUpdateAccount } from "./Common";
+import Database from "../../sqlite3";
+import DbHelper from "./DbHelper";
 
 class UserProxy extends Proxy {
     static readonly NAME: string = "PROXY_USER";
 
     private userMap: Map<string, IAccount>;
 
+    private dbHelper: DbHelper;
     constructor() {
         super(UserProxy.NAME);
 
         this.userMap = new Map<string, IAccount>();
+        this.dbHelper = new DbHelper(Database.getInstance().Sqlite3Handler);
+    }
+
+    onRegister() {
+        const dbUsers = this.dbHelper.getAllValidUsers();
+        dbUsers.forEach(account => {
+            this.userMap.set(account.id!, account);
+        });
     }
 
     get AllAccounts(): IAccount[] {
-        // const userIds: string[] = [];
-        // for (let id of this.userMap.keys()) {
-        //     userIds.push(id);
-        // }
-        // userIds.sort((a: string, b: string): number => {
-        //     return a > b ? 1 : (a < b ? -1 : 0);
-        // });
-
-        // const result: IAccount[] = [];
-        // for (let userId of userIds) {
-        //     result.push(Object.assign({}, this.userMap.get(userId)!));
-        // }
-        // return result;
         const result: IAccount[] = [];
         this.userMap.forEach(value => result.push(Object.assign({}, value)));
         return result;
@@ -55,8 +39,11 @@ class UserProxy extends Proxy {
 
         account.groupName = groupName;
         account.id = uuid.v1();
-        this.userMap.set(account.id, account);
-        return Object.assign({}, account);
+        if (this.dbHelper.add(account)) {
+            this.userMap.set(account.id, account);
+            return Object.assign({}, account);
+        }
+        return undefined;
     }
 
     remove(userId: string): MaybeUndefined<IAccount> {
@@ -64,8 +51,11 @@ class UserProxy extends Proxy {
             return undefined;
         }
         const removeUser = this.userMap.get(userId)!;
-        this.userMap.delete(userId);
-        return Object.assign({}, removeUser);
+        if (this.dbHelper.remove(userId)) {
+            this.userMap.delete(userId);
+            return Object.assign({}, removeUser);
+        }
+        return undefined;
     }
 
     update(userId: string, updateData: IUpdateAccount): MaybeUndefined<IAccount> {
@@ -95,11 +85,13 @@ class UserProxy extends Proxy {
             changed = true;
         }
 
-        if (changed) {
+        if (changed && this.dbHelper.update(userId, newAccount)) {
             this.userMap.set(userId, newAccount);
+            return Object.assign({}, newAccount);
         }
 
-        return Object.assign({}, newAccount);
+        return undefined;
+
     }
 
     get(userId: string): MaybeUndefined<IAccount> {
@@ -140,3 +132,4 @@ class UserProxy extends Proxy {
 }
 
 export default UserProxy;
+export { IAccount, IUpdateAccount } from "./Common";

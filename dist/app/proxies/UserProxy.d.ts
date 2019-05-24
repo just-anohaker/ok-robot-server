@@ -1,22 +1,12 @@
 import Proxy from "../../patterns/proxy/Proxy";
 import { MaybeUndefined } from "../../base/Common";
-export interface IAccount {
-    id?: string;
-    groupName?: string;
-    name: string;
-    apiKey: string;
-    apiSecret: string;
-}
-export interface IUpdateAccount {
-    groupName?: string;
-    name?: string;
-    apiKey?: string;
-    apiSecret?: string;
-}
+import { IAccount, IUpdateAccount } from "./Common";
 declare class UserProxy extends Proxy {
     static readonly NAME: string;
     private userMap;
+    private dbHelper;
     constructor();
+    onRegister(): void;
     readonly AllAccounts: IAccount[];
     add(groupName: string, account: IAccount): MaybeUndefined<IAccount>;
     remove(userId: string): MaybeUndefined<IAccount>;
@@ -27,3 +17,4 @@ declare class UserProxy extends Proxy {
     private isNameInGroup;
 }
 export default UserProxy;
+export { IAccount, IUpdateAccount } from "./Common";

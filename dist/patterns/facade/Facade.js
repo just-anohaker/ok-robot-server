@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Model_1 = __importDefault(require("../../core/Model"));
 const Controller_1 = __importDefault(require("../../core/Controller"));
 const Notification_1 = __importDefault(require("../../patterns/observer/Notification"));
+const sqlite3_1 = __importDefault(require("../../sqlite3"));
 class Facade {
     static getInstance() {
         if (Facade._instance === undefined) {
@@ -18,6 +19,7 @@ class Facade {
         this.initializeFacade();
     }
     initializeFacade() {
+        sqlite3_1.default.getInstance();
         this.initializeModel();
         this.initializeController();
     }
