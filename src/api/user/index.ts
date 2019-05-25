@@ -1,34 +1,14 @@
 import Facade from "../../patterns/facade/Facade";
 import UserProxy from "../../app/proxies/UserProxy";
 import UserMediator from "../../app/mediatores/UserMediator";
+import { MarkedMap } from "../../base/Common";
 
-import { APIReturn, MarkedMap, apiSuccess, apiFailure } from "../Common";
+import { APIReturn } from "../Types";
+import { apiSuccess, apiFailure, ProxyHelper, MediatorHelper } from "../Utils";
 import Schema from "./Schema";
 
-const getUserProxy: { (): UserProxy } = ((): { (): UserProxy } => {
-    let _userProxy: UserProxy | undefined = undefined;
-
-    return (): UserProxy => {
-        if (_userProxy === undefined) {
-            _userProxy = Facade.getInstance().retrieveProxy(UserProxy.NAME, UserProxy)!
-        }
-        return _userProxy!;
-    }
-})();
-
-const getUserMediator: { (): UserMediator } = ((): { (): UserMediator } => {
-    let _userMediator: UserMediator | undefined = undefined;
-
-    return (): UserMediator => {
-        if (_userMediator === undefined) {
-            _userMediator = Facade.getInstance().retrieveMediator(UserMediator.NAME, UserMediator)!
-        }
-        return _userMediator!
-    }
-})();
-
 async function getAll(): Promise<APIReturn> {
-    const allUsers = getUserMediator().getAllUsers();
+    const allUsers = MediatorHelper.UserMediator.getAllUsers();
     return apiSuccess(allUsers.map(value => ({
         id: value.id,
         groupName: value.groupName,
@@ -45,7 +25,7 @@ async function get(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const user = getUserProxy().get(data.userId);
+    const user = ProxyHelper.UserProxy.get(data.userId);
     if (user) {
         return apiSuccess({
             id: user.id,
@@ -65,7 +45,7 @@ async function add(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const newUser = getUserProxy().add(data.groupName, {
+    const newUser = ProxyHelper.UserProxy.add(data.groupName, {
         name: data.name,
         apiKey: data.apiKey,
         apiSecret: data.apiSecret
@@ -89,7 +69,7 @@ async function update(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const updateUser = getUserProxy().update(data.userId, {
+    const updateUser = ProxyHelper.UserProxy.update(data.userId, {
         groupName: data.options.groupName,
         name: data.options.name,
         apiKey: data.options.apiKey,
@@ -114,7 +94,7 @@ async function remove(data: MarkedMap): Promise<APIReturn> {
         return apiSuccess(validation);
     }
 
-    const removeUser = getUserProxy().remove(data.userId);
+    const removeUser = ProxyHelper.UserProxy.remove(data.userId);
     if (removeUser) {
         return apiSuccess({
             id: removeUser.id,

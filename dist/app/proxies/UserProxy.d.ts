@@ -1,6 +1,6 @@
 import Proxy from "../../patterns/proxy/Proxy";
 import { MaybeUndefined } from "../../base/Common";
-import { IAccount, IUpdateAccount } from "./Common";
+import { IAccount, IUpdateAccount } from "../Types";
 declare class UserProxy extends Proxy {
     static readonly NAME: string;
     private userMap;
@@ -17,4 +17,3 @@ declare class UserProxy extends Proxy {
     private isNameInGroup;
 }
 export default UserProxy;
-export { IAccount, IUpdateAccount } from "./Common";

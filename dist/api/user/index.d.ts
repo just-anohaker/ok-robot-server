@@ -1,4 +1,5 @@
-import { APIReturn, MarkedMap } from "../Common";
+import { MarkedMap } from "../../base/Common";
+import { APIReturn } from "../Types";
 declare function getAll(): Promise<APIReturn>;
 declare function get(data: MarkedMap): Promise<APIReturn>;
 declare function add(data: MarkedMap): Promise<APIReturn>;

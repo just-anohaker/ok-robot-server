@@ -1,5 +1,5 @@
 import Mediator from "../../patterns/mediator/Mediator";
-import { IAccount } from "../proxies/UserProxy";
+import { IAccount } from "../Types";
 declare class UserMediator extends Mediator {
     static NAME: string;
     private _userProxy?;

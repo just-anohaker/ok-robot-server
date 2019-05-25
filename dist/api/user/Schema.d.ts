@@ -1,4 +1,4 @@
-import { Validation } from "../Common";
+import { Validation } from "../Types";
 declare class Schema {
     private static validator;
     static validateGetUser(body: any): Validation;

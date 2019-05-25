@@ -1,6 +1,6 @@
 import ajv = require("ajv");
 
-import { Validation } from "../Common";
+import { Validation } from "../Types";
 
 class Schema {
     private static validator: ajv.Ajv = ajv();
