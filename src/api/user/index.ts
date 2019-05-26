@@ -1,8 +1,4 @@
-import Facade from "../../patterns/facade/Facade";
-import UserProxy from "../../app/proxies/UserProxy";
-import UserMediator from "../../app/mediatores/UserMediator";
 import { MarkedMap } from "../../base/Common";
-
 import { APIReturn } from "../Types";
 import { apiSuccess, apiFailure, ProxyHelper, MediatorHelper } from "../Utils";
 import Schema from "./Schema";

@@ -21,7 +21,7 @@ class Database {
         const userdataDir = Platform.getInstance().getUserDataDir();
         const dbFilePath = path.join(userdataDir, "okex.sqlite");
         console.log(`[Database] create sqlite3 database @(${dbFilePath})`);
-        this._sqlite3Handler = new Sqlite3(dbFilePath, { verbose: console.log });
+        this._sqlite3Handler = new Sqlite3(dbFilePath, { verbose: undefined });
 
         this.initOKExDatabase();
     }

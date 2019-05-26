@@ -1,4 +1,4 @@
-export * from "./base/Common";
+export { MaybeUndefined, IndexedMap, MarkedMap, GenericType } from "./base/Common";
 export { default as Platform, IPlatform } from "./base/Platform";
 export { default as IFacade } from "./interfaces/IFacade";
 export { default as IMediator } from "./interfaces/IMediator";

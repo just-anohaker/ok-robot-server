@@ -9,14 +9,11 @@ class UserMediator extends Mediator_1.default {
     constructor() {
         super(UserMediator.NAME);
     }
-    _checkProxy() {
-        if (this._userProxy === undefined) {
-            this._userProxy = this.facade.retrieveProxy(UserProxy_1.default.NAME, UserProxy_1.default);
-        }
+    get UserProxy() {
+        return this.facade.retrieveProxy(UserProxy_1.default.NAME, UserProxy_1.default);
     }
     getAllUsers() {
-        this._checkProxy();
-        const allUsers = this._userProxy.AllAccounts;
+        const allUsers = this.UserProxy.AllAccounts;
         allUsers.sort((a, b) => {
             return a > b ? -1 : (a < b ? 1 : 0);
         });

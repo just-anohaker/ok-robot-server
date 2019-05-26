@@ -25,20 +25,14 @@ exports.apiFailure = apiFailure;
 class ProxyHelper {
     // getters
     static get UserProxy() {
-        if (ProxyHelper._userProxy === undefined) {
-            ProxyHelper._userProxy = Facade_1.default.getInstance().retrieveProxy(UserProxy_1.default.name, UserProxy_1.default);
-        }
-        return ProxyHelper._userProxy;
+        return Facade_1.default.getInstance().retrieveProxy(UserProxy_1.default.NAME, UserProxy_1.default);
     }
 }
 exports.ProxyHelper = ProxyHelper;
 class MediatorHelper {
     // getters
     static get UserMediator() {
-        if (MediatorHelper._userMediator === undefined) {
-            MediatorHelper._userMediator = Facade_1.default.getInstance().retrieveMediator(UserMediator_1.default.NAME, UserMediator_1.default);
-        }
-        return MediatorHelper._userMediator;
+        return Facade_1.default.getInstance().retrieveMediator(UserMediator_1.default.NAME, UserMediator_1.default);
     }
 }
 exports.MediatorHelper = MediatorHelper;

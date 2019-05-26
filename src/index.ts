@@ -1,5 +1,5 @@
 // /> exports
-export * from "./base/Common";
+export { MaybeUndefined, IndexedMap, MarkedMap, GenericType } from "./base/Common";
 export { default as Platform, IPlatform } from "./base/Platform";
 
 // /> interfaces
