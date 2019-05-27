@@ -119,8 +119,8 @@ class _DbHelper {
         const result = [];
         try {
             const stmt = this.handler.prepare("select * from users;");
-            const iter = stmt.iterate();
-            for (let item of iter) {
+            const queryResults = stmt.all();
+            for (let item of queryResults) {
                 result.push(this.convIAccount(item));
             }
         }
@@ -132,9 +132,9 @@ class _DbHelper {
     getAllValidUsers() {
         const result = [];
         try {
-            const stmt = this.handler.prepare("select * from users where state=1;");
-            const iter = stmt.iterate();
-            for (let item of iter) {
+            const stmt = this.handler.prepare("select * from users where state=$state;");
+            const queryResults = stmt.all({ state: 1 });
+            for (let item of queryResults) {
                 result.push(this.convIAccount(item));
             }
         }
@@ -147,9 +147,9 @@ class _DbHelper {
     getAllInvalidUsers() {
         const result = [];
         try {
-            const stmt = this.handler.prepare("select * from users where state=0;");
-            const iter = stmt.iterate();
-            for (let item of iter) {
+            const stmt = this.handler.prepare("select * from users where state=$state;");
+            const queryResults = stmt.all({ state: 0 });
+            for (let item of queryResults) {
                 result.push(this.convIAccount(item));
             }
         }
@@ -163,12 +163,16 @@ class _DbHelper {
         let success = true;
         try {
             const stmt = this.handler.prepare("update users set " +
-                `groupName='${options.groupName}', ` +
-                `name='${options.name}', ` +
-                `apiKey='${options.apiKey}', ` +
-                `apiSecret='${options.apiSecret}' ` +
-                `where id='${userId}' and state=1;`);
-            const runResult = stmt.run();
+                "groupName=$groupName, name=$name, apiKey=$apiKey, apiSecret=$apiSecret " +
+                "where id=$userId and state=$state;");
+            const runResult = stmt.run({
+                groupName: options.groupName,
+                name: options.name,
+                apiKey: options.apiKey,
+                apiSecret: options.apiSecret,
+                userId: userId,
+                state: 1
+            });
             if (runResult.changes <= 0) {
                 success = false;
             }
@@ -182,8 +186,8 @@ class _DbHelper {
     remove(userId) {
         let success = true;
         try {
-            const stmt = this.handler.prepare(`update users set state=0 where id='${userId}';`);
-            const runResult = stmt.run();
+            const stmt = this.handler.prepare("update users set state=$state where id=$userId;");
+            const runResult = stmt.run({ state: 0, userId });
             if (runResult.changes <= 0) {
                 success = false;
             }
@@ -198,8 +202,15 @@ class _DbHelper {
         let success = true;
         try {
             const stmt = this.handler.prepare("insert into users (id, groupName, name, apiKey, apiSecret, state) " +
-                `values('${newUser.id}', '${newUser.groupName}', '${newUser.name}', '${newUser.apiKey}', '${newUser.apiSecret}', 1);`);
-            const runResult = stmt.run();
+                "values($userId, $groupName, $name, $apiKey, $apiSecret, $state);");
+            const runResult = stmt.run({
+                userId: newUser.id,
+                groupName: newUser.groupName,
+                name: newUser.name,
+                apiKey: newUser.apiKey,
+                apiSecret: newUser.apiSecret,
+                state: 1
+            });
             if (runResult.changes <= 0) {
                 success = false;
             }

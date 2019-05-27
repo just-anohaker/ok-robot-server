@@ -7,7 +7,7 @@ export interface IPlatform {
 
 class NodePlatform implements IPlatform {
     getUserDataDir(): string {
-        const ownDirName = "OKExPreference";
+        const ownDirName = ".etm_okex_datas";
         const destDir = path.resolve(path.join(process.cwd(), ownDirName));
 
         if (!fs.existsSync(destDir)) {

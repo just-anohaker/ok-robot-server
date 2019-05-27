@@ -11,7 +11,7 @@ const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
 class NodePlatform {
     getUserDataDir() {
-        const ownDirName = "OKExPreference";
+        const ownDirName = ".etm_okex_datas";
         const destDir = path.resolve(path.join(process.cwd(), ownDirName));
         if (!fs.existsSync(destDir)) {
             fs.mkdirSync(destDir);

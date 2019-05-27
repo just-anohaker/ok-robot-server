@@ -32,12 +32,16 @@ class Database {
         return this._sqlite3Handler;
     }
     initOKExDatabase() {
-        tables_1.sqlTables.forEach(table => {
-            this._sqlite3Handler.exec(table);
-        });
-        tables_1.sqlAfterTables.forEach(sql => {
-            this._sqlite3Handler.exec(sql);
-        });
+        this._sqlite3Handler.transaction(() => {
+            tables_1.sqlTables.forEach(table => {
+                const stmt = this._sqlite3Handler.prepare(table);
+                stmt.run();
+            });
+            tables_1.sqlAfterTables.forEach(sql => {
+                const stmt = this._sqlite3Handler.prepare(sql);
+                stmt.run();
+            });
+        })();
     }
 }
 exports.default = Database;

@@ -31,12 +31,16 @@ class Database {
     }
 
     private initOKExDatabase() {
-        sqlTables.forEach(table => {
-            this._sqlite3Handler.exec(table);
-        });
-        sqlAfterTables.forEach(sql => {
-            this._sqlite3Handler.exec(sql);
-        });
+        this._sqlite3Handler.transaction(() => {
+            sqlTables.forEach(table => {
+                const stmt = this._sqlite3Handler.prepare(table);
+                stmt.run();
+            });
+            sqlAfterTables.forEach(sql => {
+                const stmt = this._sqlite3Handler.prepare(sql);
+                stmt.run();
+            });
+        })();
     }
 }
 
