@@ -12,3 +12,29 @@ export interface IUpdateAccount {
     readonly apiKey?: string;
     readonly apiSecret?: string;
 }
+
+
+export interface IOKexAccount {
+    name: string;
+    httpKey: string;
+    httpSecret: string;
+    passphrase:string;
+}
+
+export enum OKExAutoTradeType {
+    Both = 0,
+    OnlyBuy,
+    OnlySell
+}
+
+export interface OKExAutoTradeOptions {
+    type: OKExAutoTradeType;
+    topPrice: number;
+    bottomPrice: number;
+    intervalTime: number;
+    volumn: number
+}
+
+export const NotificationDeep = "spot/depth";
+export const NotificationTicker = "spot/ticker";
+export const NotificationOrder = "spot/order";

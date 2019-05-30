@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Facade_1 = __importDefault(require("../patterns/facade/Facade"));
 // proxies
 const UserProxy_1 = __importDefault(require("../app/proxies/UserProxy"));
+const VolumeMaker_1 = __importDefault(require("../app/proxies/VolumeMaker"));
 // mediators
 const UserMediator_1 = __importDefault(require("../app/mediatores/UserMediator"));
 function apiSuccess(result) {
@@ -26,6 +27,9 @@ class ProxyHelper {
     // getters
     static get UserProxy() {
         return Facade_1.default.getInstance().retrieveProxy(UserProxy_1.default.NAME, UserProxy_1.default);
+    }
+    static get VolumeMakerProxy() {
+        return Facade_1.default.getInstance().retrieveProxy(VolumeMaker_1.default.NAME, VolumeMaker_1.default);
     }
 }
 exports.ProxyHelper = ProxyHelper;

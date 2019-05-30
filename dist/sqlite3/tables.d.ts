@@ -1,2 +1,2 @@
 export declare const sqlTables: string[];
-export declare const sqlAfterTables: never[];
+export declare const sqlAfterTables: any[];

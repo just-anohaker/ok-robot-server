@@ -19,6 +19,8 @@ var Proxy_1 = require("./patterns/proxy/Proxy");
 exports.Proxy = Proxy_1.default;
 var Mediator_1 = require("./patterns/mediator/Mediator");
 exports.Mediator = Mediator_1.default;
+// /> factor service logic
+__export(require("./app/Types"));
 // /> mediator
 var UserMediator_1 = require("./app/mediatores/UserMediator");
 exports.UserMediator = UserMediator_1.default;

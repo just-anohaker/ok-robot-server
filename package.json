@@ -4,6 +4,7 @@
   "description": "",
   "main": "./dist/index.js",
   "dependencies": {
+    "@okfe/okex-node": "0.0.50",
     "ajv": "^6.10.0",
     "better-sqlite3": "^5.4.0",
     "uuid": "^3.3.2"
