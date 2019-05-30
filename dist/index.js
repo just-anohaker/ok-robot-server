@@ -27,5 +27,7 @@ exports.UserMediator = UserMediator_1.default;
 // /> proxy
 var UserProxy_1 = require("./app/proxies/UserProxy");
 exports.UserProxy = UserProxy_1.default;
+var VolumeMaker_1 = require("./app/proxies/VolumeMaker");
+exports.VolumeProxy = VolumeMaker_1.default;
 // /> api
 __export(require("./api"));

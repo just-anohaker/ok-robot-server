@@ -25,6 +25,7 @@ export * from "./app/Types";
 export { default as UserMediator } from "./app/mediatores/UserMediator";
 // /> proxy
 export { default as UserProxy } from "./app/proxies/UserProxy";
+export { default as VolumeProxy } from "./app/proxies/VolumeMaker";
 
 // /> api
 export * from "./api";
