@@ -1,59 +1,72 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const uuid_1 = __importDefault(require("uuid"));
-const sqlite3_1 = __importDefault(require("../../sqlite3"));
-const Proxy_1 = __importDefault(require("../../patterns/proxy/Proxy"));
-class UserProxy extends Proxy_1.default {
+import uuid from "uuid";
+import Sqlite3 = require("better-sqlite3");
+
+import Database from "../../../sqlite3";
+import Proxy from "../../../patterns/proxy/Proxy";
+import { MaybeUndefined } from "../../../base/Common";
+import { IAccount, IUpdateAccount } from "../../Types";
+
+class UserProxy extends Proxy {
+    static readonly NAME: string = "PROXY_USER";
+
+    private userMap: Map<string, IAccount>;
+
+    private dbHelper: _DbHelper;
     constructor() {
         super(UserProxy.NAME);
-        this.userMap = new Map();
-        this.dbHelper = new _DbHelper(sqlite3_1.default.getInstance().Sqlite3Handler);
+
+        this.userMap = new Map<string, IAccount>();
+        this.dbHelper = new _DbHelper(Database.getInstance().Sqlite3Handler);
     }
+
     onRegister() {
         const dbUsers = this.dbHelper.getAllValidUsers();
         dbUsers.forEach(account => {
-            this.userMap.set(account.id, account);
+            this.userMap.set(account.id!, account);
         });
     }
-    get AllAccounts() {
-        const result = [];
+
+    get AllAccounts(): IAccount[] {
+        const result: IAccount[] = [];
         this.userMap.forEach(value => result.push(Object.assign({}, value)));
         return result;
     }
-    add(groupName, account) {
+
+    add(groupName: string, account: IAccount): MaybeUndefined<IAccount> {
         if (this.isNameInGroup(account.name, groupName)) {
             return undefined;
         }
+
         account.groupName = groupName;
-        account.id = uuid_1.default.v1();
+        account.id = uuid.v1();
         if (this.dbHelper.add(account)) {
             this.userMap.set(account.id, account);
             return Object.assign({}, account);
         }
         return undefined;
     }
-    remove(userId) {
+
+    remove(userId: string): MaybeUndefined<IAccount> {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
-        const removeUser = this.userMap.get(userId);
+        const removeUser = this.userMap.get(userId)!;
         if (this.dbHelper.remove(userId)) {
             this.userMap.delete(userId);
             return Object.assign({}, removeUser);
         }
         return undefined;
     }
-    update(userId, updateData) {
+
+    update(userId: string, updateData: IUpdateAccount): MaybeUndefined<IAccount> {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
+
         let changed = false;
-        const newAccount = Object.assign({}, this.userMap.get(userId));
+        const newAccount = Object.assign({}, this.userMap.get(userId)!);
         if (updateData.name && newAccount.name !== updateData.name) {
-            newAccount.name = updateData.name;
+            newAccount.name = updateData.name!;
             changed = true;
         }
         if (updateData.apiKey && newAccount.apiKey !== updateData.apiKey) {
@@ -65,31 +78,38 @@ class UserProxy extends Proxy_1.default {
             changed = true;
         }
         if (updateData.groupName && newAccount.groupName !== updateData.groupName) {
-            if (this.isNameInGroup(newAccount.name, updateData.groupName)) {
+            if (this.isNameInGroup(newAccount.name, updateData.groupName!)) {
                 return undefined;
             }
             newAccount.groupName = updateData.groupName;
             changed = true;
         }
+
         if (changed && this.dbHelper.update(userId, newAccount)) {
             this.userMap.set(userId, newAccount);
             return Object.assign({}, newAccount);
         }
+
         return undefined;
+
     }
-    get(userId) {
+
+    get(userId: string): MaybeUndefined<IAccount> {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
-        return this.userMap.get(userId);
+
+        return this.userMap.get(userId)!
     }
-    isUserExists(userId) {
+
+    private isUserExists(userId: string): boolean {
         return this.userMap.has(userId);
     }
-    isUserInGroup(userId, groupName) {
+
+    private isUserInGroup(userId: string, groupName: string): boolean {
         let found = false;
         for (let userId of this.userMap.keys()) {
-            const user = this.userMap.get(userId);
+            const user = this.userMap.get(userId)!;
             if (user.groupName === groupName && user.id === userId) {
                 found = true;
                 break;
@@ -97,10 +117,11 @@ class UserProxy extends Proxy_1.default {
         }
         return found;
     }
-    isNameInGroup(userName, groupName) {
+
+    private isNameInGroup(userName: string, groupName: string): boolean {
         let found = false;
         for (let userId of this.userMap.keys()) {
-            const user = this.userMap.get(userId);
+            const user = this.userMap.get(userId)!;
             if (user.groupName === groupName && user.name === userName) {
                 found = true;
                 break;
@@ -109,81 +130,81 @@ class UserProxy extends Proxy_1.default {
         return found;
     }
 }
-UserProxy.NAME = "PROXY_USER";
+
 // /> helpers
 class _DbHelper {
-    constructor(handler) {
-        this.handler = handler;
-    }
-    getAllUsers() {
-        const result = [];
+    constructor(private handler: Sqlite3.Database) { }
+
+    getAllUsers(): IAccount[] {
+        const result: IAccount[] = [];
         try {
             const stmt = this.handler.prepare("select * from users;");
             const queryResults = stmt.all();
             for (let item of queryResults) {
                 result.push(this.convIAccount(item));
             }
-        }
-        catch (error) {
+        } catch (error) {
             console.log("[DbHelper.getAllUsers] ", error);
         }
         return result;
     }
-    getAllValidUsers() {
-        const result = [];
+
+    getAllValidUsers(): IAccount[] {
+        const result: IAccount[] = [];
         try {
             const stmt = this.handler.prepare("select * from users where state=$state;");
             const queryResults = stmt.all({ state: 1 });
             for (let item of queryResults) {
                 result.push(this.convIAccount(item));
             }
-        }
-        catch (error) {
+        } catch (error) {
             // TODO
             console.log("[DbHelper.getAllValidUsers] ", error);
         }
         return result;
     }
-    getAllInvalidUsers() {
-        const result = [];
+
+    getAllInvalidUsers(): IAccount[] {
+        const result: IAccount[] = [];
         try {
             const stmt = this.handler.prepare("select * from users where state=$state;");
             const queryResults = stmt.all({ state: 0 });
             for (let item of queryResults) {
                 result.push(this.convIAccount(item));
             }
-        }
-        catch (error) {
+        } catch (error) {
             // TODO
             console.log("[DbHelper.getAllInvalidUsers] ", error);
         }
         return result;
     }
-    update(userId, options) {
+
+    update(userId: string, options: IUpdateAccount): boolean {
         let success = true;
         try {
             const stmt = this.handler.prepare("update users set " +
                 "groupName=$groupName, name=$name, apiKey=$apiKey, apiSecret=$apiSecret " +
-                "where id=$userId and state=$state;");
-            const runResult = stmt.run({
-                groupName: options.groupName,
-                name: options.name,
-                apiKey: options.apiKey,
-                apiSecret: options.apiSecret,
+                "where id=$userId and state=$state;"
+            );
+            const runResult: Sqlite3.RunResult = stmt.run({
+                groupName: options.groupName!,
+                name: options.name!,
+                apiKey: options.apiKey!,
+                apiSecret: options.apiSecret!,
                 userId: userId,
                 state: 1
             });
             if (runResult.changes <= 0) {
                 success = false;
             }
-        }
-        catch (error) {
+        } catch (error) {
             success = false;
             console.log("[DbHelper.update] ", error);
         }
         return success;
     }
-    remove(userId) {
+
+    remove(userId: string): boolean {
         let success = true;
         try {
             const stmt = this.handler.prepare("update users set state=$state where id=$userId;");
@@ -191,21 +212,21 @@ class _DbHelper {
             if (runResult.changes <= 0) {
                 success = false;
             }
-        }
-        catch (error) {
+        } catch (error) {
             success = false;
             console.log("[DbHelper.remove] ", error);
         }
         return success;
     }
-    add(newUser) {
+
+    add(newUser: IAccount): boolean {
         let success = true;
         try {
             const stmt = this.handler.prepare("insert into users (id, groupName, name, apiKey, apiSecret, state) " +
                 "values($userId, $groupName, $name, $apiKey, $apiSecret, $state);");
             const runResult = stmt.run({
-                userId: newUser.id,
-                groupName: newUser.groupName,
+                userId: newUser.id!,
+                groupName: newUser.groupName!,
                 name: newUser.name,
                 apiKey: newUser.apiKey,
                 apiSecret: newUser.apiSecret,
@@ -214,21 +235,22 @@ class _DbHelper {
             if (runResult.changes <= 0) {
                 success = false;
             }
-        }
-        catch (error) {
+        } catch (error) {
             success = false;
             console.log("[DbHelper.add] ", error);
         }
         return success;
     }
-    convIAccount(data) {
+
+    private convIAccount(data: any): IAccount {
         return {
-            id: data.id,
-            groupName: data.groupName,
-            name: data.name,
-            apiKey: data.apiKey,
-            apiSecret: data.apiSecret
+            id: data.id as string,
+            groupName: data.groupName as string,
+            name: data.name as string,
+            apiKey: data.apiKey as string,
+            apiSecret: data.apiSecret as string
         };
     }
 }
-exports.default = UserProxy;
+
+export default UserProxy;

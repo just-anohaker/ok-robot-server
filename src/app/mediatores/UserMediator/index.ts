@@ -1,6 +1,6 @@
-import Mediator from "../../patterns/mediator/Mediator";
-import UserProxy from "../proxies/UserProxy";
-import { IAccount } from "../Types";
+import Mediator from "../../../patterns/mediator/Mediator";
+import UserProxy from "../../proxies/UserProxy";
+import { IAccount } from "../../Types";
 
 class UserMediator extends Mediator {
     static NAME: string = "MEDIATOR_USER";

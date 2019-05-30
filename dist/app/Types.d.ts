@@ -6,8 +6,8 @@ export interface IAccount {
     apiSecret: string;
 }
 export interface IUpdateAccount {
-    groupName?: string;
-    name?: string;
-    apiKey?: string;
-    apiSecret?: string;
+    readonly groupName?: string;
+    readonly name?: string;
+    readonly apiKey?: string;
+    readonly apiSecret?: string;
 }

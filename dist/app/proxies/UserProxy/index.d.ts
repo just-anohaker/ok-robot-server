@@ -1,6 +1,6 @@
-import Proxy from "../../patterns/proxy/Proxy";
-import { MaybeUndefined } from "../../base/Common";
-import { IAccount, IUpdateAccount } from "../Types";
+import Proxy from "../../../patterns/proxy/Proxy";
+import { MaybeUndefined } from "../../../base/Common";
+import { IAccount, IUpdateAccount } from "../../Types";
 declare class UserProxy extends Proxy {
     static readonly NAME: string;
     private userMap;
