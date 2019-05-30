@@ -17,7 +17,6 @@ class VolumeMakerProxy extends Proxy {
 
     constructor() {
         super(VolumeMakerProxy.NAME);
-
     }
 
     onRegister() {
