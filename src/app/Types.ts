@@ -1,4 +1,4 @@
-export interface IAccount {
+export interface Account {
     id?: string;
     groupName?: string;
     name: string;
@@ -6,7 +6,7 @@ export interface IAccount {
     apiSecret: string;
 }
 
-export interface IUpdateAccount {
+export interface UpdateAccount {
     readonly groupName?: string;
     readonly name?: string;
     readonly apiKey?: string;
@@ -14,25 +14,53 @@ export interface IUpdateAccount {
 }
 
 
-export interface IOKexAccount {
+export interface OKexAccount {
     name: string;
     httpKey: string;
     httpSecret: string;
-    passphrase:string;
+    passphrase: string;
 }
 
-export enum OKExAutoTradeType {
+export enum TradeType {
     Both = 0,
     OnlyBuy,
     OnlySell
 }
 
-export interface OKExAutoTradeOptions {
-    type: OKExAutoTradeType;
+export enum TradeActionType {
+    Withdrawal = 0,
+    Orders
+}
+
+export interface AutoMakerOptions {
+    type: TradeType;
     topPrice: number;
     bottomPrice: number;
     intervalTime: number;
-    volumn: number
+    startVolume: number;
+    endVolume: number;
+    tradeType: TradeActionType;
+    tradeLimit: number;
+}
+
+export interface AutoMarketOptions {
+    topPrice: number;
+    bottomPrice: number;
+    costLimit: number
+}
+
+export interface BatchOrderOptions {
+    type: TradeType;
+    topPrice: number;
+    startPrice: number;
+    incr: number;
+    topSize: number;
+    count: number
+}
+
+export interface TakeOrderOptions {
+    type: TradeType;
+    topPrice: number;
 }
 
 export const NotificationDeep = "spot/depth";

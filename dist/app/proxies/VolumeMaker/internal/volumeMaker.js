@@ -12,7 +12,7 @@ const { PublicClient } = require('@okfe/okex-node');
 const { V3WebsocketClient } = require('@okfe/okex-node');
 const { AuthenticatedClient } = require('@okfe/okex-node');
 var config = require('./config');
-const pClient = PublicClient(urlHost);
+const pClient = PublicClient(config.urlHost);
 const authClient = AuthenticatedClient(config.httpkey, config.httpsecret, config.passphrase, config.urlHost);
 const wss = new V3WebsocketClient(config.websocekHost);
 const channel_depth = 'spot/depth';
@@ -225,9 +225,11 @@ function startMakeOrder() {
             // var instrument_id = tickerData.instrument_id
             // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
             console.log("interval ---" + tickerData.instrument_id + `买一 ` + tickerData.best_bid + ' 卖一 ' + tickerData.best_ask + ' 最新成交价:' + tickerData.last);
-            authClient.spot().postOrder({ 'type': 'limit', 'side': 'buy',
+            authClient.spot().postOrder({
+                'type': 'limit', 'side': 'buy',
                 'instrument_id': instrument_id, 'size': 1, 'client_oid': 'spot123',
-                'price': 0.01, 'margin_trading': 1, 'order_type': '1' }).then(res => {
+                'price': 0.01, 'margin_trading': 1, 'order_type': '1'
+            }).then(res => {
                 if (res.result && res.order_id) {
                     authClient.spot().getOrder(res.order_id, { 'instrument_id': instrument_id })
                         .then(res => {
@@ -279,10 +281,12 @@ function getBatchOrder(params, acct) {
     let count = amount / orderCount;
     let batchOrder = new Array();
     for (var i = 0; i < orderCount; i++) {
-        batchOrder.push({ 'type': 'limit', 'side': 'buy',
+        batchOrder.push({
+            'type': 'limit', 'side': 'buy',
             'instrument_id': instrument_id, 'size': count,
             'client_oid': 'spot123',
-            'price': sprice + priceStep * i, 'margin_trading': 1, 'order_type': '0' });
+            'price': sprice + priceStep * i, 'margin_trading': 1, 'order_type': '0'
+        });
     }
     return batchOrder;
 }
@@ -308,10 +312,12 @@ function getDepOrder(params, acct) {
                 let batchOrder = new Array();
                 let pre_price = 0;
                 toTake.forEach((ele) => {
-                    batchOrder.push({ 'type': 'limit', 'side': 'buy',
+                    batchOrder.push({
+                        'type': 'limit', 'side': 'buy',
                         'instrument_id': instrument_id, 'size': ele[1],
                         'client_oid': 'spot123',
-                        'price': ele[0], 'margin_trading': 1, 'order_type': '3' }); //立即成交并取消剩余
+                        'price': ele[0], 'margin_trading': 1, 'order_type': '3'
+                    }); //立即成交并取消剩余
                     pre_price += ele[0] * ele[1];
                 });
                 console.log("触发托盘 需要下单:" + JSON.stringify(batchOrder)); //TODO 如果单子的数量大于10个就要拆分
@@ -332,10 +338,12 @@ function getDepOrder(params, acct) {
                 let batchOrder = new Array();
                 let pre_price = 0;
                 toTake.forEach((ele) => {
-                    batchOrder.push({ 'type': 'limit', 'side': 'sell',
+                    batchOrder.push({
+                        'type': 'limit', 'side': 'sell',
                         'instrument_id': instrument_id, 'size': ele[1],
                         'client_oid': 'spot123',
-                        'price': ele[0], 'margin_trading': 1, 'order_type': '3' }); //立即成交并取消剩余
+                        'price': ele[0], 'margin_trading': 1, 'order_type': '3'
+                    }); //立即成交并取消剩余
                     pre_price += ele[0] * ele[1];
                 });
                 console.log("触发压盘 需要下单:" + JSON.stringify(batchOrder)); //TODO 如果单子的数量大于10个就要拆分

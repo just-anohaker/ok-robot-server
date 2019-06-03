@@ -1,6 +1,6 @@
 import Mediator from "../../../patterns/mediator/Mediator";
 import UserProxy from "../../proxies/UserProxy";
-import { IAccount } from "../../Types";
+import { Account } from "../../Types";
 
 class UserMediator extends Mediator {
     static NAME: string = "MEDIATOR_USER";
@@ -13,9 +13,9 @@ class UserMediator extends Mediator {
         return this.facade.retrieveProxy(UserProxy.NAME, UserProxy)!;
     }
 
-    public getAllUsers(): IAccount[] {
+    public getAllUsers(): Account[] {
         const allUsers = this.UserProxy.AllAccounts;
-        allUsers.sort((a: IAccount, b: IAccount): number => {
+        allUsers.sort((a: Account, b: Account): number => {
             return a > b ? -1 : (a < b ? 1 : 0);
         });
 

@@ -4,18 +4,18 @@ import Sqlite3 = require("better-sqlite3");
 import Database from "../../../sqlite3";
 import Proxy from "../../../patterns/proxy/Proxy";
 import { MaybeUndefined } from "../../../base/Common";
-import { IAccount, IUpdateAccount } from "../../Types";
+import { Account, UpdateAccount } from "../../Types";
 
 class UserProxy extends Proxy {
     static readonly NAME: string = "PROXY_USER";
 
-    private userMap: Map<string, IAccount>;
+    private userMap: Map<string, Account>;
 
     private dbHelper: _DbHelper;
     constructor() {
         super(UserProxy.NAME);
 
-        this.userMap = new Map<string, IAccount>();
+        this.userMap = new Map<string, Account>();
         this.dbHelper = new _DbHelper(Database.getInstance().Sqlite3Handler);
     }
 
@@ -26,13 +26,13 @@ class UserProxy extends Proxy {
         });
     }
 
-    get AllAccounts(): IAccount[] {
-        const result: IAccount[] = [];
+    get AllAccounts(): Account[] {
+        const result: Account[] = [];
         this.userMap.forEach(value => result.push(Object.assign({}, value)));
         return result;
     }
 
-    add(groupName: string, account: IAccount): MaybeUndefined<IAccount> {
+    add(groupName: string, account: Account): MaybeUndefined<Account> {
         if (this.isNameInGroup(account.name, groupName)) {
             return undefined;
         }
@@ -46,7 +46,7 @@ class UserProxy extends Proxy {
         return undefined;
     }
 
-    remove(userId: string): MaybeUndefined<IAccount> {
+    remove(userId: string): MaybeUndefined<Account> {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
@@ -58,7 +58,7 @@ class UserProxy extends Proxy {
         return undefined;
     }
 
-    update(userId: string, updateData: IUpdateAccount): MaybeUndefined<IAccount> {
+    update(userId: string, updateData: UpdateAccount): MaybeUndefined<Account> {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
@@ -94,7 +94,7 @@ class UserProxy extends Proxy {
 
     }
 
-    get(userId: string): MaybeUndefined<IAccount> {
+    get(userId: string): MaybeUndefined<Account> {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
@@ -135,8 +135,8 @@ class UserProxy extends Proxy {
 class _DbHelper {
     constructor(private handler: Sqlite3.Database) { }
 
-    getAllUsers(): IAccount[] {
-        const result: IAccount[] = [];
+    getAllUsers(): Account[] {
+        const result: Account[] = [];
         try {
             const stmt = this.handler.prepare("select * from users;");
             const queryResults = stmt.all();
@@ -149,8 +149,8 @@ class _DbHelper {
         return result;
     }
 
-    getAllValidUsers(): IAccount[] {
-        const result: IAccount[] = [];
+    getAllValidUsers(): Account[] {
+        const result: Account[] = [];
         try {
             const stmt = this.handler.prepare("select * from users where state=$state;");
             const queryResults = stmt.all({ state: 1 });
@@ -164,8 +164,8 @@ class _DbHelper {
         return result;
     }
 
-    getAllInvalidUsers(): IAccount[] {
-        const result: IAccount[] = [];
+    getAllInvalidUsers(): Account[] {
+        const result: Account[] = [];
         try {
             const stmt = this.handler.prepare("select * from users where state=$state;");
             const queryResults = stmt.all({ state: 0 });
@@ -179,7 +179,7 @@ class _DbHelper {
         return result;
     }
 
-    update(userId: string, options: IUpdateAccount): boolean {
+    update(userId: string, options: UpdateAccount): boolean {
         let success = true;
         try {
             const stmt = this.handler.prepare("update users set " +
@@ -219,7 +219,7 @@ class _DbHelper {
         return success;
     }
 
-    add(newUser: IAccount): boolean {
+    add(newUser: Account): boolean {
         let success = true;
         try {
             const stmt = this.handler.prepare("insert into users (id, groupName, name, apiKey, apiSecret, state) " +
@@ -242,7 +242,7 @@ class _DbHelper {
         return success;
     }
 
-    private convIAccount(data: any): IAccount {
+    private convIAccount(data: any): Account {
         return {
             id: data.id as string,
             groupName: data.groupName as string,

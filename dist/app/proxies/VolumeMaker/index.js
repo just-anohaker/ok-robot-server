@@ -1,39 +1,43 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const Proxy_1 = __importDefault(require("../../../patterns/proxy/Proxy"));
-const Types_1 = require("../../Types");
-const __1 = require("../../..");
-const { setAutoTrade: nodeSetAutoTrade, startAutoTrade: nodeStartAutoTrade, stopAutoTrade: nodeStopAutoTrade, innerEvent } = require("./internal/volumeMaker");
-class VolumeMakerProxy extends Proxy_1.default {
-    constructor() {
-        super(VolumeMakerProxy.NAME);
-    }
-    onRegister() {
-        innerEvent.on(Types_1.NotificationDeep, this.onDeepEvent.bind(this));
-        innerEvent.on(Types_1.NotificationTicker, this.onTickerEvent.bind(this));
-        innerEvent.on(Types_1.NotificationOrder, this.onOrderEvent.bind(this));
-    }
-    setAutoTradeOptions(tradeOptions, account) {
-        nodeSetAutoTrade(tradeOptions, account);
-    }
-    startAutoTrade() {
-        nodeStartAutoTrade();
-    }
-    stopAutoTrade() {
-        nodeStopAutoTrade();
-    }
-    onDeepEvent(info) {
-        __1.Facade.getInstance().sendNotification(Types_1.NotificationDeep, info);
-    }
-    onTickerEvent(info) {
-        __1.Facade.getInstance().sendNotification(Types_1.NotificationTicker, info);
-    }
-    onOrderEvent(info) {
-        __1.Facade.getInstance().sendNotification(Types_1.NotificationOrder, info);
-    }
-}
-VolumeMakerProxy.NAME = "PROXY_VOLUME_MAKER";
-exports.default = VolumeMakerProxy;
+// import Proxy from "../../../patterns/proxy/Proxy";
+// import { OKExAutoTradeOptions, IOKexAccount } from "../../Types";
+// import {
+//     NotificationDeep,
+//     NotificationTicker,
+//     NotificationOrder
+// } from "../../Types";
+// import { Facade } from "../../..";
+// const {setAutoTrade: nodeSetAutoTrade,
+//     startAutoTrade: nodeStartAutoTrade,
+//     stopAutoTrade: nodeStopAutoTrade,
+//     innerEvent
+// } = require("./internal/volumeMaker");
+// class VolumeMakerProxy extends Proxy {
+//     static readonly NAME: string = "PROXY_VOLUME_MAKER";
+//     constructor() {
+//         super(VolumeMakerProxy.NAME);
+//     }
+//     onRegister() {
+//         innerEvent.on(NotificationDeep, this.onDeepEvent.bind(this));
+//         innerEvent.on(NotificationTicker, this.onTickerEvent.bind(this));
+//         innerEvent.on(NotificationOrder, this.onOrderEvent.bind(this));
+//     }
+//     setAutoTradeOptions(tradeOptions: OKExAutoTradeOptions, account: IOKexAccount) {
+//         nodeSetAutoTrade(tradeOptions, account);
+//     }
+//     startAutoTrade() {
+//         nodeStartAutoTrade();
+//     }
+//     stopAutoTrade() {
+//         nodeStopAutoTrade();
+//     }
+//     private onDeepEvent(info:any): void {
+//         Facade.getInstance().sendNotification(NotificationDeep, info);
+//     }
+//     private onTickerEvent(info: any): void {
+//         Facade.getInstance().sendNotification(NotificationTicker, info);
+//     }
+//     private onOrderEvent(info: any): void {
+//         Facade.getInstance().sendNotification(NotificationOrder, info);
+//     }
+// }
+// export default VolumeMakerProxy;

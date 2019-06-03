@@ -5,7 +5,17 @@ import KoaCors = require("@koa/cors");
 import SocketIO = require("socket.io");
 import { Server } from "http";
 
-import { Facade, UserProxy, UserMediator, VolumeProxy } from "../src";
+import { Facade } from "../src";
+import {
+    UserMediator
+} from "../src";
+import {
+    UserProxy,
+    AutoMakerProxy,
+    AutoMarketProxy,
+    BatchOrderProxy,
+    TakeOrderProxy
+} from "../src";
 
 import Application from "./Application";
 import "./api";
@@ -13,7 +23,10 @@ import "./api";
 function initCore(): boolean {
     const facadeInst = Facade.getInstance();
     facadeInst.registerProxy(new UserProxy());
-    facadeInst.registerProxy(new VolumeProxy());
+    facadeInst.registerProxy(new AutoMakerProxy());
+    facadeInst.registerProxy(new AutoMarketProxy());
+    facadeInst.registerProxy(new BatchOrderProxy());
+    facadeInst.registerProxy(new TakeOrderProxy());
 
     facadeInst.registerMediator(new UserMediator());
 

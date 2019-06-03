@@ -1,9 +1,9 @@
 import Mediator from "../../../patterns/mediator/Mediator";
-import { IAccount } from "../../Types";
+import { Account } from "../../Types";
 declare class UserMediator extends Mediator {
     static NAME: string;
     constructor();
     private readonly UserProxy;
-    getAllUsers(): IAccount[];
+    getAllUsers(): Account[];
 }
 export default UserMediator;

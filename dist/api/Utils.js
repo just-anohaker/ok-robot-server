@@ -6,7 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Facade_1 = __importDefault(require("../patterns/facade/Facade"));
 // proxies
 const UserProxy_1 = __importDefault(require("../app/proxies/UserProxy"));
-const VolumeMaker_1 = __importDefault(require("../app/proxies/VolumeMaker"));
+// import VolumeMakerProxy from "../app/proxies/VolumeMaker";
+const AutoMakerProxy_1 = __importDefault(require("../app/proxies/AutoMakerProxy"));
+const AutoMarketProxy_1 = __importDefault(require("../app/proxies/AutoMarketProxy"));
+const BatchOrderProxy_1 = __importDefault(require("../app/proxies/BatchOrderProxy"));
+const TakeOrderProxy_1 = __importDefault(require("../app/proxies/TakeOrderProxy"));
 // mediators
 const UserMediator_1 = __importDefault(require("../app/mediatores/UserMediator"));
 function apiSuccess(result) {
@@ -28,8 +32,20 @@ class ProxyHelper {
     static get UserProxy() {
         return Facade_1.default.getInstance().retrieveProxy(UserProxy_1.default.NAME, UserProxy_1.default);
     }
-    static get VolumeMakerProxy() {
-        return Facade_1.default.getInstance().retrieveProxy(VolumeMaker_1.default.NAME, VolumeMaker_1.default);
+    // static get VolumeMakerProxy(): VolumeMakerProxy {
+    //     return Facade.getInstance().retrieveProxy(VolumeMakerProxy.NAME, VolumeMakerProxy);
+    // }
+    static get AutoMakerProxy() {
+        return Facade_1.default.getInstance().retrieveProxy(AutoMakerProxy_1.default.NAME, AutoMakerProxy_1.default);
+    }
+    static get AutoMarketProxy() {
+        return Facade_1.default.getInstance().retrieveProxy(AutoMarketProxy_1.default.NAME, AutoMarketProxy_1.default);
+    }
+    static get BatchOrderProxy() {
+        return Facade_1.default.getInstance().retrieveProxy(BatchOrderProxy_1.default.NAME, BatchOrderProxy_1.default);
+    }
+    static get TakeOrderProxy() {
+        return Facade_1.default.getInstance().retrieveProxy(TakeOrderProxy_1.default.NAME, TakeOrderProxy_1.default);
     }
 }
 exports.ProxyHelper = ProxyHelper;

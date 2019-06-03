@@ -27,7 +27,14 @@ exports.UserMediator = UserMediator_1.default;
 // /> proxy
 var UserProxy_1 = require("./app/proxies/UserProxy");
 exports.UserProxy = UserProxy_1.default;
-var VolumeMaker_1 = require("./app/proxies/VolumeMaker");
-exports.VolumeProxy = VolumeMaker_1.default;
+var AutoMakerProxy_1 = require("./app/proxies/AutoMakerProxy");
+exports.AutoMakerProxy = AutoMakerProxy_1.default;
+var AutoMarketProxy_1 = require("./app/proxies/AutoMarketProxy");
+exports.AutoMarketProxy = AutoMarketProxy_1.default;
+var BatchOrderProxy_1 = require("./app/proxies/BatchOrderProxy");
+exports.BatchOrderProxy = BatchOrderProxy_1.default;
+var TakeOrderProxy_1 = require("./app/proxies/TakeOrderProxy");
+exports.TakeOrderProxy = TakeOrderProxy_1.default;
+// export { default as VolumeProxy } from "./app/proxies/VolumeMaker";
 // /> api
 __export(require("./api"));
