@@ -4,7 +4,10 @@ import { apiSuccess, apiFailure, ProxyHelper, MediatorHelper } from "../Utils";
 import Schema from "./Schema";
 
 async function init(data: MarkedMap): Promise<APIReturn> {
-    // TODO: validate data
+    const validation = Schema.validateInit(data);
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
     ProxyHelper.AutoMakerProxy.init(data.options, data.account);
     return apiSuccess(undefined);
 }
