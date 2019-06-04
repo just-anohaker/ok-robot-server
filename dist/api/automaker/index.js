@@ -25,22 +25,20 @@ function init(data) {
 }
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
-        Utils_1.ProxyHelper.AutoMakerProxy.start();
-        // TODO: handle start return
-        return Utils_1.apiSuccess(undefined);
+        const success = Utils_1.ProxyHelper.AutoMakerProxy.start();
+        return Utils_1.apiSuccess(success);
     });
 }
 function stop() {
     return __awaiter(this, void 0, void 0, function* () {
-        Utils_1.ProxyHelper.AutoMakerProxy.stop();
-        // TODO: handle stop return
-        return Utils_1.apiSuccess(undefined);
+        const success = Utils_1.ProxyHelper.AutoMakerProxy.stop();
+        return Utils_1.apiSuccess(success);
     });
 }
 function isrunning() {
     return __awaiter(this, void 0, void 0, function* () {
         const bIsRunning = Utils_1.ProxyHelper.AutoMakerProxy.isRunning();
-        return Utils_1.apiSuccess({ running: bIsRunning });
+        return Utils_1.apiSuccess(bIsRunning);
     });
 }
 function optionAndAccount() {

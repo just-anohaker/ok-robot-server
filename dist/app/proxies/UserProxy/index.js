@@ -56,12 +56,16 @@ class UserProxy extends Proxy_1.default {
             newAccount.name = updateData.name;
             changed = true;
         }
-        if (updateData.apiKey && newAccount.apiKey !== updateData.apiKey) {
-            newAccount.apiKey = updateData.apiKey;
+        if (updateData.httpKey && newAccount.httpKey !== updateData.httpKey) {
+            newAccount.httpKey = updateData.httpKey;
             changed = true;
         }
-        if (updateData.apiSecret && newAccount.apiSecret !== updateData.apiSecret) {
-            newAccount.apiSecret = updateData.apiSecret;
+        if (updateData.httpSecret && newAccount.httpSecret !== updateData.httpSecret) {
+            newAccount.httpSecret = updateData.httpSecret;
+            changed = true;
+        }
+        if (updateData.passphrase && newAccount.passphrase !== updateData.passphrase) {
+            newAccount.passphrase = updateData.passphrase;
             changed = true;
         }
         if (updateData.groupName && newAccount.groupName !== updateData.groupName) {
@@ -163,13 +167,14 @@ class _DbHelper {
         let success = true;
         try {
             const stmt = this.handler.prepare("update users set " +
-                "groupName=$groupName, name=$name, apiKey=$apiKey, apiSecret=$apiSecret " +
+                "groupName=$groupName, name=$name, httpKey=$httpKey, httpSecret=$httpSecret, passphrase=$passphrase " +
                 "where id=$userId and state=$state;");
             const runResult = stmt.run({
                 groupName: options.groupName,
                 name: options.name,
-                apiKey: options.apiKey,
-                apiSecret: options.apiSecret,
+                httpKey: options.httpKey,
+                httpSecret: options.httpSecret,
+                passphrase: options.passphrase,
                 userId: userId,
                 state: 1
             });
@@ -201,14 +206,15 @@ class _DbHelper {
     add(newUser) {
         let success = true;
         try {
-            const stmt = this.handler.prepare("insert into users (id, groupName, name, apiKey, apiSecret, state) " +
-                "values($userId, $groupName, $name, $apiKey, $apiSecret, $state);");
+            const stmt = this.handler.prepare("insert into users (id, groupName, name, httpKey, httpSecret, passphrase, state) " +
+                "values($userId, $groupName, $name, $httpKey, $httpSecret, $passphrase, $state);");
             const runResult = stmt.run({
                 userId: newUser.id,
                 groupName: newUser.groupName,
                 name: newUser.name,
-                apiKey: newUser.apiKey,
-                apiSecret: newUser.apiSecret,
+                httpKey: newUser.httpKey,
+                httpSecret: newUser.httpSecret,
+                passphrase: newUser.passphrase,
                 state: 1
             });
             if (runResult.changes <= 0) {
@@ -226,8 +232,9 @@ class _DbHelper {
             id: data.id,
             groupName: data.groupName,
             name: data.name,
-            apiKey: data.apiKey,
-            apiSecret: data.apiSecret
+            httpKey: data.httpKey,
+            httpSecret: data.httpSecret,
+            passphrase: data.passphrase
         };
     }
 }

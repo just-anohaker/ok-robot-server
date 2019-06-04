@@ -17,12 +17,14 @@ class AutoMarketProxy extends Proxy {
         // TODO
     }
 
-    stop() {
+    stop(): boolean {
         // TODO
+        return false;
     }
 
-    start() {
+    start(): boolean {
         // TODO
+        return false
     }
 
     isRunning(): boolean {

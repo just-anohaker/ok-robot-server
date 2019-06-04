@@ -13,11 +13,11 @@ class Schema {
                     type: "object",
                     properties: {
                         type: { type: "integer", enum: [1, 2] },
-                        topPrice: { type: "integer" },
-                        startPrice: { type: "integer" },
-                        incr: { type: "integer" },
-                        topSize: { type: "integer" },
-                        count: { type: "integer" }
+                        topPrice: { type: "number" },
+                        startPrice: { type: "number" },
+                        incr: { type: "number" },
+                        topSize: { type: "number" },
+                        count: { type: "number" }
                     },
                     required: ["type", "topPrice", "startPrice", "incr", "topSize", "count"]
                 },

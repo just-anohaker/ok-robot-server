@@ -14,25 +14,22 @@ async function init(data: MarkedMap): Promise<APIReturn> {
 }
 
 async function start(): Promise<APIReturn> {
-    ProxyHelper.AutoMakerProxy.start();
-    // TODO: handle start return
-    return apiSuccess(undefined);
+    const success = ProxyHelper.AutoMakerProxy.start();
+    return apiSuccess(success);
 }
 
 async function stop(): Promise<APIReturn> {
-    ProxyHelper.AutoMakerProxy.stop();
-    // TODO: handle stop return
-    return apiSuccess(undefined);
+    const success = ProxyHelper.AutoMakerProxy.stop();
+    return apiSuccess(success);
 }
 
 async function isrunning(): Promise<APIReturn> {
     const bIsRunning = ProxyHelper.AutoMakerProxy.isRunning();
-    return apiSuccess({ running: bIsRunning });
+    return apiSuccess(bIsRunning);
 }
 
 async function optionAndAccount(): Promise<APIReturn> {
     const resp = ProxyHelper.AutoMakerProxy.OptionsAndAccount;
-    // handler resp is undefined;
     return apiSuccess(resp);
 }
 

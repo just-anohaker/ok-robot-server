@@ -12,9 +12,9 @@ class Schema {
                 options: {
                     type: "object",
                     properties: {
-                        topPrice: { type: "integer" },
-                        bottomPrice: { type: "integer" },
-                        costLimit: { type: "integer" }
+                        topPrice: { type: "number" },
+                        bottomPrice: { type: "number" },
+                        costLimit: { type: "number" }
                     },
                     requied: ["topPrice", "bottomPrice", "costLimit"]
                 },

@@ -18,7 +18,7 @@ class AutoMarketAPI implements IHttp, ISockerIO {
     }
 
     get Name(): string {
-        return "API_AUTO_MAKER";
+        return "API_AUTO_MARKET";
     }
 
     onBind(koa: Koa): void {

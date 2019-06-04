@@ -21,10 +21,11 @@ class Schema {
             properties: {
                 groupName: { type: "string", minLength: 1 },
                 name: { type: "string", minLength: 1 },
-                apiKey: { type: "string", minLength: 1 },
-                apiSecret: { type: "string", minLength: 1 }
+                httpKey: { type: "string", minLength: 1 },
+                httpSecret: { type: "string", minLength: 1 },
+                passphrase: { type: "string", minLength: 1 }
             },
-            required: ["groupName", "name", "apiKey", "apiSecret"]
+            required: ["groupName", "name", "httpKey", "httpSecret", "passphrase"]
         }, body);
         if (validation) {
             return undefined;
@@ -54,8 +55,9 @@ class Schema {
                     properties: {
                         groupName: { type: "string", minLength: 1 },
                         name: { type: "string", minLength: 1 },
-                        apiKey: { type: "string", minLength: 1 },
-                        apiSecret: { type: "string", minLength: 1 }
+                        httpKey: { type: "string", minLength: 1 },
+                        httpSecret: { type: "string", minLength: 1 },
+                        passphrase: { type: "string", minLength: 1 }
                     }
                 }
             },

@@ -10,9 +10,9 @@ class Schema {
                     type: "object",
                     properties: {
                         type: { type: "integer", enum: [1, 2] },
-                        topPrice: { type: "integer" },
-                        startPrice: { type: "integer" },
-                        incr: { type: "integer" },
+                        topPrice: { type: "number" },
+                        startPrice: { type: "number" },
+                        incr: { type: "number" },
                         topSize: { type: "integer" },
                         count: { type: "integer" }
                     },

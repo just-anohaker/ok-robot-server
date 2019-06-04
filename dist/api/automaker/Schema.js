@@ -10,11 +10,11 @@ class Schema {
                     type: "object",
                     properties: {
                         type: { type: "integer", enum: [0, 1, 2] },
-                        topPrice: { type: "integer" },
-                        bottomPrice: { type: "integer" },
+                        topPrice: { type: "number" },
+                        bottomPrice: { type: "number" },
                         intervalTime: { type: "integer" },
-                        startVolume: { type: "integer" },
-                        endVolume: { type: "integer" },
+                        startVolume: { type: "number" },
+                        endVolume: { type: "number" },
                         tradeType: { type: "integer", enum: [0, 1] },
                         tradeLimit: { type: "integer" }
                     },

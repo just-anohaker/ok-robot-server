@@ -18,7 +18,7 @@ class TakeOrderAPI implements IHttp, ISockerIO {
     }
 
     get Name(): string {
-        return "API_AUTO_MAKER";
+        return "API_TAKE_ORDER";
     }
 
     onBind(koa: Koa): void {

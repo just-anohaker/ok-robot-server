@@ -20,8 +20,9 @@ function getAll() {
             id: value.id,
             groupName: value.groupName,
             name: value.name,
-            apiKey: value.apiKey,
-            apiSecret: value.apiSecret
+            httpKey: value.httpKey,
+            httpSecret: value.httpSecret,
+            passphrase: value.passphrase
         })));
     });
 }
@@ -37,8 +38,9 @@ function get(data) {
                 id: user.id,
                 groupName: user.groupName,
                 name: user.name,
-                apikey: user.apiKey,
-                apiSecret: user.apiSecret
+                httpKey: user.httpKey,
+                httpSecret: user.httpKey,
+                passphrase: user.passphrase
             });
         }
         return Utils_1.apiFailure(`Maybe user with userId(${data.userId}) not exists`);
@@ -52,16 +54,18 @@ function add(data) {
         }
         const newUser = Utils_1.ProxyHelper.UserProxy.add(data.groupName, {
             name: data.name,
-            apiKey: data.apiKey,
-            apiSecret: data.apiSecret
+            httpKey: data.httpKey,
+            httpSecret: data.httpSecret,
+            passphrase: data.passphrase
         });
         if (newUser) {
             return Utils_1.apiSuccess({
                 id: newUser.id,
                 groupName: newUser.groupName,
                 name: newUser.name,
-                apiKey: newUser.apiKey,
-                apiSecret: newUser.apiSecret
+                httpKey: newUser.httpKey,
+                httpSecret: newUser.httpSecret,
+                passphrase: newUser.passphrase
             });
         }
         return Utils_1.apiFailure(`Maybe user with name(${data.name}) and group(${data.groupName}) exists`);
@@ -76,16 +80,18 @@ function update(data) {
         const updateUser = Utils_1.ProxyHelper.UserProxy.update(data.userId, {
             groupName: data.options.groupName,
             name: data.options.name,
-            apiKey: data.options.apiKey,
-            apiSecret: data.options.apiSecret
+            httpKey: data.options.httpKey,
+            httpSecret: data.options.httpSecret,
+            passphrase: data.options.passphrase
         });
         if (updateUser) {
             return Utils_1.apiSuccess({
                 id: updateUser.id,
                 groupName: updateUser.groupName,
                 name: updateUser.name,
-                apiKey: updateUser.apiKey,
-                apiSecret: updateUser.apiSecret
+                httpKey: updateUser.httpKey,
+                httpSecret: updateUser.httpSecret,
+                passphrase: updateUser.passphrase
             });
         }
         return Utils_1.apiFailure(`Maybe user with userId(${data.userId}) not exists`);
@@ -103,8 +109,9 @@ function remove(data) {
                 id: removeUser.id,
                 groupName: removeUser.groupName,
                 name: removeUser.name,
-                apiKey: removeUser.apiKey,
-                apiSecret: removeUser.apiSecret
+                httpKey: removeUser.httpKey,
+                httpSecret: removeUser.httpSecret,
+                passphrase: removeUser.passphrase
             });
         }
         return Utils_1.apiFailure(`Maybe user with userId(${data.userId}) not exists`);

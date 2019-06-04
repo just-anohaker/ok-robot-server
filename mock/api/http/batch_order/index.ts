@@ -18,7 +18,7 @@ class BatchOrderAPI implements IHttp, ISockerIO {
     }
 
     get Name(): string {
-        return "API_AUTO_MAKER";
+        return "API_BATCH_ORDER";
     }
 
     onBind(koa: Koa): void {

@@ -2,15 +2,17 @@ export interface Account {
     id?: string;
     groupName?: string;
     name: string;
-    apiKey: string;
-    apiSecret: string;
+    httpKey: string;
+    httpSecret: string;
+    passphrase: string;
 }
 
 export interface UpdateAccount {
     readonly groupName?: string;
     readonly name?: string;
-    readonly apiKey?: string;
-    readonly apiSecret?: string;
+    readonly httpKey?: string;
+    readonly httpSecret?: string;
+    readonly passphrase?: string;
 }
 
 

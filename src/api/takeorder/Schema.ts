@@ -13,7 +13,7 @@ class Schema {
                     type: "object",
                     properties: {
                         type: { type: "integer", enum: [1, 2] },
-                        toPrice: { type: "integer" },
+                        toPrice: { type: "number" },
                     },
                     required: ["type", "toPrice"]
                 },
