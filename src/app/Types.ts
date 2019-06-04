@@ -60,7 +60,7 @@ export interface BatchOrderOptions {
 
 export interface TakeOrderOptions {
     type: TradeType;
-    topPrice: number;
+    toPrice: number;
 }
 
 export const NotificationDeep = "spot/depth";
