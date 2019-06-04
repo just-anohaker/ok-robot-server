@@ -8,6 +8,7 @@ async function init(data: MarkedMap): Promise<APIReturn> {
     if (validation !== undefined) {
         return apiFailure(validation);
     }
+
     ProxyHelper.AutoMakerProxy.init(data.options, data.account);
     return apiSuccess(undefined);
 }

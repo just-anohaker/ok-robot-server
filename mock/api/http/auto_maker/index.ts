@@ -31,7 +31,7 @@ class AutoMakerAPI implements IHttp, ISockerIO {
         router.post("/api/auto_maker", this.initAutoMaker);
         router.post("/api/auto_maker/start", this.startAutoMaker);
         router.post("/api/auto_maker/stop", this.stopAutoMaker);
-        router.post("/api/auto_maker/isrunning", this.isAutoMakerRunning);
+        router.post("/api/auto_maker/isRunning", this.isAutoMakerRunning);
         router.get("/api/auto_maker", this.getAutoMakerOptionsAndAccount);
 
         this._http!.use(router.routes());

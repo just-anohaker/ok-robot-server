@@ -12,13 +12,13 @@ class Schema {
                 options: {
                     type: "object",
                     properties: {
-                        type: { type: "integer" },
+                        type: { type: "integer", enum: [0, 1, 2] },
                         topPrice: { type: "integer" },
                         bottomPrice: { type: "integer" },
                         intervalTime: { type: "integer" },
                         startVolume: { type: "integer" },
                         endVolume: { type: "integer" },
-                        tradeType: { type: "integer" },
+                        tradeType: { type: "integer", enum: [0, 1] },
                         tradeLimit: { type: "integer" }
                     },
                     required: ["type", "topPrice", "bottomPrice", "intervalTime", "startVolume", "endVolume", "tradeType", "tradeLimit"]

@@ -4,7 +4,11 @@ import { apiSuccess, apiFailure, ProxyHelper } from "../Utils";
 import Schema from "./Schema";
 
 async function init(data: MarkedMap): Promise<APIReturn> {
-    // TODO: validate data
+    const validation = Schema.validateInit(data);
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
+
     ProxyHelper.AutoMarketProxy.init(data.options, data.account);
     return apiSuccess(undefined);
 }
