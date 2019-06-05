@@ -2,6 +2,7 @@ import Proxy from "../../../patterns/proxy/Proxy";
 import { Facade } from "../../..";
 import { OKexAccount, BatchOrderOptions, BatchOrderCancelOptions } from "../../Types";
 
+import  batchOrder from "./batchOrder";
 class BatchOrderProxy extends Proxy {
     static readonly NAME: string = "PROXY_BATCH_ORDER";
 
@@ -13,19 +14,27 @@ class BatchOrderProxy extends Proxy {
         // TODO
     }
 
-    generate(options: any /*BatchOrderOptions*/, account: any /*OKexAccount*/): any {
+    async generate(options: any /*BatchOrderOptions*/, account: any /*OKexAccount*/): Promise<any> {
         // TODO
-        return undefined;
+        return await batchOrder.genBatchOrder(options,account);
     }
 
-    start(client_oids: any /*string[]*/): boolean {
-        // TODO
-        return false;
-    }
+    // start(client_oids: any /*string[]*/): boolean {
+    //     // TODO
+    //     return batchOrder.startBatchOrder(client_oids);
+    // }
 
-    cancel(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): any {
+    async  cancel(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
         // TODO
-        return undefined;
+        return await batchOrder.cancelBatchOrder(options,account);
+    }
+    async  limitOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
+        // TODO
+        return await batchOrder.limitOrder(options,account);
+    }
+    async marketOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
+        // TODO
+        return await batchOrder.marketOrder(options,account);
     }
 }
 

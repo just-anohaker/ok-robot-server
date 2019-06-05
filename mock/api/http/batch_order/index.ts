@@ -29,9 +29,10 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         const router = new KoaRouter();
 
         router.post("/api/batch_order/gen", this.generate);
-        router.post("/api/batch_order", this.start);
+      //  router.post("/api/batch_order", this.start);
         router.post("/api/batch_order/cancel", this.cancel);
-
+        router.post("/api/batch_order/limitOrder", this.limitOrder);
+        router.post("/api/batch_order/marketOrder", this.marketOrder);
         this._http!.use(router.routes());
     }
 
@@ -48,14 +49,19 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         koaResponse(ctx, await apiBatchOrder.generate(ctx.body || {}));
     }
 
-    private start = async (ctx: Koa.Context) => {
-        koaResponse(ctx, await apiBatchOrder.start(ctx.body || {}));
-    }
+    // private start = async (ctx: Koa.Context) => {
+    //     koaResponse(ctx, await apiBatchOrder.start(ctx.body || {}));
+    // }
 
     private cancel = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.cancel(ctx.body || {}));
     }
-
+    private limitOrder = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.limitOrder(ctx.body || {}));
+    }
+    private marketOrder = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.marketOrder(ctx.body || {}));
+    }
     private onNotification = (notification: INotification): void => {
         console.log("[BatchOrderAPI] onNotification:", notification.getName());
         this._io!.emit(notification.getName(), notification.getBody());

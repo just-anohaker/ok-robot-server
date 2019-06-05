@@ -6,6 +6,7 @@ class Schema {
     private static validator: ajv.Ajv = ajv();
 
     static validateGenerate(data: any): Validation {
+        return undefined;
         const validation = Schema.validator.validate({
             type: "object",
             properties: {
@@ -32,7 +33,7 @@ class Schema {
                     // required: ["name", "httpKey", "httpSecret", "passphrase"]
                 }
             },
-            required: ["options", "account"]
+            //required: ["options", "account"]
         }, data);
         if (validation) {
             return undefined;
