@@ -11,6 +11,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(require("path"));
+const fs = __importStar(require("fs"));
 const Sqlite3 = require("better-sqlite3");
 const Platform_1 = __importDefault(require("../base/Platform"));
 const tables_1 = require("./tables");
@@ -23,7 +24,11 @@ class Database {
     }
     constructor() {
         const userdataDir = Platform_1.default.getInstance().getUserDataDir();
-        const dbFilePath = path.join(userdataDir, "okex.sqlite");
+        const databaseDir = path.join(userdataDir, "databases");
+        if (!fs.existsSync(databaseDir)) {
+            fs.mkdirSync(databaseDir);
+        }
+        const dbFilePath = path.join(databaseDir, "sqlite.db");
         console.log(`[Database] create sqlite3 database @(${dbFilePath})`);
         this._sqlite3Handler = new Sqlite3(dbFilePath, { verbose: undefined });
         this.initOKExDatabase();
