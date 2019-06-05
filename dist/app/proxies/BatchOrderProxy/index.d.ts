@@ -3,8 +3,9 @@ declare class BatchOrderProxy extends Proxy {
     static readonly NAME: string;
     constructor();
     onRegister(): void;
-    generate(options: any, account: any): any;
-    start(client_oids: any): boolean;
-    cancel(options: any, account: any): any;
+    generate(options: any, account: any): Promise<any>;
+    cancel(options: any, account: any): Promise<any>;
+    limitOrder(options: any, account: any): Promise<any>;
+    marketOrder(options: any, account: any): Promise<any>;
 }
 export default BatchOrderProxy;

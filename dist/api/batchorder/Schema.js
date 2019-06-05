@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ajv = require("ajv");
 class Schema {
     static validateGenerate(data) {
+        return undefined;
         const validation = Schema.validator.validate({
             type: "object",
             properties: {
@@ -13,7 +14,6 @@ class Schema {
                     type: "object",
                 }
             },
-            required: ["options", "account"]
         }, data);
         if (validation) {
             return undefined;

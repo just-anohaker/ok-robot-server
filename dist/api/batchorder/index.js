@@ -19,32 +19,51 @@ function generate(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = Utils_1.ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
+        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
         return Utils_1.apiSuccess(resp);
     });
 }
-function start(data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const validation = Schema_1.default.validateStart(data);
-        if (validation !== undefined) {
-            return Utils_1.apiFailure(validation);
-        }
-        const resp = Utils_1.ProxyHelper.BatchOrderProxy.start(data.client_oids);
-        return Utils_1.apiSuccess(resp);
-    });
-}
+// async function start(data: MarkedMap): Promise<APIReturn> {
+//     const validation = Schema.validateStart(data);
+//     if (validation !== undefined) {
+//         return apiFailure(validation);
+//     }
+//     const resp =await ProxyHelper.BatchOrderProxy.start(data.client_oids);
+//     return apiSuccess(resp);
+// }
 function cancel(data) {
     return __awaiter(this, void 0, void 0, function* () {
         const validation = Schema_1.default.validateCancel(data);
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = Utils_1.ProxyHelper.BatchOrderProxy.cancel(data.options, data.account);
+        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.cancel(data.options, data.account);
+        return Utils_1.apiSuccess(resp);
+    });
+}
+function limitOrder(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateCancel(data);
+        if (validation !== undefined) {
+            return Utils_1.apiFailure(validation);
+        }
+        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.limitOrder(data.options, data.account);
+        return Utils_1.apiSuccess(resp);
+    });
+}
+function marketOrder(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateCancel(data);
+        if (validation !== undefined) {
+            return Utils_1.apiFailure(validation);
+        }
+        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.marketOrder(data.options, data.account);
         return Utils_1.apiSuccess(resp);
     });
 }
 exports.default = {
     generate,
-    start,
-    cancel
+    cancel,
+    limitOrder,
+    marketOrder
 };
