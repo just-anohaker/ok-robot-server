@@ -9,8 +9,8 @@ async function generate(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
-    return apiSuccess(undefined);
+    const resp = ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
+    return apiSuccess(resp);
 }
 
 async function start(data: MarkedMap): Promise<APIReturn> {

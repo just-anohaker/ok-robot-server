@@ -19,8 +19,8 @@ function generate(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        Utils_1.ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
-        return Utils_1.apiSuccess(undefined);
+        const resp = Utils_1.ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
+        return Utils_1.apiSuccess(resp);
     });
 }
 function start(data) {

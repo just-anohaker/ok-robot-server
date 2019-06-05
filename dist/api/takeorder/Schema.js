@@ -8,21 +8,9 @@ class Schema {
             properties: {
                 options: {
                     type: "object",
-                    properties: {
-                        type: { type: "integer", enum: [1, 2] },
-                        toPrice: { type: "number" },
-                    },
-                    required: ["type", "toPrice"]
                 },
                 account: {
                     type: "object",
-                    properties: {
-                        name: { type: "string" },
-                        httpKey: { type: "string" },
-                        httpSecret: { type: "string" },
-                        passphrase: { type: "string" }
-                    },
-                    required: ["name", "httpKey", "httpSecret", "passphrase"]
                 }
             },
             required: ["options", "account"]
@@ -33,12 +21,14 @@ class Schema {
         return Schema.validator.errorsText();
     }
     static validateStart(data) {
-        const validation = Schema.validator.validate({
+        const validation = Schema.validator.validate(/*{
             type: "array",
             items: {
                 type: "string"
             },
             minItems: 1
+        }*/ {
+            type: "object"
         }, data);
         if (validation) {
             return undefined;

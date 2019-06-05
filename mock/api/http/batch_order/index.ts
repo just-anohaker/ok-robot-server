@@ -30,6 +30,7 @@ class BatchOrderAPI implements IHttp, ISockerIO {
 
         router.post("/api/batch_order/gen", this.generate);
         router.post("/api/batch_order", this.start);
+        router.post("/api/batch_order/cancel", this.cancel);
 
         this._http!.use(router.routes());
     }
@@ -49,6 +50,10 @@ class BatchOrderAPI implements IHttp, ISockerIO {
 
     private start = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.start(ctx.body || {}));
+    }
+
+    private cancel = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.cancel(ctx.body || {}));
     }
 
     private onNotification = (notification: INotification): void => {

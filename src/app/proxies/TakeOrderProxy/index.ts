@@ -13,12 +13,12 @@ class TakeOrderProxy extends Proxy {
         // TODO
     }
 
-    generate(options: TakeOrderOptions, account: OKexAccount): any {
+    generate(options: any /*TakeOrderOptions*/, account: any /*OKexAccount*/): any {
         // TODO
         return undefined;
     }
 
-    start(client_oids: string[]): boolean {
+    start(client_oids: any /*string[]*/): boolean {
         // TODO
         return false;
     }

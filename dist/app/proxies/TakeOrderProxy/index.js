@@ -11,11 +11,11 @@ class TakeOrderProxy extends Proxy_1.default {
     onRegister() {
         // TODO
     }
-    generate(options, account) {
+    generate(options /*TakeOrderOptions*/, account /*OKexAccount*/) {
         // TODO
         return undefined;
     }
-    start(client_oids) {
+    start(client_oids /*string[]*/) {
         // TODO
         return false;
     }

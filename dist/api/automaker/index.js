@@ -19,8 +19,8 @@ function init(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        Utils_1.ProxyHelper.AutoMakerProxy.init(data.options, data.account);
-        return Utils_1.apiSuccess(undefined);
+        const resp = Utils_1.ProxyHelper.AutoMakerProxy.init(data.options, data.account);
+        return Utils_1.apiSuccess(resp);
     });
 }
 function start() {
@@ -44,7 +44,6 @@ function isrunning() {
 function optionAndAccount() {
     return __awaiter(this, void 0, void 0, function* () {
         const resp = Utils_1.ProxyHelper.AutoMakerProxy.OptionsAndAccount;
-        // handler resp is undefined;
         return Utils_1.apiSuccess(resp);
     });
 }

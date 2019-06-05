@@ -11,7 +11,7 @@ class AutoMakerProxy extends Proxy_1.default {
     onRegister() {
         // TODO
     }
-    init(options, account) {
+    init(options /* AutoMakerOptions*/, account /*OKexAccount*/) {
         // TODO
     }
     stop() {

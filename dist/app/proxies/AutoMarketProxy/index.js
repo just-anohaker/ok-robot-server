@@ -11,7 +11,7 @@ class AutoMarketProxy extends Proxy_1.default {
     onRegister() {
         // TODO
     }
-    init(options, account) {
+    init(options /*AutoMarketOptions*/, account /*OKexAccount*/) {
         // TODO
     }
     stop() {

@@ -39,17 +39,22 @@ export interface AutoMakerOptions {
     tradeLimit: number;
 }
 export interface AutoMarketOptions {
-    topPrice: number;
-    bottomPrice: number;
-    costLimit: number;
+    type: TradeType;
+    startSize: number;
+    isCancel: boolean;
 }
 export interface BatchOrderOptions {
     type: TradeType;
     topPrice: number;
     startPrice: number;
     incr: number;
-    topSize: number;
-    count: number;
+    size: number;
+    sizeIncr: number;
+}
+export interface BatchOrderCancelOptions {
+    type: TradeType;
+    topPrice: number;
+    startPrice: number;
 }
 export interface TakeOrderOptions {
     type: TradeType;

@@ -1,16 +1,15 @@
 import Proxy from "../../../patterns/proxy/Proxy";
-import { OKexAccount, AutoMarketOptions } from "../../Types";
 declare class AutoMarketProxy extends Proxy {
     static readonly NAME: string;
     constructor();
     onRegister(): void;
-    init(options: AutoMarketOptions, account: OKexAccount): void;
+    init(options: any, account: any): any;
     stop(): boolean;
     start(): boolean;
     isRunning(): boolean;
     readonly OptionsAndAccount: {
-        options: AutoMarketOptions;
-        account: OKexAccount;
+        options: any;
+        account: any;
     } | undefined;
 }
 export default AutoMarketProxy;

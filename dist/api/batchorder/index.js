@@ -19,8 +19,8 @@ function generate(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        Utils_1.ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
-        return Utils_1.apiSuccess(undefined);
+        const resp = Utils_1.ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
+        return Utils_1.apiSuccess(resp);
     });
 }
 function start(data) {
@@ -29,11 +29,22 @@ function start(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const bResp = Utils_1.ProxyHelper.BatchOrderProxy.start(data.client_oids);
-        return Utils_1.apiSuccess(bResp);
+        const resp = Utils_1.ProxyHelper.BatchOrderProxy.start(data.client_oids);
+        return Utils_1.apiSuccess(resp);
+    });
+}
+function cancel(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateCancel(data);
+        if (validation !== undefined) {
+            return Utils_1.apiFailure(validation);
+        }
+        const resp = Utils_1.ProxyHelper.BatchOrderProxy.cancel(data.options, data.account);
+        return Utils_1.apiSuccess(resp);
     });
 }
 exports.default = {
     generate,
-    start
+    start,
+    cancel
 };

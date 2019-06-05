@@ -13,7 +13,7 @@ class AutoMakerProxy extends Proxy {
         // TODO
     }
 
-    init(options: AutoMakerOptions, account: OKexAccount) {
+    init(options: any /* AutoMakerOptions*/, account: any /*OKexAccount*/): any {
         // TODO
     }
 
@@ -32,7 +32,7 @@ class AutoMakerProxy extends Proxy {
         return true;
     }
 
-    get OptionsAndAccount(): { options: AutoMakerOptions; account: OKexAccount } | undefined {
+    get OptionsAndAccount(): { options: any /*AutoMakerOptions*/; account: any /*OKexAccount*/ } | undefined {
         // TODO
         return undefined;
     }

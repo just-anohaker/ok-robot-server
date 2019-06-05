@@ -9,20 +9,18 @@ async function init(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    ProxyHelper.AutoMarketProxy.init(data.options, data.account);
-    return apiSuccess(undefined);
+    const resp = ProxyHelper.AutoMarketProxy.init(data.options, data.account);
+    return apiSuccess(resp);
 }
 
 async function start(): Promise<APIReturn> {
-    ProxyHelper.AutoMarketProxy.start();
-    // TODO: handle start return
-    return apiSuccess(undefined);
+    const resp = ProxyHelper.AutoMarketProxy.start();
+    return apiSuccess(resp);
 }
 
 async function stop(): Promise<APIReturn> {
-    ProxyHelper.AutoMarketProxy.stop();
-    // TODO: handle stop return
-    return apiSuccess(undefined);
+    const resp = ProxyHelper.AutoMarketProxy.stop();
+    return apiSuccess(resp);
 }
 
 async function isrunning(): Promise<APIReturn> {
@@ -32,7 +30,6 @@ async function isrunning(): Promise<APIReturn> {
 
 async function optionAndAccount(): Promise<APIReturn> {
     const resp = ProxyHelper.AutoMarketProxy.OptionsAndAccount;
-    // handler resp is undefined;
     return apiSuccess(resp);
 }
 

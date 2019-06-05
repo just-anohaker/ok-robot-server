@@ -9,8 +9,8 @@ async function init(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    ProxyHelper.AutoMakerProxy.init(data.options, data.account);
-    return apiSuccess(undefined);
+    const resp = ProxyHelper.AutoMakerProxy.init(data.options, data.account);
+    return apiSuccess(resp);
 }
 
 async function start(): Promise<APIReturn> {

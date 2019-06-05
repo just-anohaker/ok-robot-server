@@ -13,7 +13,7 @@ class AutoMarketProxy extends Proxy {
         // TODO
     }
 
-    init(options: AutoMarketOptions, account: OKexAccount) {
+    init(options: any /*AutoMarketOptions*/, account: any /*OKexAccount*/): any {
         // TODO
     }
 
@@ -32,7 +32,7 @@ class AutoMarketProxy extends Proxy {
         return false;
     }
 
-    get OptionsAndAccount(): { options: AutoMarketOptions; account: OKexAccount } | undefined {
+    get OptionsAndAccount(): { options: any /*AutoMarketOptions*/; account: any /*OKexAccount*/ } | undefined {
         // TODO
         return undefined;
     }

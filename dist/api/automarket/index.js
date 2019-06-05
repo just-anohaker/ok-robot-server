@@ -19,22 +19,20 @@ function init(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        Utils_1.ProxyHelper.AutoMarketProxy.init(data.options, data.account);
-        return Utils_1.apiSuccess(undefined);
+        const resp = Utils_1.ProxyHelper.AutoMarketProxy.init(data.options, data.account);
+        return Utils_1.apiSuccess(resp);
     });
 }
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
-        Utils_1.ProxyHelper.AutoMarketProxy.start();
-        // TODO: handle start return
-        return Utils_1.apiSuccess(undefined);
+        const resp = Utils_1.ProxyHelper.AutoMarketProxy.start();
+        return Utils_1.apiSuccess(resp);
     });
 }
 function stop() {
     return __awaiter(this, void 0, void 0, function* () {
-        Utils_1.ProxyHelper.AutoMarketProxy.stop();
-        // TODO: handle stop return
-        return Utils_1.apiSuccess(undefined);
+        const resp = Utils_1.ProxyHelper.AutoMarketProxy.stop();
+        return Utils_1.apiSuccess(resp);
     });
 }
 function isrunning() {
@@ -46,7 +44,6 @@ function isrunning() {
 function optionAndAccount() {
     return __awaiter(this, void 0, void 0, function* () {
         const resp = Utils_1.ProxyHelper.AutoMarketProxy.OptionsAndAccount;
-        // handler resp is undefined;
         return Utils_1.apiSuccess(resp);
     });
 }

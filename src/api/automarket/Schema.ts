@@ -11,22 +11,22 @@ class Schema {
             properties: {
                 options: {
                     type: "object",
-                    properties: {
-                        topPrice: { type: "number" },
-                        bottomPrice: { type: "number" },
-                        costLimit: { type: "number" }
-                    },
-                    requied: ["topPrice", "bottomPrice", "costLimit"]
+                    // properties: {
+                    //     type: { type: "integer", enum: [0, 1, 2] },
+                    //     startSize: { type: "number" },
+                    //     isCancel: { type: "boolean" }
+                    // },
+                    // requied: ["topPrice", "bottomPrice", "costLimit"]
                 },
                 account: {
                     type: "object",
-                    properties: {
-                        name: { type: "string" },
-                        httpKey: { type: "string" },
-                        httpSecret: { type: "string" },
-                        passphrase: { type: "string" }
-                    },
-                    requied: ["name", "httpKey", "httpSecret", "passphrase"]
+                    // properties: {
+                    //     name: { type: "string" },
+                    //     httpKey: { type: "string" },
+                    //     httpSecret: { type: "string" },
+                    //     passphrase: { type: "string" }
+                    // },
+                    // requied: ["name", "httpKey", "httpSecret", "passphrase"]
                 }
             },
             requied: ["options", "account"]

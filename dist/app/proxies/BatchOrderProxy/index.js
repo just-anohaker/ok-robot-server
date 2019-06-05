@@ -11,13 +11,17 @@ class BatchOrderProxy extends Proxy_1.default {
     onRegister() {
         // TODO
     }
-    generate(options, account) {
+    generate(options /*BatchOrderOptions*/, account /*OKexAccount*/) {
         // TODO
         return undefined;
     }
-    start(client_oids) {
+    start(client_oids /*string[]*/) {
         // TODO
         return false;
+    }
+    cancel(options /*BatchOrderCancelOptions*/, account /*OKexAccount*/) {
+        // TODO
+        return undefined;
     }
 }
 BatchOrderProxy.NAME = "PROXY_BATCH_ORDER";
