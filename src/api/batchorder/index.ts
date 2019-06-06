@@ -67,10 +67,19 @@ async function marketOrder(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(error.toString());
     }
 }
+async function startDepInfo(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateCancel(data);
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
 
+    const resp = await ProxyHelper.BatchOrderProxy.startDepInfo( data.account);
+    return apiSuccess(resp);
+}
 export default {
     generate,
     cancel,
     limitOrder,
-    marketOrder
+    marketOrder,
+    startDepInfo
 }

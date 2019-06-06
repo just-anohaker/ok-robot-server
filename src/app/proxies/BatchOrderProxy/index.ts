@@ -3,6 +3,8 @@ import { Facade } from "../../..";
 import { OKexAccount, BatchOrderOptions, BatchOrderCancelOptions } from "../../Types";
 
 import  batchOrder from "./batchOrder";
+import AcctInfo from "../../acctInfo";
+
 class BatchOrderProxy extends Proxy {
     static readonly NAME: string = "PROXY_BATCH_ORDER";
 
@@ -35,6 +37,25 @@ class BatchOrderProxy extends Proxy {
     async marketOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
         // TODO
         return await batchOrder.marketOrder(options,account);
+    }
+    async startDepInfo(account: any /*OKexAccount*/): Promise<any> {
+       
+        try {
+            let acctinfo=await AcctInfo(account.httpkey, account.httpsecret, account.passphrase);
+            acctinfo.event.on("depth", this.onDepthEvent);
+        } catch (error) {
+            return  {
+                result:false,
+                error_message:   error 
+            };
+        }
+        return  {
+            result:true      
+        };
+    }
+   
+    private onDepthEvent = (eventName, data) => {
+        Facade.getInstance().sendNotification(eventName, data);
     }
 }
 

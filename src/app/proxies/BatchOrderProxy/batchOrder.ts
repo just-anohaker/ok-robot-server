@@ -21,6 +21,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
     //根据价格将单子平均拆分 或者随机拆分
     //价格范围 bprice eprice  买入个数 amount
     //挂单数量 orderCount 平均拆分
+    console.log("params:"+JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
     let orderCount = (params.topPrice - params.startPrice) / (params.startPrice * params.incr)
@@ -104,6 +105,7 @@ function sleep(ms) {
  */
 
 async function cancelBatchOrder(params, acct) {
+    console.log("params:"+JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
     let failed = new Array();
@@ -227,6 +229,7 @@ async function cancelBatchOrder(params, acct) {
  * }
  */
 async function limitOrder(params, acct){
+    console.log("params:"+JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
         var side;
@@ -261,6 +264,7 @@ async function limitOrder(params, acct){
  * }
  */
 async function marketOrder(params, acct){
+    console.log("params:"+JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
         let order ;
@@ -284,6 +288,9 @@ async function marketOrder(params, acct){
       console.log(result)
       return result
 }
+async function startDepInfo(acct){
+    return acctInfo(acct.httpkey, acct.httpsecret, acct.passphrase)
+}
 // console.log(genBatchOrder({type:2,topPrice:0.04,startPrice:0.03,incr:0.2,size:1,sizeIncr:1},
 //     {httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase}))
 //cancelBatchOrder({startPrice:0.01,topPrice:0.02},{httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase})
@@ -299,5 +306,6 @@ export default {
     genBatchOrder,
     cancelBatchOrder,
     limitOrder,
-    marketOrder
+    marketOrder,
+    startDepInfo
 }
