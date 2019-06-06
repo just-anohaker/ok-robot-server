@@ -1,7 +1,7 @@
 const config = require('../../config');
 import acctInfo from "../../acctInfo";
 const { AuthenticatedClient } = require('@okfe/okex-node');
-
+let acctinfo;
 //批量挂单   生成订单  ------------------------------- batchOrder.js
 /**
  * 接口:
@@ -21,7 +21,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
     //根据价格将单子平均拆分 或者随机拆分
     //价格范围 bprice eprice  买入个数 amount
     //挂单数量 orderCount 平均拆分
-    console.log("params:"+JSON.stringify(params))
+    console.log("params:" + JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
     let orderCount = (params.topPrice - params.startPrice) / (params.startPrice * params.incr)
@@ -49,7 +49,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
         let order = {
             'type': 'limit', 'side': side,
             'instrument_id': config.instrument_id, 'size': sizes[i],
-            'client_oid': config.orderType.batchOrder + Date.now() , //TODO 注意限价
+            'client_oid': config.orderType.batchOrder + Date.now(), //TODO 注意限价
             'price': prices[i], 'margin_trading': 1, 'order_type': '0'
         }
         batchOrder.push(order);
@@ -59,7 +59,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
     try {
         for (let j = 0; j < batchOrder.length; j += 10) {
             let tmp = batchOrder.slice(j, j + 10)
-            let res = await  authClient.spot().postBatchOrders(tmp);
+            let res = await authClient.spot().postBatchOrders(tmp);
             await sleep(50);//每秒20次 限制是每2秒50次
             console.log("订单tmp---" + JSON.stringify(res))//
         }
@@ -67,13 +67,13 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
     } catch (e) {
         console.log(e)
         return {
-            result:false,
-            error_message: e+''
+            result: false,
+            error_message: e + ''
         }
     }
 
     return {
-        result:true,
+        result: true,
         orders: batchOrder,
         cost
     }
@@ -105,7 +105,7 @@ function sleep(ms) {
  */
 
 async function cancelBatchOrder(params, acct) {
-    console.log("params:"+JSON.stringify(params))
+    console.log("params:" + JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
     let failed = new Array();
@@ -120,7 +120,7 @@ async function cancelBatchOrder(params, acct) {
             } else {
                 res = await authClient.spot().getOrdersPending({ 'instrument_id': config.instrument_id, 'limit': limit });
             }
-           // orderData = orderData.concat(res)
+            // orderData = orderData.concat(res)
             let order_ids = []
             res.forEach(function (ele) {
                 console.log("价格和id" + ele.price + "---" + ele.order_id)
@@ -137,33 +137,34 @@ async function cancelBatchOrder(params, acct) {
                         await sleep(50);//每秒20次 限制是每2秒50次
                         console.log("撤消订单tmp---" + JSON.stringify(result))//
                     }
-                  //  console.log('orderCount ' + orderCount + 'cost:' + cost)
+                    //  console.log('orderCount ' + orderCount + 'cost:' + cost)
                 } catch (e) {
                     console.log(e)
                     return {
-                        result:false,
-                        error_message: e+''
+                        result: false,
+                        error_message: e + ''
                     }
                 }
-              
+
             }
             if (res.length > 0) {
                 from = res[res.length - 1].order_id
             }
-          //  await sleep(100);//每秒10次 限制是每2秒20次
+            //  await sleep(100);//每秒10次 限制是每2秒20次
             if (res.length < limit) {
                 start = false;
             }
         } catch (e) {
             console.log(e)
             return {
-                result:false,
-                error_message: e+''}
+                result: false,
+                error_message: e + ''
+            }
         }
     }
 
     return {
-        result:true      
+        result: true
     }
 }
 //冰山委托
@@ -228,25 +229,25 @@ async function cancelBatchOrder(params, acct) {
  * passphrase
  * }
  */
-async function limitOrder(params, acct){
-    console.log("params:"+JSON.stringify(params))
+async function limitOrder(params, acct) {
+    console.log("params:" + JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
-        var side;
-        if (params.type == 1) {//买入   
-            side = 'buy'
-        } else if (params.type == 2) {//卖出  
-            side = 'sell'
-        }
-        let order = {
-            'type': 'limit', 'side': side,
-            'instrument_id': config.instrument_id, 'size':params.size,
-            'client_oid': config.orderType.limitOrder + Date.now() ,
-            'price': params.price, 'margin_trading': 1, 'order_type': '0'
-        }
-      let result = await authClient.spot().postOrder(order);
-      console.log(result)
-      return result
+    var side;
+    if (params.type == 1) {//买入   
+        side = 'buy'
+    } else if (params.type == 2) {//卖出  
+        side = 'sell'
+    }
+    let order = {
+        'type': 'limit', 'side': side,
+        'instrument_id': config.instrument_id, 'size': params.size,
+        'client_oid': config.orderType.limitOrder + Date.now(),
+        'price': params.price, 'margin_trading': 1, 'order_type': '0'
+    }
+    let result = await authClient.spot().postOrder(order);
+    console.log(result)
+    return result
 }
 /***
  * params:
@@ -263,33 +264,77 @@ async function limitOrder(params, acct){
  * passphrase
  * }
  */
-async function marketOrder(params, acct){
-    console.log("params:"+JSON.stringify(params))
+async function marketOrder(params, acct) {
+    console.log("params:" + JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
-        let order ;
-        if (params.type == 1) {//买入   
-            order = {
-                'type': 'market', 'side': 'buy',
-                'instrument_id': config.instrument_id, 
-                'client_oid': config.orderType.marketOrder + Date.now() , 
-                'notional': params.notional, 'margin_trading': 1, 'order_type': '0'
-            }
-        } else if (params.type == 2) {//卖出  
-            order = {
-                'type': 'market', 'side': 'sell',
-                'instrument_id': config.instrument_id, 'size':params.size,
-                'client_oid': config.orderType.marketOrder + Date.now() , 
-                 'margin_trading': 1, 'order_type': '0'
-            }
+    let order;
+    if (params.type == 1) {//买入   
+        order = {
+            'type': 'market', 'side': 'buy',
+            'instrument_id': config.instrument_id,
+            'client_oid': config.orderType.marketOrder + Date.now(),
+            'notional': params.notional, 'margin_trading': 1, 'order_type': '0'
         }
-       
-      let result = await authClient.spot().postOrder(order);
-      console.log(result)
-      return result
+    } else if (params.type == 2) {//卖出  
+        order = {
+            'type': 'market', 'side': 'sell',
+            'instrument_id': config.instrument_id, 'size': params.size,
+            'client_oid': config.orderType.marketOrder + Date.now(),
+            'margin_trading': 1, 'order_type': '0'
+        }
+    }
+
+    let result = await authClient.spot().postOrder(order);
+    console.log(result)
+    return result
 }
-async function startDepInfo(acct){
-    return acctInfo(acct.httpkey, acct.httpsecret, acct.passphrase)
+async function startDepInfo(acct) {
+    acctinfo = acctInfo(acct.httpkey, acct.httpsecret, acct.passphrase);
+    return acctinfo;
+}
+async function stopDepInfo() {
+    try {
+        acctinfo.wss.close();
+    } catch (error) {
+        console.log(error)
+        return {
+            result: false,
+            error_message: error
+        };
+    }
+    return {
+        result: true
+    };
+}
+// async function startDepInfo(acct) {
+//     return acctInfo(acct.httpkey, acct.httpsecret, acct.passphrase)
+// }
+
+/***
+ * params:
+ * {
+ * instrument_id  
+ * from   
+ * to  
+ * limit 订单状态("-2":失败,"-1":撤单成功,"0":等待成交 ,"1":部分成交, "2":完全成交,"3":下单中,"4":撤单中,"6": 未完成（等待成交+部分成交），"7":已完成（撤单成功+完全成交））
+ * state 
+ * }
+ * acct:
+ * {
+ * name 
+ * httpkey
+ * httpsecret
+ * passphrase
+ * }
+ */
+async function getOrderData(params, acct) {
+    const authClient = new AuthenticatedClient(acct.httpkey,
+        acct.httpsecret, acct.passphrase, config.urlHost);
+    params.state = 2
+    let result = await authClient.spot().getOrders(params)
+    console.log(result)
+    return result
 }
 // console.log(genBatchOrder({type:2,topPrice:0.04,startPrice:0.03,incr:0.2,size:1,sizeIncr:1},
 //     {httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase}))
@@ -307,5 +352,7 @@ export default {
     cancelBatchOrder,
     limitOrder,
     marketOrder,
-    startDepInfo
+    startDepInfo,
+    stopDepInfo,
+    getOrderData
 }

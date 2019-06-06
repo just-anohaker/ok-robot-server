@@ -41,6 +41,15 @@ class BatchOrderProxy extends Proxy {
     async marketOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
         // TODO
         return await batchOrder.marketOrder(options, account);
+
+    }
+    async stopDepInfo(): Promise<any> {
+        // TODO
+        return await batchOrder.stopDepInfo();
+    }
+    async getOrderData(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
+        // TODO
+        return await batchOrder.getOrderData(options, account);
     }
     async startDepInfo(account: any /*OKexAccount*/): Promise<any> {
 
@@ -49,6 +58,7 @@ class BatchOrderProxy extends Proxy {
             const depthEventName = "depth";
             acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
             this.accountInfo.push(acctinfo);
+
         } catch (error) {
             return {
                 result: false,
@@ -57,7 +67,6 @@ class BatchOrderProxy extends Proxy {
         }
         return { result: true };
     }
-
     private onEventHandler(eventName) {
         return data => {
             Facade.getInstance().sendNotification(eventName, data);

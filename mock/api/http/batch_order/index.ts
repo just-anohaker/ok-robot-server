@@ -36,6 +36,8 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         router.post("/api/batch_order/limitOrder", this.limitOrder);
         router.post("/api/batch_order/marketOrder", this.marketOrder);
         router.post("/api/batch_order/startDepInfo", this.startDepInfo);
+        router.post("/api/batch_order/stopDepInfo", this.stopDepInfo);
+        router.post("/api/batch_order/getOrderData", this.getOrderData);
         this._http!.use(router.routes());
     }
 
@@ -69,6 +71,12 @@ class BatchOrderAPI implements IHttp, ISockerIO {
     }
     private startDepInfo = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.startDepInfo(ctx.body || {}));
+    }
+    private stopDepInfo = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.stopDepInfo(ctx.body || {}));
+    }
+    private getOrderData = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.getOrderData(ctx.body || {}));
     }
     private onNotification = (notification: INotification): void => {
         console.log("[BatchOrderAPI] onNotification:", notification.getName());

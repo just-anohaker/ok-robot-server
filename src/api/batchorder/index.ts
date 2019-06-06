@@ -79,10 +79,32 @@ async function startDepInfo(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(error.toString());
     }
 }
+async function stopDepInfo(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateCancel(data);
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
+
+    const resp = await ProxyHelper.BatchOrderProxy.stopDepInfo();
+    return apiSuccess(resp);
+}
+async function getOrderData(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateCancel(data);
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
+
+    const resp = await ProxyHelper.BatchOrderProxy.getOrderData(data.options, data.account);
+    return apiSuccess(resp);
+}
+
 export default {
     generate,
     cancel,
     limitOrder,
     marketOrder,
-    startDepInfo
+    startDepInfo,
+    getOrderData,
+    stopDepInfo
+
 }
