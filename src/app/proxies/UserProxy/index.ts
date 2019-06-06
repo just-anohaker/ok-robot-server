@@ -64,10 +64,12 @@ class UserProxy extends Proxy {
         }
 
         let changed = false;
+        let checkValid = false;
         const newAccount = Object.assign({}, this.userMap.get(userId)!);
         if (updateData.name && newAccount.name !== updateData.name) {
             newAccount.name = updateData.name!;
             changed = true;
+            checkValid = true;
         }
         if (updateData.httpKey && newAccount.httpKey !== updateData.httpKey) {
             newAccount.httpKey = updateData.httpKey;
@@ -82,11 +84,13 @@ class UserProxy extends Proxy {
             changed = true;
         }
         if (updateData.groupName && newAccount.groupName !== updateData.groupName) {
-            if (this.isNameInGroup(newAccount.name, updateData.groupName!)) {
-                return undefined;
-            }
             newAccount.groupName = updateData.groupName;
             changed = true;
+            checkValid = true;
+        }
+
+        if (checkValid && this.isNameInGroup(newAccount.name, newAccount.groupName!)) {
+            return undefined;
         }
 
         if (changed && this.dbHelper.update(userId, newAccount)) {
