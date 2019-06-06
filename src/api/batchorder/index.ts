@@ -68,13 +68,16 @@ async function marketOrder(data: MarkedMap): Promise<APIReturn> {
     }
 }
 async function startDepInfo(data: MarkedMap): Promise<APIReturn> {
-    const validation = Schema.validateCancel(data);
-    if (validation !== undefined) {
-        return apiFailure(validation);
+    // const validation = Schema.validateCancel(data);
+    // if (validation !== undefined) {
+    //     return apiFailure(validation);
+    // }
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.startDepInfo(data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
     }
-
-    const resp = await ProxyHelper.BatchOrderProxy.startDepInfo( data.account);
-    return apiSuccess(resp);
 }
 export default {
     generate,

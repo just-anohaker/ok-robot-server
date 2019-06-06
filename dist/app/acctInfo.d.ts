@@ -1,2 +1,1 @@
-declare function acctInfo(httpkey: any, httpsecret: any, passphrase: any): void;
-export default acctInfo;
+export default function acctInfo(httpkey: any, httpsecret: any, passphrase: any): any;

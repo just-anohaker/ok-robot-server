@@ -81,9 +81,25 @@ function marketOrder(data) {
         }
     });
 }
+function startDepInfo(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // const validation = Schema.validateCancel(data);
+        // if (validation !== undefined) {
+        //     return apiFailure(validation);
+        // }
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.startDepInfo(data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     generate,
     cancel,
     limitOrder,
-    marketOrder
+    marketOrder,
+    startDepInfo
 };

@@ -96,10 +96,12 @@ declare function limitOrder(params: any, acct: any): Promise<any>;
  * }
  */
 declare function marketOrder(params: any, acct: any): Promise<any>;
+declare function startDepInfo(acct: any): Promise<any>;
 declare const _default: {
     genBatchOrder: typeof genBatchOrder;
     cancelBatchOrder: typeof cancelBatchOrder;
     limitOrder: typeof limitOrder;
     marketOrder: typeof marketOrder;
+    startDepInfo: typeof startDepInfo;
 };
 export default _default;

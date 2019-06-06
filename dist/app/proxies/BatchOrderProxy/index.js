@@ -12,10 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Proxy_1 = __importDefault(require("../../../patterns/proxy/Proxy"));
+const __1 = require("../../..");
 const batchOrder_1 = __importDefault(require("./batchOrder"));
+const acctInfo_1 = __importDefault(require("../../acctInfo"));
 class BatchOrderProxy extends Proxy_1.default {
     constructor() {
         super(BatchOrderProxy.NAME);
+        this.onDepthEvent = (eventName, data) => {
+            __1.Facade.getInstance().sendNotification(eventName, data);
+        };
     }
     onRegister() {
         // TODO
@@ -46,6 +51,21 @@ class BatchOrderProxy extends Proxy_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO
             return yield batchOrder_1.default.marketOrder(options, account);
+        });
+    }
+    startDepInfo(account /*OKexAccount*/) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let acctinfo = acctInfo_1.default(account.httpkey, account.httpsecret, account.passphrase);
+                acctinfo.event.on("depth", this.onDepthEvent);
+            }
+            catch (error) {
+                return {
+                    result: false,
+                    error_message: error
+                };
+            }
+            return { result: true };
         });
     }
 }

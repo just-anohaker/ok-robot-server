@@ -7,8 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require('../../config');
+const acctInfo_1 = __importDefault(require("../../acctInfo"));
 const { AuthenticatedClient } = require('@okfe/okex-node');
 //批量挂单   生成订单  ------------------------------- batchOrder.js
 /**
@@ -30,6 +34,7 @@ function genBatchOrder(params, acct) {
         //根据价格将单子平均拆分 或者随机拆分
         //价格范围 bprice eprice  买入个数 amount
         //挂单数量 orderCount 平均拆分
+        console.log("params:" + JSON.stringify(params));
         const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
         let orderCount = (params.topPrice - params.startPrice) / (params.startPrice * params.incr);
         let batchOrder = new Array();
@@ -113,6 +118,7 @@ function sleep(ms) {
  */
 function cancelBatchOrder(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log("params:" + JSON.stringify(params));
         const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
         let failed = new Array();
         let start = true;
@@ -238,6 +244,7 @@ function cancelBatchOrder(params, acct) {
  */
 function limitOrder(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log("params:" + JSON.stringify(params));
         const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
         var side;
         if (params.type == 1) { //买入   
@@ -274,6 +281,7 @@ function limitOrder(params, acct) {
  */
 function marketOrder(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log("params:" + JSON.stringify(params));
         const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
         let order;
         if (params.type == 1) { //买入   
@@ -297,6 +305,11 @@ function marketOrder(params, acct) {
         return result;
     });
 }
+function startDepInfo(acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return acctInfo_1.default(acct.httpkey, acct.httpsecret, acct.passphrase);
+    });
+}
 // console.log(genBatchOrder({type:2,topPrice:0.04,startPrice:0.03,incr:0.2,size:1,sizeIncr:1},
 //     {httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase}))
 //cancelBatchOrder({startPrice:0.01,topPrice:0.02},{httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase})
@@ -310,5 +323,6 @@ exports.default = {
     genBatchOrder,
     cancelBatchOrder,
     limitOrder,
-    marketOrder
+    marketOrder,
+    startDepInfo
 };
