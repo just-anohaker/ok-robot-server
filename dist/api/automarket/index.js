@@ -19,32 +19,57 @@ function init(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = Utils_1.ProxyHelper.AutoMarketProxy.init(data.options, data.account);
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = Utils_1.ProxyHelper.AutoMarketProxy.init(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
-        const resp = Utils_1.ProxyHelper.AutoMarketProxy.start();
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = Utils_1.ProxyHelper.AutoMarketProxy.start();
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function stop() {
     return __awaiter(this, void 0, void 0, function* () {
-        const resp = Utils_1.ProxyHelper.AutoMarketProxy.stop();
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = Utils_1.ProxyHelper.AutoMarketProxy.stop();
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function isrunning() {
     return __awaiter(this, void 0, void 0, function* () {
-        const bIsRunning = Utils_1.ProxyHelper.AutoMarketProxy.isRunning();
-        return Utils_1.apiSuccess({ running: bIsRunning });
+        try {
+            const bIsRunning = Utils_1.ProxyHelper.AutoMarketProxy.isRunning();
+            return Utils_1.apiSuccess({ running: bIsRunning });
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function optionAndAccount() {
     return __awaiter(this, void 0, void 0, function* () {
-        const resp = Utils_1.ProxyHelper.AutoMarketProxy.OptionsAndAccount;
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = Utils_1.ProxyHelper.AutoMarketProxy.OptionsAndAccount;
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 exports.default = {

@@ -19,8 +19,13 @@ function generate(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 // async function start(data: MarkedMap): Promise<APIReturn> {
@@ -37,8 +42,13 @@ function cancel(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.cancel(data.options, data.account);
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.cancel(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function limitOrder(data) {
@@ -47,8 +57,13 @@ function limitOrder(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.limitOrder(data.options, data.account);
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.limitOrder(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function marketOrder(data) {
@@ -57,8 +72,13 @@ function marketOrder(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.marketOrder(data.options, data.account);
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.marketOrder(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 exports.default = {

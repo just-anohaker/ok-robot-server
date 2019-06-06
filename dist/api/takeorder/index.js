@@ -19,8 +19,13 @@ function generate(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = Utils_1.ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = Utils_1.ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function start(data) {
@@ -29,8 +34,13 @@ function start(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const bResp = Utils_1.ProxyHelper.TakeOrderProxy.start(data.client_oids);
-        return Utils_1.apiSuccess(bResp);
+        try {
+            const bResp = Utils_1.ProxyHelper.TakeOrderProxy.start(data.client_oids);
+            return Utils_1.apiSuccess(bResp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 exports.default = {

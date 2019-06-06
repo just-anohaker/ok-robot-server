@@ -9,28 +9,48 @@ async function init(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const resp = ProxyHelper.AutoMarketProxy.init(data.options, data.account);
-    return apiSuccess(resp);
+    try {
+        const resp = ProxyHelper.AutoMarketProxy.init(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function start(): Promise<APIReturn> {
-    const resp = ProxyHelper.AutoMarketProxy.start();
-    return apiSuccess(resp);
+    try {
+        const resp = ProxyHelper.AutoMarketProxy.start();
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function stop(): Promise<APIReturn> {
-    const resp = ProxyHelper.AutoMarketProxy.stop();
-    return apiSuccess(resp);
+    try {
+        const resp = ProxyHelper.AutoMarketProxy.stop();
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function isrunning(): Promise<APIReturn> {
-    const bIsRunning = ProxyHelper.AutoMarketProxy.isRunning();
-    return apiSuccess({ running: bIsRunning });
+    try {
+        const bIsRunning = ProxyHelper.AutoMarketProxy.isRunning();
+        return apiSuccess({ running: bIsRunning });
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function optionAndAccount(): Promise<APIReturn> {
-    const resp = ProxyHelper.AutoMarketProxy.OptionsAndAccount;
-    return apiSuccess(resp);
+    try {
+        const resp = ProxyHelper.AutoMarketProxy.OptionsAndAccount;
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 export default {

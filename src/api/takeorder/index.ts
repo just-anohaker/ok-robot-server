@@ -9,8 +9,12 @@ async function generate(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const resp = ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
-    return apiSuccess(resp);
+    try {
+        const resp = ProxyHelper.TakeOrderProxy.generate(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function start(data: MarkedMap): Promise<APIReturn> {
@@ -19,8 +23,12 @@ async function start(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const bResp = ProxyHelper.TakeOrderProxy.start(data.client_oids);
-    return apiSuccess(bResp);
+    try {
+        const bResp = ProxyHelper.TakeOrderProxy.start(data.client_oids);
+        return apiSuccess(bResp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 export default {

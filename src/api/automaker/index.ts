@@ -9,28 +9,48 @@ async function init(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const resp = ProxyHelper.AutoMakerProxy.init(data.options, data.account);
-    return apiSuccess(resp);
+    try {
+        const resp = ProxyHelper.AutoMakerProxy.init(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function start(): Promise<APIReturn> {
-    const success = ProxyHelper.AutoMakerProxy.start();
-    return apiSuccess(success);
+    try {
+        const success = ProxyHelper.AutoMakerProxy.start();
+        return apiSuccess(success);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function stop(): Promise<APIReturn> {
-    const success = ProxyHelper.AutoMakerProxy.stop();
-    return apiSuccess(success);
+    try {
+        const success = ProxyHelper.AutoMakerProxy.stop();
+        return apiSuccess(success);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function isrunning(): Promise<APIReturn> {
-    const bIsRunning = ProxyHelper.AutoMakerProxy.isRunning();
-    return apiSuccess(bIsRunning);
+    try {
+        const bIsRunning = ProxyHelper.AutoMakerProxy.isRunning();
+        return apiSuccess(bIsRunning);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function optionAndAccount(): Promise<APIReturn> {
-    const resp = ProxyHelper.AutoMakerProxy.OptionsAndAccount;
-    return apiSuccess(resp);
+    try {
+        const resp = ProxyHelper.AutoMakerProxy.OptionsAndAccount;
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 export default {

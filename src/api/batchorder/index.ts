@@ -9,8 +9,12 @@ async function generate(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const resp = await ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
-    return apiSuccess(resp);
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.generate(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 // async function start(data: MarkedMap): Promise<APIReturn> {
@@ -29,8 +33,12 @@ async function cancel(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const resp = await ProxyHelper.BatchOrderProxy.cancel(data.options, data.account);
-    return apiSuccess(resp);
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.cancel(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 async function limitOrder(data: MarkedMap): Promise<APIReturn> {
@@ -39,8 +47,12 @@ async function limitOrder(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const resp = await ProxyHelper.BatchOrderProxy.limitOrder(data.options, data.account);
-    return apiSuccess(resp);
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.limitOrder(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 async function marketOrder(data: MarkedMap): Promise<APIReturn> {
     const validation = Schema.validateCancel(data);
@@ -48,8 +60,12 @@ async function marketOrder(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(validation);
     }
 
-    const resp = await ProxyHelper.BatchOrderProxy.marketOrder(data.options, data.account);
-    return apiSuccess(resp);
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.marketOrder(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 export default {

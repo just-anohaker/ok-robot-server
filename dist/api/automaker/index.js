@@ -19,32 +19,57 @@ function init(data) {
         if (validation !== undefined) {
             return Utils_1.apiFailure(validation);
         }
-        const resp = Utils_1.ProxyHelper.AutoMakerProxy.init(data.options, data.account);
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = Utils_1.ProxyHelper.AutoMakerProxy.init(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
-        const success = Utils_1.ProxyHelper.AutoMakerProxy.start();
-        return Utils_1.apiSuccess(success);
+        try {
+            const success = Utils_1.ProxyHelper.AutoMakerProxy.start();
+            return Utils_1.apiSuccess(success);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function stop() {
     return __awaiter(this, void 0, void 0, function* () {
-        const success = Utils_1.ProxyHelper.AutoMakerProxy.stop();
-        return Utils_1.apiSuccess(success);
+        try {
+            const success = Utils_1.ProxyHelper.AutoMakerProxy.stop();
+            return Utils_1.apiSuccess(success);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function isrunning() {
     return __awaiter(this, void 0, void 0, function* () {
-        const bIsRunning = Utils_1.ProxyHelper.AutoMakerProxy.isRunning();
-        return Utils_1.apiSuccess(bIsRunning);
+        try {
+            const bIsRunning = Utils_1.ProxyHelper.AutoMakerProxy.isRunning();
+            return Utils_1.apiSuccess(bIsRunning);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 function optionAndAccount() {
     return __awaiter(this, void 0, void 0, function* () {
-        const resp = Utils_1.ProxyHelper.AutoMakerProxy.OptionsAndAccount;
-        return Utils_1.apiSuccess(resp);
+        try {
+            const resp = Utils_1.ProxyHelper.AutoMakerProxy.OptionsAndAccount;
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
     });
 }
 exports.default = {
