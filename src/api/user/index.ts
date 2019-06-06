@@ -9,8 +9,8 @@ async function getAll(): Promise<APIReturn> {
         id: value.id,
         groupName: value.groupName,
         name: value.name,
-        httpKey: value.httpKey,
-        httpSecret: value.httpSecret,
+        httpkey: value.httpkey,
+        httpsecret: value.httpsecret,
         passphrase: value.passphrase
     })));
 }
@@ -27,8 +27,8 @@ async function get(data: MarkedMap): Promise<APIReturn> {
             id: user.id,
             groupName: user.groupName,
             name: user.name,
-            httpKey: user.httpKey,
-            httpSecret: user.httpKey,
+            httpkey: user.httpkey,
+            httpsecret: user.httpsecret,
             passphrase: user.passphrase
         });
     }
@@ -44,8 +44,8 @@ async function add(data: MarkedMap): Promise<APIReturn> {
 
     const newUser = ProxyHelper.UserProxy.add(data.groupName, {
         name: data.name,
-        httpKey: data.httpKey,
-        httpSecret: data.httpSecret,
+        httpkey: data.httpkey,
+        httpsecret: data.httpsecret,
         passphrase: data.passphrase
     });
     if (newUser) {
@@ -53,8 +53,8 @@ async function add(data: MarkedMap): Promise<APIReturn> {
             id: newUser.id,
             groupName: newUser.groupName,
             name: newUser.name,
-            httpKey: newUser.httpKey,
-            httpSecret: newUser.httpSecret,
+            httpkey: newUser.httpkey,
+            httpsecret: newUser.httpsecret,
             passphrase: newUser.passphrase
         });
     }
@@ -71,8 +71,8 @@ async function update(data: MarkedMap): Promise<APIReturn> {
     const updateUser = ProxyHelper.UserProxy.update(data.userId, {
         groupName: data.options.groupName,
         name: data.options.name,
-        httpKey: data.options.httpKey,
-        httpSecret: data.options.httpSecret,
+        httpkey: data.options.httpkey,
+        httpsecret: data.options.httpsecret,
         passphrase: data.options.passphrase
     });
     if (updateUser) {
@@ -80,8 +80,8 @@ async function update(data: MarkedMap): Promise<APIReturn> {
             id: updateUser.id,
             groupName: updateUser.groupName,
             name: updateUser.name,
-            httpKey: updateUser.httpKey,
-            httpSecret: updateUser.httpSecret,
+            httpkey: updateUser.httpkey,
+            httpsecret: updateUser.httpsecret,
             passphrase: updateUser.passphrase
         });
     }
@@ -101,8 +101,8 @@ async function remove(data: MarkedMap): Promise<APIReturn> {
             id: removeUser.id,
             groupName: removeUser.groupName,
             name: removeUser.name,
-            httpKey: removeUser.httpKey,
-            httpSecret: removeUser.httpSecret,
+            httpkey: removeUser.httpkey,
+            httpsecret: removeUser.httpsecret,
             passphrase: removeUser.passphrase
         });
     }

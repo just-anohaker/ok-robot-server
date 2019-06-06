@@ -71,12 +71,12 @@ class UserProxy extends Proxy {
             changed = true;
             checkValid = true;
         }
-        if (updateData.httpKey && newAccount.httpKey !== updateData.httpKey) {
-            newAccount.httpKey = updateData.httpKey;
+        if (updateData.httpkey && newAccount.httpkey !== updateData.httpkey) {
+            newAccount.httpkey = updateData.httpkey;
             changed = true;
         }
-        if (updateData.httpSecret && newAccount.httpSecret !== updateData.httpSecret) {
-            newAccount.httpSecret = updateData.httpSecret;
+        if (updateData.httpsecret && newAccount.httpsecret !== updateData.httpsecret) {
+            newAccount.httpsecret = updateData.httpsecret;
             changed = true;
         }
         if (updateData.passphrase && newAccount.passphrase !== updateData.passphrase) {
@@ -197,8 +197,8 @@ class _DbHelper {
             const runResult: Sqlite3.RunResult = stmt.run({
                 groupName: options.groupName!,
                 name: options.name!,
-                httpKey: options.httpKey!,
-                httpSecret: options.httpSecret!,
+                httpKey: options.httpkey!,
+                httpSecret: options.httpsecret!,
                 passphrase: options.passphrase!,
                 userId: userId,
                 state: 1
@@ -237,8 +237,8 @@ class _DbHelper {
                 userId: newUser.id!,
                 groupName: newUser.groupName!,
                 name: newUser.name,
-                httpKey: newUser.httpKey,
-                httpSecret: newUser.httpSecret,
+                httpKey: newUser.httpkey,
+                httpSecret: newUser.httpsecret,
                 passphrase: newUser.passphrase,
                 state: 1
             });
@@ -257,8 +257,8 @@ class _DbHelper {
             id: data.id as string,
             groupName: data.groupName as string,
             name: data.name as string,
-            httpKey: data.httpKey as string,
-            httpSecret: data.httpSecret as string,
+            httpkey: data.httpKey as string,
+            httpsecret: data.httpSecret as string,
             passphrase: data.passphrase as string
         };
     }

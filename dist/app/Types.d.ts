@@ -2,21 +2,21 @@ export interface Account {
     id?: string;
     groupName?: string;
     name: string;
-    httpKey: string;
-    httpSecret: string;
+    httpkey: string;
+    httpsecret: string;
     passphrase: string;
 }
 export interface UpdateAccount {
     readonly groupName?: string;
     readonly name?: string;
-    readonly httpKey?: string;
-    readonly httpSecret?: string;
+    readonly httpkey?: string;
+    readonly httpsecret?: string;
     readonly passphrase?: string;
 }
 export interface OKexAccount {
     name: string;
-    httpKey: string;
-    httpSecret: string;
+    httpkey: string;
+    httpsecret: string;
     passphrase: string;
 }
 export declare enum TradeType {

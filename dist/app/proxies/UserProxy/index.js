@@ -58,12 +58,12 @@ class UserProxy extends Proxy_1.default {
             changed = true;
             checkValid = true;
         }
-        if (updateData.httpKey && newAccount.httpKey !== updateData.httpKey) {
-            newAccount.httpKey = updateData.httpKey;
+        if (updateData.httpkey && newAccount.httpkey !== updateData.httpkey) {
+            newAccount.httpkey = updateData.httpkey;
             changed = true;
         }
-        if (updateData.httpSecret && newAccount.httpSecret !== updateData.httpSecret) {
-            newAccount.httpSecret = updateData.httpSecret;
+        if (updateData.httpsecret && newAccount.httpsecret !== updateData.httpsecret) {
+            newAccount.httpsecret = updateData.httpsecret;
             changed = true;
         }
         if (updateData.passphrase && newAccount.passphrase !== updateData.passphrase) {
@@ -175,8 +175,8 @@ class _DbHelper {
             const runResult = stmt.run({
                 groupName: options.groupName,
                 name: options.name,
-                httpKey: options.httpKey,
-                httpSecret: options.httpSecret,
+                httpKey: options.httpkey,
+                httpSecret: options.httpsecret,
                 passphrase: options.passphrase,
                 userId: userId,
                 state: 1
@@ -215,8 +215,8 @@ class _DbHelper {
                 userId: newUser.id,
                 groupName: newUser.groupName,
                 name: newUser.name,
-                httpKey: newUser.httpKey,
-                httpSecret: newUser.httpSecret,
+                httpKey: newUser.httpkey,
+                httpSecret: newUser.httpsecret,
                 passphrase: newUser.passphrase,
                 state: 1
             });
@@ -235,8 +235,8 @@ class _DbHelper {
             id: data.id,
             groupName: data.groupName,
             name: data.name,
-            httpKey: data.httpKey,
-            httpSecret: data.httpSecret,
+            httpkey: data.httpKey,
+            httpsecret: data.httpSecret,
             passphrase: data.passphrase
         };
     }

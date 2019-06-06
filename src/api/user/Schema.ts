@@ -26,8 +26,8 @@ class Schema {
             properties: {
                 groupName: { type: "string", minLength: 1 },
                 name: { type: "string", minLength: 1 },
-                httpKey: { type: "string", minLength: 1 },
-                httpSecret: { type: "string", minLength: 1 },
+                httpkey: { type: "string", minLength: 1 },
+                httpsecret: { type: "string", minLength: 1 },
                 passphrase: { type: "string", minLength: 1 }
             },
             required: ["groupName", "name", "httpKey", "httpSecret", "passphrase"]
@@ -62,8 +62,8 @@ class Schema {
                     properties: {
                         groupName: { type: "string", minLength: 1 },
                         name: { type: "string", minLength: 1 },
-                        httpKey: { type: "string", minLength: 1 },
-                        httpSecret: { type: "string", minLength: 1 },
+                        httpkey: { type: "string", minLength: 1 },
+                        httpsecret: { type: "string", minLength: 1 },
                         passphrase: { type: "string", minLength: 1 }
                     }
                 }
