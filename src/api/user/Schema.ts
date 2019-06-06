@@ -30,7 +30,7 @@ class Schema {
                 httpsecret: { type: "string", minLength: 1 },
                 passphrase: { type: "string", minLength: 1 }
             },
-            required: ["groupName", "name", "httpKey", "httpSecret", "passphrase"]
+            required: ["groupName", "name", "httpkey", "httpsecret", "passphrase"]
         }, body);
         if (validation) {
             return undefined;
