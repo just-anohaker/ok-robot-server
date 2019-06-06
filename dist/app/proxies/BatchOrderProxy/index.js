@@ -18,9 +18,7 @@ const acctInfo_1 = __importDefault(require("../../acctInfo"));
 class BatchOrderProxy extends Proxy_1.default {
     constructor() {
         super(BatchOrderProxy.NAME);
-        this.onDepthEvent = (eventName, data) => {
-            __1.Facade.getInstance().sendNotification(eventName, data);
-        };
+        this.accountInfo = [];
     }
     onRegister() {
         // TODO
@@ -57,7 +55,9 @@ class BatchOrderProxy extends Proxy_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let acctinfo = acctInfo_1.default(account.httpkey, account.httpsecret, account.passphrase);
-                acctinfo.event.on("depth", this.onDepthEvent);
+                const depthEventName = "depth";
+                acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
+                this.accountInfo.push(acctinfo);
             }
             catch (error) {
                 return {
@@ -67,6 +67,11 @@ class BatchOrderProxy extends Proxy_1.default {
             }
             return { result: true };
         });
+    }
+    onEventHandler(eventName) {
+        return data => {
+            __1.Facade.getInstance().sendNotification(eventName, data);
+        };
     }
 }
 BatchOrderProxy.NAME = "PROXY_BATCH_ORDER";

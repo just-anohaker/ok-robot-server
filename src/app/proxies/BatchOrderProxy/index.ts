@@ -8,8 +8,12 @@ import AcctInfo from "../../acctInfo";
 class BatchOrderProxy extends Proxy {
     static readonly NAME: string = "PROXY_BATCH_ORDER";
 
+    private accountInfo: any[];
+
     constructor() {
         super(BatchOrderProxy.NAME);
+
+        this.accountInfo = [];
     }
 
     onRegister() {
@@ -42,7 +46,9 @@ class BatchOrderProxy extends Proxy {
 
         try {
             let acctinfo = AcctInfo(account.httpkey, account.httpsecret, account.passphrase);
-            acctinfo.event.on("depth", this.onDepthEvent);
+            const depthEventName = "depth";
+            acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
+            this.accountInfo.push(acctinfo);
         } catch (error) {
             return {
                 result: false,
@@ -52,8 +58,10 @@ class BatchOrderProxy extends Proxy {
         return { result: true };
     }
 
-    private onDepthEvent = (eventName, data) => {
-        Facade.getInstance().sendNotification(eventName, data);
+    private onEventHandler(eventName) {
+        return data => {
+            Facade.getInstance().sendNotification(eventName, data);
+        };
     }
 }
 

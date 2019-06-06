@@ -6,7 +6,9 @@ import IHttp, { koaResponse, ISockerIO } from "../http";
 import Application from "../../../Application";
 
 // /> 
-import { apiUser, apiBatchOrder, IObserver, Observer, INotification } from "../../../../src";
+import { apiUser, apiBatchOrder } from "../../../../src";
+import { IObserver, Observer, INotification } from "../../../../src";
+import { Facade } from "../../../../src";
 
 class BatchOrderAPI implements IHttp, ISockerIO {
     private _http?: Koa;
@@ -29,7 +31,7 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         const router = new KoaRouter();
 
         router.post("/api/batch_order/gen", this.generate);
-      //  router.post("/api/batch_order", this.start);
+        //  router.post("/api/batch_order", this.start);
         router.post("/api/batch_order/cancel", this.cancel);
         router.post("/api/batch_order/limitOrder", this.limitOrder);
         router.post("/api/batch_order/marketOrder", this.marketOrder);
@@ -44,6 +46,8 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         // Facade.getInstance().registerObserver(NotificationDeep, this._observer);
         // Facade.getInstance().registerObserver(NotificationTicker, this._observer);
         // Facade.getInstance().registerObserver(NotificationOrder, this._observer);
+
+        Facade.getInstance().registerObserver("depth", this._observer);
     }
 
     private generate = async (ctx: Koa.Context) => {
