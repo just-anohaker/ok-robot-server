@@ -3,7 +3,7 @@ import { Facade } from "../../..";
 import { OKexAccount, BatchOrderOptions, BatchOrderCancelOptions } from "../../Types";
 
 import batchOrder from "./batchOrder";
-import AcctInfo from "../../acctInfo";
+import AcctInfo, { AccountInfo } from "../../acctInfo2";
 
 class BatchOrderProxy extends Proxy {
     static readonly NAME: string = "PROXY_BATCH_ORDER";
@@ -40,20 +40,24 @@ class BatchOrderProxy extends Proxy {
         return await batchOrder.marketOrder(options, account);
     }
 
-    async stopDepInfo(): Promise<any> {
-        return await batchOrder.stopDepInfo();
+    async stopDepInfo(options: any): Promise<any> {
+        return await batchOrder.stopDepInfo(options);
     }
 
     async getOrderData(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
         return await batchOrder.getOrderData(options, account);
     }
 
-    async startDepInfo(account: any /*OKexAccount*/): Promise<any> {
+    async startDepInfo(options: any /*OKexAccount*/): Promise<any> {
         try {
-            let acctinfo = AcctInfo(account.httpkey, account.httpsecret, account.passphrase);
+
+            let acctinfo = await batchOrder.startDepInfo(options);
             const depthEventName = "depth";
-            acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
-            this.accountInfo.push(acctinfo);
+            if (acctinfo instanceof AccountInfo) {
+                acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
+            }
+
+            //  this.accountInfo.push(acctinfo);
 
         } catch (error) {
             return {

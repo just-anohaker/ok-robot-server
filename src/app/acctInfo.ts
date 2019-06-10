@@ -72,6 +72,7 @@ function stopWebsocket() {
 }
 function startWebsocket() {
     console.log('spot.......');
+    let sendDepthTime = undefined;
     self.wss.connect();
     self.wss.on('open', data => {
         console.log("websocket open!!!");
@@ -155,34 +156,47 @@ function startWebsocket() {
                 }
             })
         }
-        self.orderPrice.clear();
-        //合并订单价格
-        for (var order of self.pendingOrders.values()) {
-            if (self.orderPrice.has(order.price)) {
-                self.orderPrice.set(order.price, self.orderPrice.get(order.price) + (order.size - order.filled_size))
-            } else {
-                self.orderPrice.set(order.price, (order.size - order.filled_size))
+        if (sendDepthTime == undefined || Date.now() - sendDepthTime > config.SendDepTime) {
+            self.orderPrice.clear();
+            //合并订单价格
+            for (var order of self.pendingOrders.values()) {
+                if (self.orderPrice.has(order.price)) {
+                    self.orderPrice.set(order.price, self.orderPrice.get(order.price) + (order.size - order.filled_size))
+                } else {
+                    self.orderPrice.set(order.price, (order.size - order.filled_size))
+                }
             }
+            //将订单的数据合并到深度信息中
+            let tem_a = self.asks.slice();
+            let tem_b = self.bids.slice();
+            tem_a.forEach((element, index, array) => {
+                if (self.orderPrice.has(element[0])) {
+                    if (array[index] < 4) {
+                        array[index].push(self.orderPrice.get(element[0]))
+                    } else {
+                        array[index][3] = self.orderPrice.get(element[0]);
+                    }
+                }
+            })
+            tem_b.forEach((element, index, array) => {
+                if (self.orderPrice.has(element[0])) {
+                    if (array[index] < 4) {
+                        array[index].push(self.orderPrice.get(element[0]))
+                    } else {
+                        array[index][3] = self.orderPrice.get(element[0]);
+                    }
+
+                }
+            })
+            // console.log("now:", Date.now(), sendDepthTime, Date.now() - sendDepthTime)
+            sendDepthTime = Date.now();
+            self.event.emit("depth", {
+                "asks": tem_a,
+                "bids": tem_b
+            });
+
+            // console.log("tem_b:", JSON.stringify(tem_b))
         }
-        //将订单的数据合并到深度信息中
-        let tem_a = self.asks.slice();
-        let tem_b = self.bids.slice();
-        tem_a.forEach((element, index, array) => {
-            if (self.orderPrice.has(element[0])) {
-                array[index].push(self.orderPrice.get(element[0]))
-            }
-        })
-        tem_b.forEach((element, index, array) => {
-            if (self.orderPrice.has(element[0])) {
-                array[index].push(self.orderPrice.get(element[0]))
-            }
-        })
-        self.event.emit("depth", {
-            "asks": tem_a,
-            "bids": tem_b
-        });
-        //console.log("depth:", d)
-        //console.log("tem_b:",tem_b)
     }))
 }
 

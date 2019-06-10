@@ -75,16 +75,16 @@ async function startDepInfo(data: MarkedMap): Promise<APIReturn> {
     //     return apiFailure(validation);
     // }
     try {
-        const resp = await ProxyHelper.BatchOrderProxy.startDepInfo(data.account);
+        const resp = await ProxyHelper.BatchOrderProxy.startDepInfo(data.options);
         return apiSuccess(resp);
     } catch (error) {
         return apiFailure(error.toString());
     }
 }
 
-async function stopDepInfo(): Promise<APIReturn> {
+async function stopDepInfo(data: MarkedMap): Promise<APIReturn> {
     try {
-        const resp = await ProxyHelper.BatchOrderProxy.stopDepInfo();
+        const resp = await ProxyHelper.BatchOrderProxy.stopDepInfo(data.options);
         return apiSuccess(resp);
     } catch (error) {
         return apiFailure(error.toString());

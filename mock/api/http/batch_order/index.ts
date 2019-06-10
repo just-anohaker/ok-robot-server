@@ -77,7 +77,7 @@ class BatchOrderAPI implements IHttp, ISockerIO {
     }
 
     private stopDepInfo = async (ctx: Koa.Context) => {
-        koaResponse(ctx, await apiBatchOrder.stopDepInfo());
+        koaResponse(ctx, await apiBatchOrder.stopDepInfo(ctx.body || {}));
     }
 
     private getOrderData = async (ctx: Koa.Context) => {

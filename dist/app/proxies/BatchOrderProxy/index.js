@@ -46,7 +46,7 @@ class BatchOrderProxy extends Proxy_1.default {
             return yield batchOrder_1.default.marketOrder(options, account);
         });
     }
-    stopDepInfo() {
+    stopDepInfo(options) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield batchOrder_1.default.stopDepInfo();
         });
