@@ -83,6 +83,11 @@ async function startDepInfo(data: MarkedMap): Promise<APIReturn> {
 }
 
 async function stopDepInfo(data: MarkedMap): Promise<APIReturn> {
+    // const validation = Schema.validateCancel(data);
+    // if (validation !== undefined) {
+    //     return apiFailure(validation);
+    // }
+
     try {
         const resp = await ProxyHelper.BatchOrderProxy.stopDepInfo(data.options);
         return apiSuccess(resp);

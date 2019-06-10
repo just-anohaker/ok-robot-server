@@ -50,35 +50,35 @@ class UserProxy extends Proxy_1.default {
         if (!this.isUserExists(userId)) {
             return undefined;
         }
-        let changed = false;
-        let checkValid = false;
+        let isChanged = false;
+        let needCheckNameOrGroup = false;
         const newAccount = Object.assign({}, this.userMap.get(userId));
         if (updateData.name && newAccount.name !== updateData.name) {
             newAccount.name = updateData.name;
-            changed = true;
-            checkValid = true;
+            isChanged = true;
+            needCheckNameOrGroup = true;
         }
         if (updateData.httpkey && newAccount.httpkey !== updateData.httpkey) {
             newAccount.httpkey = updateData.httpkey;
-            changed = true;
+            isChanged = true;
         }
         if (updateData.httpsecret && newAccount.httpsecret !== updateData.httpsecret) {
             newAccount.httpsecret = updateData.httpsecret;
-            changed = true;
+            isChanged = true;
         }
         if (updateData.passphrase && newAccount.passphrase !== updateData.passphrase) {
             newAccount.passphrase = updateData.passphrase;
-            changed = true;
+            isChanged = true;
         }
         if (updateData.groupName && newAccount.groupName !== updateData.groupName) {
             newAccount.groupName = updateData.groupName;
-            changed = true;
-            checkValid = true;
+            isChanged = true;
+            needCheckNameOrGroup = true;
         }
-        if (checkValid && this.isNameInGroup(newAccount.name, newAccount.groupName)) {
+        if (needCheckNameOrGroup && this.isNameInGroup(newAccount.name, newAccount.groupName)) {
             return undefined;
         }
-        if (changed && this.dbHelper.update(userId, newAccount)) {
+        if (isChanged && this.dbHelper.update(userId, newAccount)) {
             this.userMap.set(userId, newAccount);
             return Object.assign({}, newAccount);
         }

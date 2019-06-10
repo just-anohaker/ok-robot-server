@@ -88,7 +88,7 @@ function startDepInfo(data) {
         //     return apiFailure(validation);
         // }
         try {
-            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.startDepInfo(data.account);
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.startDepInfo(data.options);
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
@@ -96,10 +96,14 @@ function startDepInfo(data) {
         }
     });
 }
-function stopDepInfo() {
+function stopDepInfo(data) {
     return __awaiter(this, void 0, void 0, function* () {
+        // const validation = Schema.validateCancel(data);
+        // if (validation !== undefined) {
+        //     return apiFailure(validation);
+        // }
         try {
-            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.stopDepInfo();
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.stopDepInfo(data.options);
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {

@@ -1,3 +1,4 @@
+import { AccountInfo } from "../../acctInfo2";
 /**
  * 接口:
  * params:
@@ -8,6 +9,7 @@
  * incr //价格增量百分比
  * size  //挂单数量
  * sizeIncr //数量递增百分比
+ * instrument_id
  * }
   return 一个对象
  * }
@@ -29,6 +31,7 @@ declare function genBatchOrder(params: any, acct: any): Promise<{
  * type   //1 买入  2 卖出
  * topPrice  //交易最高价
  * startPrice //交易最低价
+ * instrument_id
  * }
  * acct:
  * {
@@ -54,6 +57,7 @@ declare function cancelBatchOrder(params: any, acct: any): Promise<{
  * size //数量
  * perSize //单笔数量
  * priceLimit //价格限制
+ * instrument_id
  * }
  * acct:
  * {
@@ -86,6 +90,7 @@ declare function limitOrder(params: any, acct: any): Promise<any>;
  * type   //1 买入  2 卖出
  * notional  //买入时的金额
  * size //数量  卖出时的数量
+ * instrument_id
  * }
  * acct:
  * {
@@ -96,8 +101,26 @@ declare function limitOrder(params: any, acct: any): Promise<any>;
  * }
  */
 declare function marketOrder(params: any, acct: any): Promise<any>;
-declare function startDepInfo(acct: any): Promise<any>;
-declare function stopDepInfo(): Promise<{
+/***
+ * params:
+ * {
+ * instrument_id
+ * httpkey
+ * httpsecret
+ * passphrase
+ * }
+ */
+declare function startDepInfo(params: any): Promise<AccountInfo>;
+/***
+ * params:
+ * {
+ * instrument_id
+ * httpkey
+ * httpsecret
+ * passphrase
+ * }
+ */
+declare function stopDepInfo(params: any): Promise<{
     result: boolean;
     error_message: any;
 } | {

@@ -5,7 +5,7 @@ declare function cancel(data: MarkedMap): Promise<APIReturn>;
 declare function limitOrder(data: MarkedMap): Promise<APIReturn>;
 declare function marketOrder(data: MarkedMap): Promise<APIReturn>;
 declare function startDepInfo(data: MarkedMap): Promise<APIReturn>;
-declare function stopDepInfo(): Promise<APIReturn>;
+declare function stopDepInfo(data: MarkedMap): Promise<APIReturn>;
 declare function getOrderData(data: MarkedMap): Promise<APIReturn>;
 declare const _default: {
     generate: typeof generate;

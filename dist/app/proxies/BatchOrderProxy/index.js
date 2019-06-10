@@ -14,7 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Proxy_1 = __importDefault(require("../../../patterns/proxy/Proxy"));
 const __1 = require("../../..");
 const batchOrder_1 = __importDefault(require("./batchOrder"));
-const acctInfo_1 = __importDefault(require("../../acctInfo"));
+const acctInfo2_1 = require("../../acctInfo2");
 class BatchOrderProxy extends Proxy_1.default {
     constructor() {
         super(BatchOrderProxy.NAME);
@@ -48,7 +48,7 @@ class BatchOrderProxy extends Proxy_1.default {
     }
     stopDepInfo(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield batchOrder_1.default.stopDepInfo();
+            return yield batchOrder_1.default.stopDepInfo(options);
         });
     }
     getOrderData(options /*BatchOrderCancelOptions*/, account /*OKexAccount*/) {
@@ -56,13 +56,15 @@ class BatchOrderProxy extends Proxy_1.default {
             return yield batchOrder_1.default.getOrderData(options, account);
         });
     }
-    startDepInfo(account /*OKexAccount*/) {
+    startDepInfo(options /*OKexAccount*/) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let acctinfo = acctInfo_1.default(account.httpkey, account.httpsecret, account.passphrase);
+                let acctinfo = yield batchOrder_1.default.startDepInfo(options);
                 const depthEventName = "depth";
-                acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
-                this.accountInfo.push(acctinfo);
+                if (acctinfo instanceof acctInfo2_1.AccountInfo) {
+                    acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
+                }
+                //  this.accountInfo.push(acctinfo);
             }
             catch (error) {
                 return {
