@@ -54,7 +54,9 @@ class BatchOrderProxy extends Proxy {
             let acctinfo = await batchOrder.startDepInfo(options);
             const depthEventName = "depth";
             if (acctinfo instanceof AccountInfo) {
-                acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
+                if (acctinfo.event.listenerCount(depthEventName) <= 0) {
+                    acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
+                }
             }
 
             //  this.accountInfo.push(acctinfo);
