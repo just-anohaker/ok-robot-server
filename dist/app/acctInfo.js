@@ -79,6 +79,9 @@ function initOrderData() {
         self.wss.login(self.httpkey, self.httpsecret, self.passphrase);
     });
 }
+function stopWebsocket() {
+    self.wss.close();
+}
 function startWebsocket() {
     console.log('spot.......');
     self.wss.connect();

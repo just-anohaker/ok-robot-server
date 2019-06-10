@@ -13,27 +13,24 @@ class AutoMakerProxy extends Proxy_1.default {
         // TODO
     }
     init(options /* AutoMakerOptions*/, account /*OKexAccount*/) {
-        // TODO
         console.log("initAutoMaker");
         autoMaker_1.default.initAutoMaker(options, account);
     }
     stop() {
-        // TODO
         return autoMaker_1.default.stopAutoTrade();
     }
     start() {
-        // TODO
         return autoMaker_1.default.startAutoTrade();
     }
     isRunning() {
-        // TODO
         return autoMaker_1.default.isRunning();
     }
     get OptionsAndAccount() {
-        // TODO
         let p = autoMaker_1.default.getParamsAndAcct();
-        return { options: p.params,
-            account: p.acct };
+        return {
+            options: p.params,
+            account: p.acct
+        };
     }
 }
 AutoMakerProxy.NAME = "PROXY_AUTO_MAKER";

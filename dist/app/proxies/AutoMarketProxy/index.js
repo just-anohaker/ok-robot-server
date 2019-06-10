@@ -31,8 +31,10 @@ class AutoMarketProxy extends Proxy_1.default {
     get OptionsAndAccount() {
         // TODO
         let p = autoMarket_1.default.getParamsAndAcct();
-        return { options: p.params,
-            account: p.acct };
+        return {
+            options: p.params,
+            account: p.acct
+        };
     }
 }
 AutoMarketProxy.NAME = "PROXY_AUTO_MAKRET";

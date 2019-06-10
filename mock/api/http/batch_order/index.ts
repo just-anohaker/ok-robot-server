@@ -63,21 +63,27 @@ class BatchOrderAPI implements IHttp, ISockerIO {
     private cancel = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.cancel(ctx.body || {}));
     }
+
     private limitOrder = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.limitOrder(ctx.body || {}));
     }
+
     private marketOrder = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.marketOrder(ctx.body || {}));
     }
+
     private startDepInfo = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.startDepInfo(ctx.body || {}));
     }
+
     private stopDepInfo = async (ctx: Koa.Context) => {
-        koaResponse(ctx, await apiBatchOrder.stopDepInfo(ctx.body || {}));
+        koaResponse(ctx, await apiBatchOrder.stopDepInfo());
     }
+
     private getOrderData = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.getOrderData(ctx.body || {}));
     }
+
     private onNotification = (notification: INotification): void => {
         console.log("[BatchOrderAPI] onNotification:", notification.getName());
         this._io!.emit(notification.getName(), notification.getBody());

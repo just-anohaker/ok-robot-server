@@ -54,6 +54,7 @@ async function limitOrder(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(error.toString());
     }
 }
+
 async function marketOrder(data: MarkedMap): Promise<APIReturn> {
     const validation = Schema.validateCancel(data);
     if (validation !== undefined) {
@@ -67,6 +68,7 @@ async function marketOrder(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(error.toString());
     }
 }
+
 async function startDepInfo(data: MarkedMap): Promise<APIReturn> {
     // const validation = Schema.validateCancel(data);
     // if (validation !== undefined) {
@@ -79,23 +81,28 @@ async function startDepInfo(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(error.toString());
     }
 }
-async function stopDepInfo(data: MarkedMap): Promise<APIReturn> {
-    const validation = Schema.validateCancel(data);
-    if (validation !== undefined) {
-        return apiFailure(validation);
-    }
 
-    const resp = await ProxyHelper.BatchOrderProxy.stopDepInfo();
-    return apiSuccess(resp);
+async function stopDepInfo(): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.stopDepInfo();
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
-async function getOrderData(data: MarkedMap): Promise<APIReturn> {
-    const validation = Schema.validateCancel(data);
-    if (validation !== undefined) {
-        return apiFailure(validation);
-    }
 
-    const resp = await ProxyHelper.BatchOrderProxy.getOrderData(data.options, data.account);
-    return apiSuccess(resp);
+async function getOrderData(data: MarkedMap): Promise<APIReturn> {
+    // const validation = Schema.validateCancel(data);
+    // if (validation !== undefined) {
+    //     return apiFailure(validation);
+    // }
+
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.getOrderData(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
 }
 
 export default {
@@ -104,7 +111,6 @@ export default {
     limitOrder,
     marketOrder,
     startDepInfo,
-    getOrderData,
-    stopDepInfo
-
+    stopDepInfo,
+    getOrderData
 }

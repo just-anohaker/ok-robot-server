@@ -14,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const config = require('../../config');
 const acctInfo_1 = __importDefault(require("../../acctInfo"));
 const { AuthenticatedClient } = require('@okfe/okex-node');
+let acctinfo;
 //批量挂单   生成订单  ------------------------------- batchOrder.js
 /**
  * 接口:
@@ -307,7 +308,54 @@ function marketOrder(params, acct) {
 }
 function startDepInfo(acct) {
     return __awaiter(this, void 0, void 0, function* () {
-        return acctInfo_1.default(acct.httpkey, acct.httpsecret, acct.passphrase);
+        acctinfo = acctInfo_1.default(acct.httpkey, acct.httpsecret, acct.passphrase);
+        return acctinfo;
+    });
+}
+function stopDepInfo() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            acctinfo.wss.close();
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        return {
+            result: true
+        };
+    });
+}
+// async function startDepInfo(acct) {
+//     return acctInfo(acct.httpkey, acct.httpsecret, acct.passphrase)
+// }
+/***
+ * params:
+ * {
+ * instrument_id
+ * from
+ * to
+ * limit 订单状态("-2":失败,"-1":撤单成功,"0":等待成交 ,"1":部分成交, "2":完全成交,"3":下单中,"4":撤单中,"6": 未完成（等待成交+部分成交），"7":已完成（撤单成功+完全成交））
+ * state
+ * }
+ * acct:
+ * {
+ * name
+ * httpkey
+ * httpsecret
+ * passphrase
+ * }
+ */
+function getOrderData(params, acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
+        params.state = 2;
+        let result = yield authClient.spot().getOrders(params);
+        console.log(result);
+        return result;
     });
 }
 // console.log(genBatchOrder({type:2,topPrice:0.04,startPrice:0.03,incr:0.2,size:1,sizeIncr:1},
@@ -324,5 +372,7 @@ exports.default = {
     cancelBatchOrder,
     limitOrder,
     marketOrder,
-    startDepInfo
+    startDepInfo,
+    stopDepInfo,
+    getOrderData
 };

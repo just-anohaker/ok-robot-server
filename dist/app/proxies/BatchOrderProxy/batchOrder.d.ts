@@ -97,11 +97,38 @@ declare function limitOrder(params: any, acct: any): Promise<any>;
  */
 declare function marketOrder(params: any, acct: any): Promise<any>;
 declare function startDepInfo(acct: any): Promise<any>;
+declare function stopDepInfo(): Promise<{
+    result: boolean;
+    error_message: any;
+} | {
+    result: boolean;
+    error_message?: undefined;
+}>;
+/***
+ * params:
+ * {
+ * instrument_id
+ * from
+ * to
+ * limit 订单状态("-2":失败,"-1":撤单成功,"0":等待成交 ,"1":部分成交, "2":完全成交,"3":下单中,"4":撤单中,"6": 未完成（等待成交+部分成交），"7":已完成（撤单成功+完全成交））
+ * state
+ * }
+ * acct:
+ * {
+ * name
+ * httpkey
+ * httpsecret
+ * passphrase
+ * }
+ */
+declare function getOrderData(params: any, acct: any): Promise<any>;
 declare const _default: {
     genBatchOrder: typeof genBatchOrder;
     cancelBatchOrder: typeof cancelBatchOrder;
     limitOrder: typeof limitOrder;
     marketOrder: typeof marketOrder;
     startDepInfo: typeof startDepInfo;
+    stopDepInfo: typeof stopDepInfo;
+    getOrderData: typeof getOrderData;
 };
 export default _default;

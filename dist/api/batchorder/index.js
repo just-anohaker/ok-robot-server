@@ -96,10 +96,38 @@ function startDepInfo(data) {
         }
     });
 }
+function stopDepInfo() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.stopDepInfo();
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function getOrderData(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // const validation = Schema.validateCancel(data);
+        // if (validation !== undefined) {
+        //     return apiFailure(validation);
+        // }
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.getOrderData(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     generate,
     cancel,
     limitOrder,
     marketOrder,
-    startDepInfo
+    startDepInfo,
+    stopDepInfo,
+    getOrderData
 };

@@ -25,30 +25,35 @@ class BatchOrderProxy extends Proxy_1.default {
     }
     generate(options /*BatchOrderOptions*/, account /*OKexAccount*/) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO
             return yield batchOrder_1.default.genBatchOrder(options, account);
         });
     }
     // start(client_oids: any /*string[]*/): boolean {
-    //     // TODO
     //     return batchOrder.startBatchOrder(client_oids);
     // }
     cancel(options /*BatchOrderCancelOptions*/, account /*OKexAccount*/) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO
             return yield batchOrder_1.default.cancelBatchOrder(options, account);
         });
     }
     limitOrder(options /*BatchOrderCancelOptions*/, account /*OKexAccount*/) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO
             return yield batchOrder_1.default.limitOrder(options, account);
         });
     }
     marketOrder(options /*BatchOrderCancelOptions*/, account /*OKexAccount*/) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO
             return yield batchOrder_1.default.marketOrder(options, account);
+        });
+    }
+    stopDepInfo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.stopDepInfo();
+        });
+    }
+    getOrderData(options /*BatchOrderCancelOptions*/, account /*OKexAccount*/) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.getOrderData(options, account);
         });
     }
     startDepInfo(account /*OKexAccount*/) {

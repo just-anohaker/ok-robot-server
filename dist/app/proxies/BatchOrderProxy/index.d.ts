@@ -8,6 +8,8 @@ declare class BatchOrderProxy extends Proxy {
     cancel(options: any, account: any): Promise<any>;
     limitOrder(options: any, account: any): Promise<any>;
     marketOrder(options: any, account: any): Promise<any>;
+    stopDepInfo(): Promise<any>;
+    getOrderData(options: any, account: any): Promise<any>;
     startDepInfo(account: any): Promise<any>;
     private onEventHandler;
 }

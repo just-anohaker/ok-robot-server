@@ -21,38 +21,34 @@ class BatchOrderProxy extends Proxy {
     }
 
     async generate(options: any /*BatchOrderOptions*/, account: any /*OKexAccount*/): Promise<any> {
-        // TODO
         return await batchOrder.genBatchOrder(options, account);
     }
 
     // start(client_oids: any /*string[]*/): boolean {
-    //     // TODO
     //     return batchOrder.startBatchOrder(client_oids);
     // }
 
     async  cancel(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
-        // TODO
         return await batchOrder.cancelBatchOrder(options, account);
     }
+
     async  limitOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
-        // TODO
         return await batchOrder.limitOrder(options, account);
     }
-    async marketOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
-        // TODO
-        return await batchOrder.marketOrder(options, account);
 
+    async marketOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
+        return await batchOrder.marketOrder(options, account);
     }
+
     async stopDepInfo(): Promise<any> {
-        // TODO
         return await batchOrder.stopDepInfo();
     }
+
     async getOrderData(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
-        // TODO
         return await batchOrder.getOrderData(options, account);
     }
-    async startDepInfo(account: any /*OKexAccount*/): Promise<any> {
 
+    async startDepInfo(account: any /*OKexAccount*/): Promise<any> {
         try {
             let acctinfo = AcctInfo(account.httpkey, account.httpsecret, account.passphrase);
             const depthEventName = "depth";
@@ -67,6 +63,7 @@ class BatchOrderProxy extends Proxy {
         }
         return { result: true };
     }
+
     private onEventHandler(eventName) {
         return data => {
             Facade.getInstance().sendNotification(eventName, data);
