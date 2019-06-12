@@ -8,15 +8,18 @@ export declare class AccountInfo {
     private httpsecret;
     private passphrase;
     private instrument_id;
-    private tickerData;
-    private asks;
-    private bids;
-    private isClosed;
-    private pendingOrders;
-    private orderPrice;
+    tickerData: any;
+    asks: any;
+    bids: any;
+    isClosed: any;
+    pendingOrders: any;
+    orderPrice: any;
     private wss;
     private pClient;
     private authClient;
+    private interval_autoMaker;
+    private order_db;
+    private autoMakerOrder;
     constructor(instrument_id: any, httpkey: any, httpsecret: any, passphrase: any);
     initOrderData(): Promise<{
         result: boolean;
@@ -25,7 +28,20 @@ export declare class AccountInfo {
     stopWebsocket(): void;
     startWebsocket(): void;
     sleep(ms: any): Promise<unknown>;
+    getRandomIntInclusive(min: any, max: any): any;
+    getRandomArbitrary(min: any, max: any): any;
     orderMonitor(): void;
+    /**
+     *   params.perSize //每次挂单数量
+        params.countPerM  //每分钟成交多少笔
+        params.instrument_id
+     */
+    startAutoMaker(params: any): {
+        result: boolean;
+        error_message: string;
+    };
+    stopAutoMaker(): void;
+    isAutoMaker(): boolean;
 }
 declare const _default: {
     acctInfo: typeof acctInfo;

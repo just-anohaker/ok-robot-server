@@ -60,6 +60,27 @@ export interface TakeOrderOptions {
     type: TradeType;
     toPrice: number;
 }
+export interface Order {
+    "acct_key": string;
+    "order_id": string;
+    "client_oid": string;
+    "created_at": string;
+    "filled_notional": string;
+    "filled_size": string;
+    "funds": string;
+    "instrument_id": string;
+    "notional": string;
+    "order_type": string;
+    "price": string;
+    "price_avg": string;
+    "product_id": string;
+    "side": string;
+    "size": string;
+    "status": string;
+    "state": string;
+    "timestamp": string;
+    "type": string;
+}
 export declare const NotificationDeep = "spot/depth";
 export declare const NotificationTicker = "spot/ticker";
 export declare const NotificationOrder = "spot/order";
