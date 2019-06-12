@@ -342,6 +342,9 @@ class AccountInfo {
                         'price': this.autoMakerOrder.price, 'margin_trading': 1, 'order_type': '3' //立即成交并取消剩余（IOC）
                     };
                     let o2 = yield this.authClient.spot().postOrder(toTaker);
+                    if (o2.result) {
+                        orderMap.delete(o.order_id);
+                    }
                     // let cancel = await this.authClient.spot().postCancelOrder(o.order_id, { 'instrument_id': this.instrument_id });
                     console.log("下单 ---后o2", JSON.stringify(o2));
                 }
