@@ -100,10 +100,14 @@ export class AccountInfo {
     }
     stopWebsocket() {
         this.wss.close();
+        // this.isClosed == false;
     }
 
     startWebsocket() {
         console.log('spot.......');
+        // if (this.isClosed == false) {
+        //     return
+        // }
         let sendDepthTime = undefined;
         this.wss.connect();
         this.wss.on('open', data => {
@@ -280,13 +284,13 @@ export class AccountInfo {
         params.instrument_id
      */
     startAutoMaker(params) {
-        if (this.isClosed) {
-            return {
-                result: false,
-                error_message: "socket not ready!"
-            }
-        }
-        if (params.countPerM > 600) {
+        // if (this.isClosed == true) {
+        //     return {
+        //         result: false,
+        //         error_message: "socket not ready!"
+        //     }
+        // }
+        if (params.countPerM > 200) {
             return {
                 result: false,
                 error_message: "too many per min!"
@@ -299,6 +303,7 @@ export class AccountInfo {
             }
         }
         let order_interval = 60 * 1000 / params.countPerM
+        let orderMap = new Map();
         console.log("order_interval", order_interval)
         this.interval_autoMaker = setInterval(async () => {
             if (this.tickerData && this.tickerData.best_ask - this.tickerData.best_bid > 0.0001) {//TODO 确认tickerdata 短期内有更新  TODO 精度确认
@@ -319,7 +324,21 @@ export class AccountInfo {
                 let o = await this.authClient.spot().postOrder(toOrder);
                 console.log("下单 ---后", JSON.stringify(o))
                 if (o.result) {//下单成功
-                    await this.sleep(300);
+                    await this.sleep(220);
+                    orderMap.forEach(async (value, key, map) => {
+                        if (Date.now() - value > order_interval) {
+                            try {
+                                let res = await this.authClient.spot().postCancelOrder(key, { 'instrument_id': this.instrument_id })
+                                if (res.result) {
+                                    map.delete(key);
+                                }
+                            } catch (error) {
+                                console.log("error----" + error)
+                                //console.log("error----" + error.code)
+                            }
+                        }
+                    });
+                    orderMap.set(o.order_id, Date.now());
                     this.autoMakerOrder = await this.authClient.spot().getOrder(o.order_id, { 'instrument_id': this.instrument_id });
                     let toTaker = {
                         'type': 'limit', 'side': 'buy',
@@ -327,7 +346,7 @@ export class AccountInfo {
                         'price': this.autoMakerOrder.price, 'margin_trading': 1, 'order_type': '3'//立即成交并取消剩余（IOC）
                     };
                     let o2 = await this.authClient.spot().postOrder(toTaker);
-                    let cancel = await this.authClient.spot().postCancelOrder(o.order_id, { 'instrument_id': this.instrument_id });
+                    // let cancel = await this.authClient.spot().postCancelOrder(o.order_id, { 'instrument_id': this.instrument_id });
                     console.log("下单 ---后o2", JSON.stringify(o2))
                 } else {
                     console.log("下单失败:", o.error_message);

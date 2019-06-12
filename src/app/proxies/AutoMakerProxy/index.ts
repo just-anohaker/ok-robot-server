@@ -15,7 +15,7 @@ class AutoMakerProxy extends Proxy {
 
     init(options: any /* AutoMakerOptions*/, account: any /*OKexAccount*/): any {
         console.log("initAutoMaker")
-        autoMaker.initAutoMaker(options, account)
+        return autoMaker.initAutoMaker(options, account)
     }
 
     stop(): boolean {

@@ -63,9 +63,21 @@ function initAutoMaker(_params, _acct) {
     // initOrder();
     //TODO ?循环检查 如果有没关闭的就关闭
 
-    _acct.instrument_id = _params.instrument_id
-    ai = acctInfo.acctInfo(_acct);
-    ai.startAutoMaker(_params);
+
+    try {
+        _acct.instrument_id = _params.instrument_id
+        ai = acctInfo.acctInfo(_acct);
+        ai.startAutoMaker(_params);
+    } catch (error) {
+        console.log(error)
+        return {
+            result: false,
+            error_message: error + ''
+        };
+    }
+    return {
+        result: true
+    }
 }
 // stopAutoMaker() {
 //     clearInterval(this.interval_autoMaker)

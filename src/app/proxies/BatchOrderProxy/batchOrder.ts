@@ -395,7 +395,7 @@ async function getOrderData(params, acct) {
         console.log(error)
         return {
             result: false,
-            error_message: error
+            error_message: error + ''
         };
     }
     // result.length = result[0].length
