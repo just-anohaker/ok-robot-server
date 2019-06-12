@@ -1,6 +1,9 @@
 const config = require('../../config');
 import acctInfo, { AccountInfo } from "../../acctInfo2";
 const { AuthenticatedClient } = require('@okfe/okex-node');
+import Database from "../../../sqlite3";
+import { DbOrders } from "../../DbOrders";
+
 //let acctinfo;
 //批量挂单   生成订单  ------------------------------- batchOrder.js
 /**
@@ -25,6 +28,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
     console.log("params:" + JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
+    const order_db = new DbOrders(Database.getInstance().Sqlite3Handler, acct);
     let orderCount = (params.topPrice - params.startPrice) / (params.startPrice * params.incr)
     let batchOrder = new Array()
     let cost = 0;
@@ -50,7 +54,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
         let order = {
             'type': 'limit', 'side': side,
             'instrument_id': params.instrument_id, 'size': sizes[i],
-            'client_oid': config.orderType.batchOrder + Date.now(), //TODO 注意限价
+            'client_oid': config.orderType.batchOrder + Date.now() + 'X' + i, //TODO 注意限价
             'price': prices[i], 'margin_trading': 1, 'order_type': '0'
         }
         batchOrder.push(order);
@@ -61,6 +65,13 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
         for (let j = 0; j < batchOrder.length; j += 10) {
             let tmp = batchOrder.slice(j, j + 10)
             let res = await authClient.spot().postBatchOrders(tmp);
+            let ins = params.instrument_id.toLowerCase();
+            for (let i = 0; i < res[ins].length; i++) {
+                if (res[ins][i].order_id != -1) {
+                    res[ins][i].instrument_id = params.instrument_id
+                    order_db.addBatchOrder(res[ins][i]);
+                }
+            }
             await sleep(50);//每秒20次 限制是每2秒50次
             console.log("订单tmp---" + JSON.stringify(res))//
         }
@@ -191,7 +202,13 @@ async function cancelBatchOrder(params, acct) {
  */
 
 // function icebergOrder(params, acct) {
-//     var pci =  acctInfo(acct.httpkey,acct.httpsecret,acct.passphrase);
+//     //var pci = acctInfo(acct.httpkey, acct.httpsecret, acct.passphrase);
+//     var pci = new AccountInfo(params.instrument_id, params.httpkey, params.httpsecret, params.passphrase);
+
+//     pci.event.on(config.channel_ticker, (info => {
+//         var d = info.data[0];
+//         console.log(d.instrument_id + `买一  ` + d.best_bid + ' 卖一 ' + d.best_ask + ' 最新成交价======:' + d.last);
+//     }))
 //     var interval_autoMaker = setInterval(() => {
 //         if (pci.tickerData) {
 //             // var instrument_id = tickerData.instrument_id
@@ -236,6 +253,7 @@ async function limitOrder(params, acct) {
     console.log("params:" + JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
+    const order_db = new DbOrders(Database.getInstance().Sqlite3Handler, acct);
     var side;
     if (params.type == 1) {//买入   
         side = 'buy'
@@ -249,7 +267,19 @@ async function limitOrder(params, acct) {
         'price': params.price, 'margin_trading': 1, 'order_type': '0'
     }
     let result = await authClient.spot().postOrder(order);
-    console.log(result)
+    let o = await authClient.spot().getOrder(result.order_id, { 'instrument_id': params.instrument_id });
+    let db_r = order_db.add(o);
+    let odb = order_db.getOrderByOrderId(o.order_id)
+    //  let o = await authClient.spot().getOrder(result.order_id, { 'instrument_id': params.instrument_id });
+    // let o = order_db.getOrderByOrderId('2981516814196736')
+    // o[0].order_id = '2981516814196736';
+    // o[0].state = '1000'
+    // o[0].notional = '000'
+    // let result = order_db.updateAllInfo(o[0])
+    // let db_r = order_db.add(o);
+    // let sql2 = `update orders set state=$state where order_id=$order_id`
+    // let res2 = order_db.update(sql2, { state: '100', order_id: o.order_id })
+    console.log(JSON.stringify(odb))
     return result
 }
 /***
@@ -272,6 +302,7 @@ async function marketOrder(params, acct) {
     console.log("params:" + JSON.stringify(params))
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
+    const order_db = new DbOrders(Database.getInstance().Sqlite3Handler, acct);
     let order;
     if (params.type == 1) {//买入   
         order = {
@@ -290,6 +321,8 @@ async function marketOrder(params, acct) {
     }
 
     let result = await authClient.spot().postOrder(order);
+    let o = await authClient.spot().getOrder(result.order_id, { 'instrument_id': params.instrument_id });
+    let db_r = order_db.add(o);
     console.log(result)
     return result
 }
@@ -355,9 +388,70 @@ async function getOrderData(params, acct) {
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
     params.state = 2
-    let result = await authClient.spot().getOrders(params)
-    console.log(result)
-    return result
+    let result
+    try {
+        result = await authClient.spot().getOrders(params)
+    } catch (error) {
+        console.log(error)
+        return {
+            result: false,
+            error_message: error
+        };
+    }
+    // result.length = result[0].length
+    // console.log(result)
+    return {
+        list: result,
+        length: result ? result.length : 0
+    }
+}
+
+async function freshOrderInfo(params, acct) {
+    const authClient = new AuthenticatedClient(acct.httpkey,
+        acct.httpsecret, acct.passphrase, config.urlHost);
+    let sql = `select * from orders where state != $state;`;
+    const order_db = new DbOrders(Database.getInstance().Sqlite3Handler, acct);
+    let res = order_db.getOrders(sql, { state: '2' });
+    try {
+        for (var i = 0; i < res.length; i++) {
+            let o = await authClient.spot().getOrder(res[i].order_id, { 'instrument_id': params.instrument_id });
+            if (o.length == 1) {
+                order_db.updateAllInfo(o[0])
+            }
+            await sleep(100);
+        }
+
+    } catch (error) {
+        console.log(error)
+        return {
+            result: false,
+            error_message: error
+        };
+    }
+    return {
+        result: true
+    }
+}
+/***
+* params:
+ * {
+ * perSize //每次挂单数量
+ * countPerM  //每分钟成交多少笔
+ * instrument_id
+ * }
+ * acct:
+ * {
+ * name 
+ * httpkey
+ * httpsecret
+ * passphrase
+ * }
+ */
+async function startMaker(params, acct) {
+    acct.instrument_id = params.instrument_id
+    let acctinfo = acctInfo.acctInfo(acct);
+    acctinfo.startAutoMaker(params);
+    return acctinfo;
 }
 // console.log(genBatchOrder({type:2,topPrice:0.04,startPrice:0.03,incr:0.2,size:1,sizeIncr:1},
 //     {httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase}))
