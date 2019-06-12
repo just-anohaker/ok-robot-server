@@ -21,7 +21,16 @@ class BatchOrderProxy extends Proxy {
     }
 
     async generate(options: any /*BatchOrderOptions*/, account: any /*OKexAccount*/): Promise<any> {
-        return await batchOrder.genBatchOrder(options, account);
+        let result;
+        try {
+            result = await batchOrder.genBatchOrder(options, account);
+        } catch (error) {
+            return {
+                result: false,
+                error_message: error + ''
+            };
+        }
+        return result;
     }
 
     // start(client_oids: any /*string[]*/): boolean {

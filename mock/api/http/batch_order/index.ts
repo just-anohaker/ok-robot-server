@@ -85,7 +85,7 @@ class BatchOrderAPI implements IHttp, ISockerIO {
     }
 
     private onNotification = (notification: INotification): void => {
-        console.log("[BatchOrderAPI] onNotification:", notification.getName());
+        // console.log("[BatchOrderAPI] onNotification:", notification.getName());
         this._io!.emit(notification.getName(), notification.getBody());
     }
 }
