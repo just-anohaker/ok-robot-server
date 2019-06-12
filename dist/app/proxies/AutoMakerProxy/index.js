@@ -14,7 +14,7 @@ class AutoMakerProxy extends Proxy_1.default {
     }
     init(options /* AutoMakerOptions*/, account /*OKexAccount*/) {
         console.log("initAutoMaker");
-        autoMaker_1.default.initAutoMaker(options, account);
+        return autoMaker_1.default.initAutoMaker(options, account);
     }
     stop() {
         return autoMaker_1.default.stopAutoTrade();

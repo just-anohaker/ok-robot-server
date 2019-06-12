@@ -15,6 +15,7 @@ module.exports = {
         limitOrder: 'A',
         marketOrder: 'B',
         batchOrder: 'C',
-        iceOrder: 'D'
+        iceOrder: 'D',
+        autoMaker: 'E'
     }
 };

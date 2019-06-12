@@ -7,22 +7,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const events_1 = require("events");
 const { PublicClient } = require('@okfe/okex-node');
 const { V3WebsocketClient } = require('@okfe/okex-node');
 const { AuthenticatedClient } = require('@okfe/okex-node');
 var config = require('./config');
+const sqlite3_1 = __importDefault(require("./../sqlite3"));
+const DbOrders_1 = require("./DbOrders");
 let accouts = new Map();
 function acctInfo(pamams) {
     if (accouts.has(pamams.instrument_id + pamams.httpkey)) {
         return accouts.get(pamams.instrument_id + pamams.httpkey);
     }
     var ac = new AccountInfo(pamams.instrument_id, pamams.httpkey, pamams.httpsecret, pamams.passphrase);
-    ac.event.on(config.channel_ticker, (info => {
-        var d = info.data[0];
-        console.log(d.instrument_id + `买一  ` + d.best_bid + ' 卖一 ' + d.best_ask + ' 最新成交价======:' + d.last);
-    }));
     accouts.set(pamams.instrument_id + pamams.httpkey, ac);
     ac.startWebsocket();
     return ac;
@@ -46,6 +47,9 @@ class AccountInfo {
         this.pendingOrders = new Map();
         this.orderPrice = new Map();
         this.event = new events_1.EventEmitter();
+        this.order_db = new DbOrders_1.DbOrders(sqlite3_1.default.getInstance().Sqlite3Handler, {
+            instrument_id, httpkey, httpsecret, passphrase
+        });
         this.wss = new V3WebsocketClient(config.websocekHost);
         this.pClient = new PublicClient(config.urlHost);
         this.authClient = new AuthenticatedClient(httpkey, httpsecret, passphrase);
@@ -93,9 +97,13 @@ class AccountInfo {
     }
     stopWebsocket() {
         this.wss.close();
+        // this.isClosed == false;
     }
     startWebsocket() {
         console.log('spot.......');
+        // if (this.isClosed == false) {
+        //     return
+        // }
         let sendDepthTime = undefined;
         this.wss.connect();
         this.wss.on('open', data => {
@@ -126,6 +134,11 @@ class AccountInfo {
             this.wss.subscribe(config.channel_ticker + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
         });
+        this.event.on(config.channel_ticker, (info => {
+            var d = info.data[0];
+            this.tickerData = d;
+            this.event.emit("ticker", d);
+        }));
         this.event.on(config.channel_order, (info => {
             var d = info.data[0];
             // console.log("订单情况:"+JSON.stringify(d) );  
@@ -240,25 +253,18 @@ class AccountInfo {
             }
         }));
     }
-    //websocket 返回消息
-    // wsMessage(data) {
-    //     var obj = JSON.parse(data);
-    //     var eventType = obj.event;
-    //     if (eventType == 'login') {
-    //         //登录消息
-    //         if (obj.success == true) {
-    //             this.event.emit('login');
-    //         }
-    //     } else if (eventType == undefined) {
-    //         //行情消息相关
-    //         this.event.emit(obj.table, obj);
-    //         // tableMsg(obj);
-    //     }
-    // }
     sleep(ms) {
         return new Promise(resolve => {
             setTimeout(resolve, ms);
         });
+    }
+    getRandomIntInclusive(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min; //含最大值，含最小值 
+    }
+    getRandomArbitrary(min, max) {
+        return Math.random() * (max - min) + min;
     }
     orderMonitor() {
         //将所有的订单都获取缓存,循环执行订单的自动撤消 
@@ -266,6 +272,95 @@ class AccountInfo {
         //2.如果是刷量的订单
         //3.如果是刷量的订单时间大于多少就需要自动撤消
         //4.如果是批量交易的单子需要如何清理?
+    }
+    /**
+     *   params.perSize //每次挂单数量
+        params.countPerM  //每分钟成交多少笔
+        params.instrument_id
+     */
+    startAutoMaker(params) {
+        // if (this.isClosed == true) {
+        //     return {
+        //         result: false,
+        //         error_message: "socket not ready!"
+        //     }
+        // }
+        if (params.countPerM > 200) {
+            return {
+                result: false,
+                error_message: "too many per min!"
+            };
+        }
+        if (this.isAutoMaker()) {
+            return {
+                result: false,
+                error_message: "is auto makering!"
+            };
+        }
+        let order_interval = 60 * 1000 / params.countPerM;
+        let orderMap = new Map();
+        console.log("order_interval", order_interval);
+        this.interval_autoMaker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+            if (this.tickerData && this.tickerData.best_ask - this.tickerData.best_bid > 0.0001) { //TODO 确认tickerdata 短期内有更新  TODO 精度确认
+                // var instrument_id = tickerData.instrument_id
+                // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
+                // console.log("interval ---" + pci.tickerData.instrument_id + `买一 ` + pci.tickerData.best_bid + ' 卖一 ' + pci.tickerData.best_ask + ' 最新成交价:' + pci.tickerData.last);
+                let randomPrice = this.getRandomArbitrary(parseFloat(this.tickerData.best_bid), parseFloat(this.tickerData.best_ask));
+                console.log("randomPrice ---", randomPrice);
+                let toOrder = {
+                    'type': 'limit', 'side': 'sell',
+                    'instrument_id': this.instrument_id, 'size': params.perSize, 'client_oid': config.autoMaker + Date.now(),
+                    'price': randomPrice, 'margin_trading': 1, 'order_type': '0'
+                };
+                console.log("下单 ---", JSON.stringify(toOrder));
+                //判断买一卖一是否有空间下单
+                //判断如果下单失败return 并log
+                //下单价格和数量随机
+                let o = yield this.authClient.spot().postOrder(toOrder);
+                console.log("下单 ---后", JSON.stringify(o));
+                if (o.result) { //下单成功
+                    yield this.sleep(220);
+                    orderMap.forEach((value, key, map) => __awaiter(this, void 0, void 0, function* () {
+                        if (Date.now() - value > order_interval) {
+                            try {
+                                let res = yield this.authClient.spot().postCancelOrder(key, { 'instrument_id': this.instrument_id });
+                                if (res.result) {
+                                    map.delete(key);
+                                }
+                            }
+                            catch (error) {
+                                console.log("error----" + error);
+                                //console.log("error----" + error.code)
+                            }
+                        }
+                    }));
+                    orderMap.set(o.order_id, Date.now());
+                    this.autoMakerOrder = yield this.authClient.spot().getOrder(o.order_id, { 'instrument_id': this.instrument_id });
+                    let toTaker = {
+                        'type': 'limit', 'side': 'buy',
+                        'instrument_id': this.instrument_id, 'size': this.autoMakerOrder.size - this.autoMakerOrder.filled_size, 'client_oid': config.autoMaker + Date.now(),
+                        'price': this.autoMakerOrder.price, 'margin_trading': 1, 'order_type': '3' //立即成交并取消剩余（IOC）
+                    };
+                    let o2 = yield this.authClient.spot().postOrder(toTaker);
+                    // let cancel = await this.authClient.spot().postCancelOrder(o.order_id, { 'instrument_id': this.instrument_id });
+                    console.log("下单 ---后o2", JSON.stringify(o2));
+                }
+                else {
+                    console.log("下单失败:", o.error_message);
+                }
+            }
+            else {
+                this.tickerData == undefined ? console.log("无法获取当前盘口价格!")
+                    : console.log("无法刷量下单!", this.tickerData.best_bid, this.tickerData.best_ask);
+            }
+        }), order_interval);
+    }
+    stopAutoMaker() {
+        clearInterval(this.interval_autoMaker);
+        this.interval_autoMaker = undefined;
+    }
+    isAutoMaker() {
+        return this.interval_autoMaker != undefined;
     }
 }
 exports.AccountInfo = AccountInfo;

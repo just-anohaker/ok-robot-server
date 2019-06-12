@@ -144,7 +144,17 @@ declare function stopDepInfo(params: any): Promise<{
  * passphrase
  * }
  */
-declare function getOrderData(params: any, acct: any): Promise<any>;
+declare function getOrderData(params: any, acct: any): Promise<{
+    result: boolean;
+    error_message: string;
+    list?: undefined;
+    length?: undefined;
+} | {
+    list: any;
+    length: any;
+    result?: undefined;
+    error_message?: undefined;
+}>;
 declare const _default: {
     genBatchOrder: typeof genBatchOrder;
     cancelBatchOrder: typeof cancelBatchOrder;

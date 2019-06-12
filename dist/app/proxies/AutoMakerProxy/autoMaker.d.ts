@@ -15,7 +15,28 @@
  * passphrase
  * }
  */
-declare function initAutoMaker(_params: any, _acct: any): void;
+/***
+* params:
+* {
+* perSize //每次挂单数量
+* countPerM  //每分钟成交多少笔
+* instrument_id
+* }
+* acct:
+* {
+* name
+* httpkey
+* httpsecret
+* passphrase
+* }
+*/
+declare function initAutoMaker(_params: any, _acct: any): {
+    result: boolean;
+    error_message: string;
+} | {
+    result: boolean;
+    error_message?: undefined;
+};
 /***
  * 接口:停止交易
  */
@@ -27,7 +48,7 @@ declare function startAutoTrade(): boolean;
 /***
  * 接口:正在运行返回true 否则返回false
  */
-declare function isRunning(): boolean;
+declare function isRunning(): any;
 /***
  * 接口:返回正在运行的参数
  * {Params:{}, //如第一个方法中的参数

@@ -7,9 +7,8 @@ var EventEmitter = require('events').EventEmitter;
 const { PublicClient } = require('@okfe/okex-node');
 const { V3WebsocketClient } = require('@okfe/okex-node');
 const { AuthenticatedClient } = require('@okfe/okex-node');
+const acctInfo2_1 = __importDefault(require("../../acctInfo2"));
 var config = require('../../config');
-// var publicInfo = require('../../publicInfo');
-const publicInfo_1 = __importDefault(require("../../publicInfo"));
 let authClient;
 let orderData = new Map();
 let pci;
@@ -18,6 +17,7 @@ let params;
 let AT_startFlag = false;
 let interval_autoTaker;
 let interval_autoMaker;
+let ai;
 /// !!!!!!需要对价格和数量做校验
 /**
  * 接口:
@@ -36,29 +36,67 @@ let interval_autoMaker;
  * passphrase
  * }
  */
+/***
+* params:
+* {
+* perSize //每次挂单数量
+* countPerM  //每分钟成交多少笔
+* instrument_id
+* }
+* acct:
+* {
+* name
+* httpkey
+* httpsecret
+* passphrase
+* }
+*/
 function initAutoMaker(_params, _acct) {
     console.log("startAutoTrade! ");
     params = _params;
     acct = _acct;
-    pci = publicInfo_1.default();
-    AT_startFlag = false;
-    orderData = new Map();
-    authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
-    initOrder();
+    // pci = publicInfo();
+    // AT_startFlag = false;
+    // orderData = new Map();
+    // authClient = new AuthenticatedClient(acct.httpkey,
+    //     acct.httpsecret, acct.passphrase, config.urlHost);
+    // initOrder();
     //TODO ?循环检查 如果有没关闭的就关闭
+    try {
+        _acct.instrument_id = _params.instrument_id;
+        ai = acctInfo2_1.default.acctInfo(_acct);
+        ai.startAutoMaker(_params);
+    }
+    catch (error) {
+        console.log(error);
+        return {
+            result: false,
+            error_message: error + ''
+        };
+    }
+    return {
+        result: true
+    };
 }
+// stopAutoMaker() {
+//     clearInterval(this.interval_autoMaker)
+//     this.interval_autoMaker = undefined
+// }
+// isAutoMaker() {
+//     return this.interval_autoMaker != undefined
+// }
 /***
  * 接口:停止交易
  */
 function stopAutoTrade() {
     console.log("stopAutoTrade! ");
-    if (AT_startFlag) {
-        AT_startFlag = false;
-        clearInterval(interval_autoMaker);
-        clearInterval(interval_autoTaker);
+    //_acct.instrument_id = _params.instrument_id
+    // let ai = acctInfo.acctInfo(_acct);
+    if (ai != undefined) {
+        ai.stopAutoMaker();
         return true;
     }
-    else {
+    {
         return false;
     }
 }
@@ -67,9 +105,10 @@ function stopAutoTrade() {
  */
 function startAutoTrade() {
     console.log("stopAutoTrade! ");
+    // ai.startAutoMaker();
     if (!AT_startFlag) {
-        startMakeOrder();
-        startTakeOrder();
+        //startMakeOrder();
+        //  startTakeOrder();
         AT_startFlag = true;
         return true;
     }
@@ -81,7 +120,12 @@ function startAutoTrade() {
  * 接口:正在运行返回true 否则返回false
  */
 function isRunning() {
-    return AT_startFlag;
+    if (ai == undefined) {
+        return false;
+    }
+    else {
+        return ai.isAutoMaker();
+    }
 }
 /***
  * 接口:返回正在运行的参数
@@ -90,8 +134,10 @@ function isRunning() {
  * }
  */
 function getParamsAndAcct() {
-    return { params: params,
-        acct: params };
+    return {
+        params: params,
+        acct: acct
+    };
 }
 function initOrder() {
     authClient.spot().getOrdersPending({ 'instrument_id': config.instrument_id }) //from to order_id ledger_id trade_id
