@@ -10,6 +10,7 @@ import AutoMarketProxy from "../app/proxies/AutoMarketProxy";
 import BatchOrderProxy from "../app/proxies/BatchOrderProxy";
 import TakeOrderProxy from "../app/proxies/TakeOrderProxy";
 import OkexUtilsProxy from "../app/proxies/OkexUtilsProxy";
+import OkexMonitProxy from "../app/proxies/OkexMonitProxy";
 // mediators
 import UserMediator from "../app/mediatores/UserMediator";
 
@@ -55,6 +56,10 @@ export class ProxyHelper {
 
     static get OkexUtilsProxy(): OkexUtilsProxy {
         return Facade.getInstance().retrieveProxy(OkexUtilsProxy.NAME, OkexUtilsProxy);
+    }
+
+    static get OkexMonitProxy(): OkexMonitProxy {
+        return Facade.getInstance().retrieveProxy(OkexMonitProxy.NAME, OkexMonitProxy);
     }
 }
 

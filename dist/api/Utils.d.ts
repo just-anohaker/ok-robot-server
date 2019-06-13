@@ -6,6 +6,7 @@ import AutoMarketProxy from "../app/proxies/AutoMarketProxy";
 import BatchOrderProxy from "../app/proxies/BatchOrderProxy";
 import TakeOrderProxy from "../app/proxies/TakeOrderProxy";
 import OkexUtilsProxy from "../app/proxies/OkexUtilsProxy";
+import OkexMonitProxy from "../app/proxies/OkexMonitProxy";
 import UserMediator from "../app/mediatores/UserMediator";
 export declare function apiSuccess(result: GenericType): APIReturn;
 export declare function apiFailure(error: string): APIReturn;
@@ -16,6 +17,7 @@ export declare class ProxyHelper {
     static readonly BatchOrderProxy: BatchOrderProxy;
     static readonly TakeOrderProxy: TakeOrderProxy;
     static readonly OkexUtilsProxy: OkexUtilsProxy;
+    static readonly OkexMonitProxy: OkexMonitProxy;
 }
 export declare class MediatorHelper {
     static readonly UserMediator: UserMediator;

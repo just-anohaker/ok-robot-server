@@ -13,3 +13,5 @@ var takeorder_1 = require("./takeorder");
 exports.apiTakeOrder = takeorder_1.default;
 var okexutils_1 = require("./okexutils");
 exports.apiOkexUtils = okexutils_1.default;
+var okexmonit_1 = require("./okexmonit");
+exports.apiOkexMonit = okexmonit_1.default;

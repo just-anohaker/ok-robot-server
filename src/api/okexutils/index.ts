@@ -10,7 +10,7 @@ async function getSpotTicker(data: MarkedMap): Promise<APIReturn> {
         const resp = await ProxyHelper.OkexUtilsProxy.getSpotTicker(data as OkexTickerParameters);
         return apiSuccess(resp);
     } catch (error) {
-        return apiFailure(error);
+        return apiFailure(error.toString());
     }
 }
 
@@ -19,7 +19,7 @@ async function getSpotTrade(data: MarkedMap): Promise<APIReturn> {
         const resp = await ProxyHelper.OkexUtilsProxy.getSpotTrade(data as OkexTradeParameters);
         return apiSuccess(resp);
     } catch (error) {
-        return apiFailure(error);
+        return apiFailure(error.toString());
     }
 }
 
@@ -28,7 +28,7 @@ async function getSpotCandles(data: MarkedMap): Promise<APIReturn> {
         const resp = await ProxyHelper.OkexUtilsProxy.getSpotCandles(data as OkexCandlesParameters);
         return apiSuccess(resp);
     } catch (error) {
-        return apiFailure(error);
+        return apiFailure(error.toString());
     }
 }
 

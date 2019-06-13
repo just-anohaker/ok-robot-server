@@ -20,4 +20,5 @@ export { default as AutoMarketProxy } from "./app/proxies/AutoMarketProxy";
 export { default as BatchOrderProxy } from "./app/proxies/BatchOrderProxy";
 export { default as TakeOrderProxy } from "./app/proxies/TakeOrderProxy";
 export { default as OkexUtilsProxy } from "./app/proxies/OkexUtilsProxy";
+export { default as OkexMonitProxy } from "./app/proxies/OkexMonitProxy";
 export * from "./api";

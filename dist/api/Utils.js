@@ -12,6 +12,7 @@ const AutoMarketProxy_1 = __importDefault(require("../app/proxies/AutoMarketProx
 const BatchOrderProxy_1 = __importDefault(require("../app/proxies/BatchOrderProxy"));
 const TakeOrderProxy_1 = __importDefault(require("../app/proxies/TakeOrderProxy"));
 const OkexUtilsProxy_1 = __importDefault(require("../app/proxies/OkexUtilsProxy"));
+const OkexMonitProxy_1 = __importDefault(require("../app/proxies/OkexMonitProxy"));
 // mediators
 const UserMediator_1 = __importDefault(require("../app/mediatores/UserMediator"));
 function apiSuccess(result) {
@@ -50,6 +51,9 @@ class ProxyHelper {
     }
     static get OkexUtilsProxy() {
         return Facade_1.default.getInstance().retrieveProxy(OkexUtilsProxy_1.default.NAME, OkexUtilsProxy_1.default);
+    }
+    static get OkexMonitProxy() {
+        return Facade_1.default.getInstance().retrieveProxy(OkexMonitProxy_1.default.NAME, OkexMonitProxy_1.default);
     }
 }
 exports.ProxyHelper = ProxyHelper;

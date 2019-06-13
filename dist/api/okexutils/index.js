@@ -16,7 +16,7 @@ function getSpotTicker(data) {
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
-            return Utils_1.apiFailure(error);
+            return Utils_1.apiFailure(error.toString());
         }
     });
 }
@@ -27,7 +27,7 @@ function getSpotTrade(data) {
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
-            return Utils_1.apiFailure(error);
+            return Utils_1.apiFailure(error.toString());
         }
     });
 }
@@ -38,7 +38,7 @@ function getSpotCandles(data) {
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
-            return Utils_1.apiFailure(error);
+            return Utils_1.apiFailure(error.toString());
         }
     });
 }
