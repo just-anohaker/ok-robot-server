@@ -311,8 +311,18 @@ class AccountInfo {
                 let randomPrice = this.getRandomArbitrary(parseFloat(this.tickerData.best_bid), parseFloat(this.tickerData.best_ask));
                 let perSize = this.getRandomArbitrary(parseFloat(params.perStartSize), parseFloat(params.perTopSize));
                 console.log("random perSize ---", perSize);
+                let side1;
+                let side2;
+                if (params.type == 1) {
+                    side1 = 'buy';
+                    side2 = 'sell';
+                }
+                else if (params.type == 2) {
+                    side1 = 'sell';
+                    side2 = 'buy';
+                }
                 let toOrder = {
-                    'type': 'limit', 'side': 'sell',
+                    'type': 'limit', 'side': side1,
                     'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.autoMaker + Date.now(),
                     'price': randomPrice, 'margin_trading': 1, 'order_type': '0'
                 };
@@ -341,16 +351,21 @@ class AccountInfo {
                     orderMap.set(o.order_id, Date.now());
                     this.autoMakerOrder = yield this.authClient.spot().getOrder(o.order_id, { 'instrument_id': this.instrument_id });
                     let toTaker = {
-                        'type': 'limit', 'side': 'buy',
+                        'type': 'limit', 'side': side2,
                         'instrument_id': this.instrument_id, 'size': this.autoMakerOrder.size - this.autoMakerOrder.filled_size, 'client_oid': config.autoMaker + Date.now(),
                         'price': this.autoMakerOrder.price, 'margin_trading': 1, 'order_type': '3' //立即成交并取消剩余（IOC）
                     };
-                    let o2 = yield this.authClient.spot().postOrder(toTaker);
-                    if (o2.result) {
+                    if (this.autoMakerOrder && this.autoMakerOrder.state == 2) {
                         orderMap.delete(o.order_id);
                     }
+                    else {
+                        let o2 = yield this.authClient.spot().postOrder(toTaker);
+                        if (o2.result) {
+                            orderMap.delete(o.order_id);
+                        }
+                        console.log("下单 ---后o2", JSON.stringify(o2));
+                    }
                     // let cancel = await this.authClient.spot().postCancelOrder(o.order_id, { 'instrument_id': this.instrument_id });
-                    console.log("下单 ---后o2", JSON.stringify(o2));
                 }
                 else {
                     console.log("下单失败:", o.error_message);
