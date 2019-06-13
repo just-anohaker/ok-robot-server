@@ -21,7 +21,11 @@ const DbOrders_1 = require("./DbOrders");
 let accouts = new Map();
 function acctInfo(pamams) {
     if (accouts.has(pamams.instrument_id + pamams.httpkey)) {
-        return accouts.get(pamams.instrument_id + pamams.httpkey);
+        let a = accouts.get(pamams.instrument_id + pamams.httpkey);
+        // if (a.isClosed) {
+        //     this.wss.connect();
+        // }
+        return a;
     }
     var ac = new AccountInfo(pamams.instrument_id, pamams.httpkey, pamams.httpsecret, pamams.passphrase);
     accouts.set(pamams.instrument_id + pamams.httpkey, ac);
@@ -274,7 +278,9 @@ class AccountInfo {
         //4.如果是批量交易的单子需要如何清理?
     }
     /**
-     *   params.perSize //每次挂单数量
+     *   //每次挂单数量
+     * perStartSize
+     * perTopSize
         params.countPerM  //每分钟成交多少笔
         params.instrument_id
      */
@@ -306,10 +312,11 @@ class AccountInfo {
                 // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
                 // console.log("interval ---" + pci.tickerData.instrument_id + `买一 ` + pci.tickerData.best_bid + ' 卖一 ' + pci.tickerData.best_ask + ' 最新成交价:' + pci.tickerData.last);
                 let randomPrice = this.getRandomArbitrary(parseFloat(this.tickerData.best_bid), parseFloat(this.tickerData.best_ask));
-                console.log("randomPrice ---", randomPrice);
+                let perSize = this.getRandomArbitrary(parseFloat(params.perStartSize), parseFloat(params.perTopSize));
+                console.log("random perSize ---", perSize);
                 let toOrder = {
                     'type': 'limit', 'side': 'sell',
-                    'instrument_id': this.instrument_id, 'size': params.perSize, 'client_oid': config.autoMaker + Date.now(),
+                    'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.autoMaker + Date.now(),
                     'price': randomPrice, 'margin_trading': 1, 'order_type': '0'
                 };
                 console.log("下单 ---", JSON.stringify(toOrder));

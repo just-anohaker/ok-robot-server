@@ -32,7 +32,9 @@ export declare class AccountInfo {
     getRandomArbitrary(min: any, max: any): any;
     orderMonitor(): void;
     /**
-     *   params.perSize //每次挂单数量
+     *   //每次挂单数量
+     * perStartSize
+     * perTopSize
         params.countPerM  //每分钟成交多少笔
         params.instrument_id
      */
