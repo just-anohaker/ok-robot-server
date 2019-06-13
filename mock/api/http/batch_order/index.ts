@@ -38,6 +38,8 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         router.post("/api/batch_order/startDepInfo", this.startDepInfo);
         router.post("/api/batch_order/stopDepInfo", this.stopDepInfo);
         router.post("/api/batch_order/getOrderData", this.getOrderData);
+        router.post("/api/batch_order/pageInfo", this.pageInfo);
+        router.post("/api/batch_order/pageKline", this.pageKline);
         this._http!.use(router.routes());
     }
 
@@ -50,6 +52,12 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         // Facade.getInstance().registerObserver(NotificationOrder, this._observer);
 
         Facade.getInstance().registerObserver("depth", this._observer);
+        Facade.getInstance().registerObserver("page/candle:ETM-USDT", this._observer);
+        Facade.getInstance().registerObserver("page/candle:ETM-USDK", this._observer);
+        Facade.getInstance().registerObserver("page/ticker:ETM-USDT", this._observer);
+        Facade.getInstance().registerObserver("page/ticker:ETM-USDK", this._observer);
+        Facade.getInstance().registerObserver("page/trade:ETM-USDT", this._observer);
+        Facade.getInstance().registerObserver("page/trade:ETM-USDK", this._observer);
     }
 
     private generate = async (ctx: Koa.Context) => {
@@ -82,6 +90,13 @@ class BatchOrderAPI implements IHttp, ISockerIO {
 
     private getOrderData = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.getOrderData(ctx.body || {}));
+    }
+    private pageInfo = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.pageInfo(ctx.body || {}));
+    }
+
+    private pageKline = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.pageKline(ctx.body || {}));
     }
 
     private onNotification = (notification: INotification): void => {

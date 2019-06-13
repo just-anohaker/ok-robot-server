@@ -1,5 +1,6 @@
 const config = require('../../config');
 import acctInfo, { AccountInfo } from "../../acctInfo2";
+import pageinfo, { PageInfo } from "../../PageInfo";
 const { AuthenticatedClient } = require('@okfe/okex-node');
 import Database from "../../../sqlite3";
 import { DbOrders } from "../../DbOrders";
@@ -327,6 +328,38 @@ async function marketOrder(params, acct) {
     return result
 }
 /***
+ * {
+ * params:
+ * instrument_id
+ * channel
+ * }
+ */
+async function pageInfo(params): Promise<PageInfo> {
+    let p = pageinfo.initPageInfo(params);
+    return p;
+}
+/***
+ * {
+ * params:
+ * instrument_id
+ * channel
+ * }
+ */
+async function pageKline(params) {
+    try {
+        pageinfo.subscribeKline(params)
+    } catch (error) {
+        console.log(error)
+        return {
+            result: false,
+            error_message: error
+        };
+    }
+    return {
+        result: true
+    };
+}
+/***
  * params:
  * {
  * instrument_id 
@@ -453,6 +486,9 @@ async function startMaker(params, acct) {
     acctinfo.startAutoMaker(params);
     return acctinfo;
 }
+
+
+
 // console.log(genBatchOrder({type:2,topPrice:0.04,startPrice:0.03,incr:0.2,size:1,sizeIncr:1},
 //     {httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase}))
 //cancelBatchOrder({startPrice:0.01,topPrice:0.02},{httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase})
@@ -471,5 +507,7 @@ export default {
     marketOrder,
     startDepInfo,
     stopDepInfo,
-    getOrderData
+    getOrderData,
+    pageInfo,
+    pageKline
 }

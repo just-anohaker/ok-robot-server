@@ -48,7 +48,12 @@ class BatchOrderProxy extends Proxy {
     async marketOrder(options: any /*BatchOrderCancelOptions*/, account: any /*OKexAccount*/): Promise<any> {
         return await batchOrder.marketOrder(options, account);
     }
-
+    async pageInfo(options: any): Promise<any> {
+        return await batchOrder.pageInfo(options);
+    }
+    async pageKline(options: any): Promise<any> {
+        return await batchOrder.pageKline(options);
+    }
     async stopDepInfo(options: any): Promise<any> {
         return await batchOrder.stopDepInfo(options);
     }

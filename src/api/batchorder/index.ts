@@ -96,6 +96,23 @@ async function stopDepInfo(data: MarkedMap): Promise<APIReturn> {
     }
 }
 
+async function pageKline(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.pageKline(data.options);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
+async function pageInfo(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.pageInfo(data.options);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
 async function getOrderData(data: MarkedMap): Promise<APIReturn> {
     // const validation = Schema.validateCancel(data);
     // if (validation !== undefined) {
@@ -117,5 +134,7 @@ export default {
     marketOrder,
     startDepInfo,
     stopDepInfo,
-    getOrderData
+    getOrderData,
+    pageInfo,
+    pageKline
 }

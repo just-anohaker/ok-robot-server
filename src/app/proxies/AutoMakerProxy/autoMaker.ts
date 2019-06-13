@@ -38,7 +38,8 @@ let ai
 /***
 * params:
 * {
-* perSize //每次挂单数量
+* perStartSize //每次挂单数量
+* perTopSize 
 * countPerM  //每分钟成交多少笔
 * instrument_id
 * }

@@ -10,10 +10,11 @@ module.exports = {
     channel_depth: 'spot/depth',
     channel_ticker: 'spot/ticker',
     channel_order: "spot/order",
-
+    channel_trade: "spot/trade",
+    channel_candle: "spot/candle",
     //instrument_id : "ZIL-USDT",
     currency: 'ETM',
-    SendDepTime: 2000,
+    SendDepTime: 1000,
     orderType: {
         limitOrder: 'A',
         marketOrder: 'B',
