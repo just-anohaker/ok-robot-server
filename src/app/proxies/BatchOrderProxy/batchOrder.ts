@@ -2,6 +2,7 @@ const config = require('../../config');
 import acctInfo, { AccountInfo } from "../../acctInfo2";
 import pageinfo, { PageInfo } from "../../PageInfo";
 const { AuthenticatedClient } = require('@okfe/okex-node');
+const { PublicClient } = require('@okfe/okex-node');
 import Database from "../../../sqlite3";
 import { DbOrders } from "../../DbOrders";
 
@@ -438,7 +439,38 @@ async function getOrderData(params, acct) {
         length: result ? result.length : 0
     }
 }
-
+async function getTradeData(params) {
+    const pclient = new PublicClient(config.urlHost);
+    let result
+    try {
+        result = await pclient.spot().getSpotTrade(params.instrument_id, params)
+    } catch (error) {
+        console.log(error)
+        return {
+            result: false,
+            error_message: error + ''
+        };
+    }
+    return {
+        result
+    }
+}
+async function getCandlesData(params) {
+    const pclient = new PublicClient(config.urlHost);
+    let result
+    try {
+        result = await pclient.spot().getSpotCandles(params.instrument_id, params)
+    } catch (error) {
+        console.log(error)
+        return {
+            result: false,
+            error_message: error + ''
+        };
+    }
+    return {
+        result
+    }
+}
 async function freshOrderInfo(params, acct) {
     const authClient = new AuthenticatedClient(acct.httpkey,
         acct.httpsecret, acct.passphrase, config.urlHost);
@@ -509,5 +541,7 @@ export default {
     stopDepInfo,
     getOrderData,
     pageInfo,
-    pageKline
+    pageKline,
+    getTradeData,
+    getCandlesData
 }

@@ -329,7 +329,7 @@ export class AccountInfo {
                 let o = await this.authClient.spot().postOrder(toOrder);
                 console.log("下单 ---后", JSON.stringify(o))
                 if (o.result) {//下单成功
-                    await this.sleep(220);
+                    await this.sleep(100);
                     orderMap.forEach(async (value, key, map) => {
                         if (Date.now() - value > order_interval) {
                             try {

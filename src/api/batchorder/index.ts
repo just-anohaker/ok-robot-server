@@ -126,6 +126,23 @@ async function getOrderData(data: MarkedMap): Promise<APIReturn> {
         return apiFailure(error.toString());
     }
 }
+async function getTradeData(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.getTradeData(data.options);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
+async function getCandlesData(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.getCandlesData(data.options);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
 
 export default {
     generate,
@@ -136,5 +153,7 @@ export default {
     stopDepInfo,
     getOrderData,
     pageInfo,
-    pageKline
+    pageKline,
+    getTradeData,
+    getCandlesData
 }

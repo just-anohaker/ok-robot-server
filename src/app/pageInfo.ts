@@ -119,7 +119,7 @@ export class PageInfo {
             this.event.on(params.channel, (info => {
                 //var d = info.data[0];
                 // this.event.emit("page/candle" + ':' + this.instrument_id, info);
-                console.log(JSON.stringify(info))
+                //console.log(JSON.stringify(info))
                 Facade.getInstance().sendNotification("page/candle" + ':' + this.instrument_id, info);
             }))
         }

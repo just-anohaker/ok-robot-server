@@ -107,7 +107,7 @@ function stopAutoTrade() {
  * 接口:开始交易
  */
 function startAutoTrade() {
-    console.log("stopAutoTrade! ");
+    console.log("startAutoTrade! ");
     // ai.startAutoMaker();
     if (!AT_startFlag) {
         //startMakeOrder();

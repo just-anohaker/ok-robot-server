@@ -40,6 +40,10 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         router.post("/api/batch_order/getOrderData", this.getOrderData);
         router.post("/api/batch_order/pageInfo", this.pageInfo);
         router.post("/api/batch_order/pageKline", this.pageKline);
+        router.post("/api/batch_order/getTradeData", this.getTradeData);
+        router.post("/api/batch_order/getCandlesData", this.getCandlesData);
+
+
         this._http!.use(router.routes());
     }
 
@@ -90,6 +94,12 @@ class BatchOrderAPI implements IHttp, ISockerIO {
 
     private getOrderData = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.getOrderData(ctx.body || {}));
+    }
+    private getCandlesData = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.getCandlesData(ctx.body || {}));
+    }
+    private getTradeData = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiBatchOrder.getTradeData(ctx.body || {}));
     }
     private pageInfo = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiBatchOrder.pageInfo(ctx.body || {}));
