@@ -14,7 +14,8 @@ import {
     AutoMakerProxy,
     AutoMarketProxy,
     BatchOrderProxy,
-    TakeOrderProxy
+    TakeOrderProxy,
+    OkexUtilsProxy
 } from "../src";
 
 import Application from "./Application";
@@ -27,6 +28,7 @@ function initCore(): boolean {
     facadeInst.registerProxy(new AutoMarketProxy());
     facadeInst.registerProxy(new BatchOrderProxy());
     facadeInst.registerProxy(new TakeOrderProxy());
+    facadeInst.registerProxy(new OkexUtilsProxy());
 
     facadeInst.registerMediator(new UserMediator());
 

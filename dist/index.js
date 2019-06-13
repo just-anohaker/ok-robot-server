@@ -35,6 +35,8 @@ var BatchOrderProxy_1 = require("./app/proxies/BatchOrderProxy");
 exports.BatchOrderProxy = BatchOrderProxy_1.default;
 var TakeOrderProxy_1 = require("./app/proxies/TakeOrderProxy");
 exports.TakeOrderProxy = TakeOrderProxy_1.default;
+var OkexUtilsProxy_1 = require("./app/proxies/OkexUtilsProxy");
+exports.OkexUtilsProxy = OkexUtilsProxy_1.default;
 // export { default as VolumeProxy } from "./app/proxies/VolumeMaker";
 // /> api
 __export(require("./api"));

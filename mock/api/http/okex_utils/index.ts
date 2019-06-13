@@ -18,7 +18,7 @@ class OkexUtilsAPI implements IHttp, ISockerIO {
     }
 
     get Name(): string {
-        return "API_TAKE_ORDER";
+        return "API_OKEX_UTILS";
     }
 
     onBind(koa: Koa): void {
@@ -45,20 +45,20 @@ class OkexUtilsAPI implements IHttp, ISockerIO {
 
     }
 
-    private getSpotTrade = (ctx: Koa.Context): void => {
-
+    private getSpotTrade = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiOkexUtils.getSpotTrade(ctx.body || {}));
     }
 
-    private getSpotTicker = (ctx: Koa.Context): void => {
-
+    private getSpotTicker = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiOkexUtils.getSpotTicker(ctx.body || {}));
     }
 
-    private getSpotCandles = (ctx: Koa.Context): void => {
-
+    private getSpotCandles = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiOkexUtils.getSpotCandles(ctx.body || {}));
     }
 
     private onNotification = (notification: INotification): void => {
-        console.log("[TakeOrderAPI] onNotification:", notification.getName());
+        // console.log("[TakeOrderAPI] onNotification:", notification.getName());
         this._io!.emit(notification.getName(), notification.getBody());
     }
 }
