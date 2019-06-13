@@ -12,7 +12,7 @@ const Utils_1 = require("../Utils");
 function getSpotTicker(data) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotTicker(data.options);
+            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotTicker(data);
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
@@ -23,7 +23,7 @@ function getSpotTicker(data) {
 function getSpotTrade(data) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotTrade(data.options);
+            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotTrade(data);
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
@@ -34,7 +34,7 @@ function getSpotTrade(data) {
 function getSpotCandles(data) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotCandles(data.options);
+            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotCandles(data);
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
