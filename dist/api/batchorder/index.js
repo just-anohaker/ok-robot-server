@@ -111,6 +111,28 @@ function stopDepInfo(data) {
         }
     });
 }
+function pageKline(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.pageKline(data.options);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function pageInfo(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.pageInfo(data.options);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 function getOrderData(data) {
     return __awaiter(this, void 0, void 0, function* () {
         // const validation = Schema.validateCancel(data);
@@ -133,5 +155,7 @@ exports.default = {
     marketOrder,
     startDepInfo,
     stopDepInfo,
-    getOrderData
+    getOrderData,
+    pageInfo,
+    pageKline
 };

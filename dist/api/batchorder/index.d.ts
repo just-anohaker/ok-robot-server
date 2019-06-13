@@ -6,6 +6,8 @@ declare function limitOrder(data: MarkedMap): Promise<APIReturn>;
 declare function marketOrder(data: MarkedMap): Promise<APIReturn>;
 declare function startDepInfo(data: MarkedMap): Promise<APIReturn>;
 declare function stopDepInfo(data: MarkedMap): Promise<APIReturn>;
+declare function pageKline(data: MarkedMap): Promise<APIReturn>;
+declare function pageInfo(data: MarkedMap): Promise<APIReturn>;
 declare function getOrderData(data: MarkedMap): Promise<APIReturn>;
 declare const _default: {
     generate: typeof generate;
@@ -15,5 +17,7 @@ declare const _default: {
     startDepInfo: typeof startDepInfo;
     stopDepInfo: typeof stopDepInfo;
     getOrderData: typeof getOrderData;
+    pageInfo: typeof pageInfo;
+    pageKline: typeof pageKline;
 };
 export default _default;

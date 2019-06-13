@@ -21,10 +21,7 @@ export declare class AccountInfo {
     private order_db;
     private autoMakerOrder;
     constructor(instrument_id: any, httpkey: any, httpsecret: any, passphrase: any);
-    initOrderData(): Promise<{
-        result: boolean;
-        error_message: string;
-    }>;
+    initOrderData(): Promise<void>;
     stopWebsocket(): void;
     startWebsocket(): void;
     sleep(ms: any): Promise<unknown>;

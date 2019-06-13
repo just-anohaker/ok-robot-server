@@ -1,4 +1,5 @@
 import { AccountInfo } from "../../acctInfo2";
+import { PageInfo } from "../../PageInfo";
 /**
  * 接口:
  * params:
@@ -102,6 +103,28 @@ declare function limitOrder(params: any, acct: any): Promise<any>;
  */
 declare function marketOrder(params: any, acct: any): Promise<any>;
 /***
+ * {
+ * params:
+ * instrument_id
+ * channel
+ * }
+ */
+declare function pageInfo(params: any): Promise<PageInfo>;
+/***
+ * {
+ * params:
+ * instrument_id
+ * channel
+ * }
+ */
+declare function pageKline(params: any): Promise<{
+    result: boolean;
+    error_message: any;
+} | {
+    result: boolean;
+    error_message?: undefined;
+}>;
+/***
  * params:
  * {
  * instrument_id
@@ -163,5 +186,7 @@ declare const _default: {
     startDepInfo: typeof startDepInfo;
     stopDepInfo: typeof stopDepInfo;
     getOrderData: typeof getOrderData;
+    pageInfo: typeof pageInfo;
+    pageKline: typeof pageKline;
 };
 export default _default;

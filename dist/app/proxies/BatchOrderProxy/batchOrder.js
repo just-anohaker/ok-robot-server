@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require('../../config');
 const acctInfo2_1 = __importDefault(require("../../acctInfo2"));
+const PageInfo_1 = __importDefault(require("../../PageInfo"));
 const { AuthenticatedClient } = require('@okfe/okex-node');
 const sqlite3_1 = __importDefault(require("../../../sqlite3"));
 const DbOrders_1 = require("../../DbOrders");
@@ -342,6 +343,43 @@ function marketOrder(params, acct) {
     });
 }
 /***
+ * {
+ * params:
+ * instrument_id
+ * channel
+ * }
+ */
+function pageInfo(params) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let p = PageInfo_1.default.initPageInfo(params);
+        return p;
+    });
+}
+/***
+ * {
+ * params:
+ * instrument_id
+ * channel
+ * }
+ */
+function pageKline(params) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            PageInfo_1.default.subscribeKline(params);
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        return {
+            result: true
+        };
+    });
+}
+/***
  * params:
  * {
  * instrument_id
@@ -492,5 +530,7 @@ exports.default = {
     marketOrder,
     startDepInfo,
     stopDepInfo,
-    getOrderData
+    getOrderData,
+    pageInfo,
+    pageKline
 };

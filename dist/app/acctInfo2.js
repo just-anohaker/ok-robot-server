@@ -90,10 +90,6 @@ class AccountInfo {
                 }
                 catch (e) {
                     console.log(e);
-                    return {
-                        result: false,
-                        error_message: e + ''
-                    };
                 }
             }
             this.wss.login(this.httpkey, this.httpsecret, this.passphrase);
@@ -101,7 +97,6 @@ class AccountInfo {
     }
     stopWebsocket() {
         this.wss.close();
-        // this.isClosed == false;
     }
     startWebsocket() {
         console.log('spot.......');
@@ -131,9 +126,11 @@ class AccountInfo {
         });
         this.wss.on('close', () => {
             this.isClosed = true;
+            this.tickerData = undefined;
         });
         this.event.on('login', data => {
             console.log("websocket login!!!");
+            this.isClosed = false;
             this.wss.subscribe(config.channel_order + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_ticker + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
