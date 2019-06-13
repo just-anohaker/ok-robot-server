@@ -95,3 +95,18 @@ export interface Order {
 export const NotificationDeep = "spot/depth";
 export const NotificationTicker = "spot/ticker";
 export const NotificationOrder = "spot/order";
+
+
+export interface OkexTickerParameters {
+    instrument_id?: string;
+}
+
+export interface OkexTradeParameters {
+    instrument_id: string;
+    params: { [key: string]: any } | string;
+}
+
+export interface OkexCandlesParameters {
+    instrument_id: string;
+    params: { [key: string]: any } | string;
+}

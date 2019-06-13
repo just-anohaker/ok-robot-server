@@ -178,6 +178,20 @@ declare function getOrderData(params: any, acct: any): Promise<{
     result?: undefined;
     error_message?: undefined;
 }>;
+declare function getTradeData(params: any): Promise<{
+    result: boolean;
+    error_message: string;
+} | {
+    result: any;
+    error_message?: undefined;
+}>;
+declare function getCandlesData(params: any): Promise<{
+    result: boolean;
+    error_message: string;
+} | {
+    result: any;
+    error_message?: undefined;
+}>;
 declare const _default: {
     genBatchOrder: typeof genBatchOrder;
     cancelBatchOrder: typeof cancelBatchOrder;
@@ -188,5 +202,7 @@ declare const _default: {
     getOrderData: typeof getOrderData;
     pageInfo: typeof pageInfo;
     pageKline: typeof pageKline;
+    getTradeData: typeof getTradeData;
+    getCandlesData: typeof getCandlesData;
 };
 export default _default;

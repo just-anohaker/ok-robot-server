@@ -148,6 +148,28 @@ function getOrderData(data) {
         }
     });
 }
+function getTradeData(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.getTradeData(data.options);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function getCandlesData(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.getCandlesData(data.options);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     generate,
     cancel,
@@ -157,5 +179,7 @@ exports.default = {
     stopDepInfo,
     getOrderData,
     pageInfo,
-    pageKline
+    pageKline,
+    getTradeData,
+    getCandlesData
 };

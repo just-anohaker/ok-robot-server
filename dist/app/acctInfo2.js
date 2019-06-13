@@ -323,7 +323,7 @@ class AccountInfo {
                 let o = yield this.authClient.spot().postOrder(toOrder);
                 console.log("下单 ---后", JSON.stringify(o));
                 if (o.result) { //下单成功
-                    yield this.sleep(220);
+                    yield this.sleep(100);
                     orderMap.forEach((value, key, map) => __awaiter(this, void 0, void 0, function* () {
                         if (Date.now() - value > order_interval) {
                             try {

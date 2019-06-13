@@ -12,6 +12,8 @@ declare class BatchOrderProxy extends Proxy {
     pageKline(options: any): Promise<any>;
     stopDepInfo(options: any): Promise<any>;
     getOrderData(options: any, account: any): Promise<any>;
+    getTradeData(options: any): Promise<any>;
+    getCandlesData(options: any): Promise<any>;
     startDepInfo(options: any): Promise<any>;
     private onEventHandler;
 }

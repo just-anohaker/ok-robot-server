@@ -15,6 +15,7 @@ const config = require('../../config');
 const acctInfo2_1 = __importDefault(require("../../acctInfo2"));
 const PageInfo_1 = __importDefault(require("../../PageInfo"));
 const { AuthenticatedClient } = require('@okfe/okex-node');
+const { PublicClient } = require('@okfe/okex-node');
 const sqlite3_1 = __importDefault(require("../../../sqlite3"));
 const DbOrders_1 = require("../../DbOrders");
 //let acctinfo;
@@ -464,6 +465,44 @@ function getOrderData(params, acct) {
         };
     });
 }
+function getTradeData(params) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const pclient = new PublicClient(config.urlHost);
+        let result;
+        try {
+            result = yield pclient.spot().getSpotTrade(params.instrument_id, params);
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                result: false,
+                error_message: error + ''
+            };
+        }
+        return {
+            result
+        };
+    });
+}
+function getCandlesData(params) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const pclient = new PublicClient(config.urlHost);
+        let result;
+        try {
+            result = yield pclient.spot().getSpotCandles(params.instrument_id, params);
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                result: false,
+                error_message: error + ''
+            };
+        }
+        return {
+            result
+        };
+    });
+}
 function freshOrderInfo(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
         const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
@@ -532,5 +571,7 @@ exports.default = {
     stopDepInfo,
     getOrderData,
     pageInfo,
-    pageKline
+    pageKline,
+    getTradeData,
+    getCandlesData
 };

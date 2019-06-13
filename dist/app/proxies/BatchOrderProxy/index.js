@@ -76,6 +76,16 @@ class BatchOrderProxy extends Proxy_1.default {
             return yield batchOrder_1.default.getOrderData(options, account);
         });
     }
+    getTradeData(options /*BatchOrderCancelOptions*/) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.getTradeData(options);
+        });
+    }
+    getCandlesData(options /*BatchOrderCancelOptions*/) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.getCandlesData(options);
+        });
+    }
     startDepInfo(options /*OKexAccount*/) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

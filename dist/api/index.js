@@ -11,3 +11,5 @@ var batchorder_1 = require("./batchorder");
 exports.apiBatchOrder = batchorder_1.default;
 var takeorder_1 = require("./takeorder");
 exports.apiTakeOrder = takeorder_1.default;
+var okexutils_1 = require("./okexutils");
+exports.apiOkexUtils = okexutils_1.default;
