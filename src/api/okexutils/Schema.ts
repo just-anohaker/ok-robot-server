@@ -40,7 +40,7 @@ class Schema {
                 instrument_id: { type: "string", minLength: 1 },
                 params: { type: "object" }
             },
-            required: ["instrument_id"]
+            // required: ["instrument_id"]
         }, data);
         if (validation) {
             return undefined;
