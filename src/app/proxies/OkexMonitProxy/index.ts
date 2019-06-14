@@ -1,5 +1,6 @@
 import { V3WebsocketClient } from "@okfe/okex-node";
 import Proxy from "../../../patterns/proxy/Proxy";
+import Facade from "../../../patterns/facade/Facade";
 
 const enum ChannelTAGs {
     SpotTrade = "spot/trade",
@@ -27,6 +28,26 @@ class OkexMonitProxy extends Proxy {
         this._checkOkexConnection();
     }
 
+    private _startExpiredTimer(): void {
+        this._stopExpiredTimer();
+
+        this._expiredTimeoutHandler = setTimeout(() => {
+            console.log("[OkexMonitProxy] ExpiredTimeout happened");
+            this._expiredTimeoutHandler = undefined;
+            if (this._okexConnection) {
+                return this._okexConnection.close();
+            }
+            this._checkOkexConnection();
+        }, ExpiredTimeout);
+    }
+
+    private _stopExpiredTimer(): void {
+        if (this._expiredTimeoutHandler !== undefined) {
+            clearTimeout(this._expiredTimeoutHandler);
+            this._expiredTimeoutHandler = undefined;
+        }
+    }
+
     private _checkOkexConnection(): V3WebsocketClient {
 
         if (this._okexConnection === undefined) {
@@ -39,46 +60,37 @@ class OkexMonitProxy extends Proxy {
             this._okexConnection.on("message",
                 (data: any) => this.onOkexConnectionMessage(data));
 
-            this._registerChannels.forEach((value, key) => {
-                if (value === true) {
-                    this._okexConnection.subscribe(key);
-                }
-            });
-
             this._okexConnection.connect();
-            if (this._expiredTimeoutHandler !== undefined) {
-                clearTimeout(this._expiredTimeoutHandler);
-                this._expiredTimeoutHandler = undefined;
-            }
-            this._expiredTimeoutHandler = setTimeout(() => {
-                console.log("[OkexMonitProxy] ExpiredTimeout happened");
-                this._expiredTimeoutHandler = undefined;
-                if (this._okexConnection) {
-                    return this._okexConnection.close();
-                }
-                this._checkOkexConnection();
-            }, ExpiredTimeout);
+            this._startExpiredTimer();
         }
         return this._okexConnection;
     }
 
-    monitSpotTrade(instrumentId: string): { result: boolean, notificationName: string } {
-        return this.monitSpotChannel(`${ChannelTAGs.SpotTrade}:${instrumentId}`);
+    monitSpotTrade(instrumentId: string): string {
+        return this.monitChannel(`${ChannelTAGs.SpotTrade}:${instrumentId}`);
     }
 
-    unmonitSpotTrade(instrumentId: string): { result: boolean, notificationName: string } {
-        return this.unmonitSpotChannel(`${ChannelTAGs.SpotTrade}:${instrumentId}`);
+    unmonitSpotTrade(instrumentId: string): string {
+        return this.unmonitChannel(`${ChannelTAGs.SpotTrade}:${instrumentId}`);
     }
 
-    monitSpotTicker(instrumentId: string): { result: boolean, notificationName: string } {
-        return this.monitSpotChannel(`${ChannelTAGs.SpotTicker}:${instrumentId}`);
+    monitSpotTicker(instrumentId: string): string {
+        return this.monitChannel(`${ChannelTAGs.SpotTicker}:${instrumentId}`);
     }
 
-    unmonitSpotTicker(instrumentId: string): { result: boolean, notificationName: string } {
-        return this.unmonitSpotChannel(`${ChannelTAGs.SpotTicker}:${instrumentId}`);
+    unmonitSpotTicker(instrumentId: string): string {
+        return this.unmonitChannel(`${ChannelTAGs.SpotTicker}:${instrumentId}`);
     }
 
-    monitSpotChannel(channelName: string): { result: boolean, notificationName: string } {
+    monitSpotChannel(channelName: string, filter: string): string {
+        return this.monitChannel(`spot/${channelName}:${filter}`);
+    }
+
+    unmonitSpotChannel(channelName: string, filter: string): string {
+        return this.unmonitChannel(`spot/${channelName}:${filter}`);
+    }
+
+    monitChannel(channelName: string): string {
         const okexConnection = this._checkOkexConnection();
         if (!this._registerChannels.has(channelName) ||
             this._registerChannels.get(channelName) === false) {
@@ -91,13 +103,10 @@ class OkexMonitProxy extends Proxy {
                 throw error;
             }
         }
-        return {
-            result: true,
-            notificationName: channelName
-        };;
+        return channelName;
     }
 
-    unmonitSpotChannel(channelName: string): { result: boolean, notificationName: string } {
+    unmonitChannel(channelName: string): string {
         const okexConnection = this._checkOkexConnection();
         if (this._registerChannels.has(channelName) &&
             this._registerChannels.get(channelName) === true) {
@@ -111,34 +120,51 @@ class OkexMonitProxy extends Proxy {
             }
         }
 
-        return {
-            result: true,
-            notificationName: channelName
-        };
+        return channelName;
     }
 
     private onOkexConnectionOpened(): void {
         console.log("[OkexMonitProxy] okexConnection opened");
-        if (this._expiredTimeoutHandler !== undefined) {
-            clearTimeout(this._expiredTimeoutHandler);
-            this._expiredTimeoutHandler = undefined;
-        }
+        this._stopExpiredTimer();
+        this._registerChannels.forEach((value, key) => {
+            if (value === true) {
+                this._okexConnection.subscribe(key);
+            }
+        });
     }
 
     private onOkexConnectionClosed(): void {
         console.log("[OkexMonitProxy] okexConnection closed");
-        if (this._expiredTimeoutHandler !== undefined) {
-            clearTimeout(this._expiredTimeoutHandler);
-            this._expiredTimeoutHandler = undefined;
-        }
         this._okexConnection = undefined;
+        this._stopExpiredTimer();
         this._checkOkexConnection();
     }
 
     private onOkexConnectionMessage(data: any): void {
-        console.log("[OkexMonitProxy] okexConnection message recieved:", data);
-
-        // TODO
+        // console.log("[OkexMonitProxy] okexConnection message recieved:", typeof data, data);
+        try {
+            const jsonData = JSON.parse(data);
+            if (jsonData.event && typeof jsonData.event === "string") {
+                // TODO: events
+                if (jsonData.event === "login") {
+                    /// login
+                } else {
+                    console.log("[OkexMonitProxy] okexConnection message:", jsonData.event, jsonData.channel);
+                }
+            } else if (jsonData.table && typeof jsonData.table === "string") {
+                // TODO: subscribe response
+                const respData = jsonData.data;
+                if (Array.isArray(respData) && respData.length > 0) {
+                    const notificationName = jsonData.table + ":" + respData[0].instrument_id;
+                    Facade.getInstance().sendNotification(notificationName, respData);
+                }
+            } else {
+                // unhandle data
+                console.log("[OkexMonitProxy] onOkexConnectionMessage unhandle:", data);
+            }
+        } catch (error) {
+            console.log("[OkexMonitProxy] exception:", error);
+        }
     }
 }
 

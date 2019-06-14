@@ -73,9 +73,41 @@ function unmonitSpotTicker(data) {
         }
     });
 }
+function monitSpotChannel(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateMonitSpotChannel(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
+        try {
+            const resp = Utils_1.ProxyHelper.OkexMonitProxy.monitSpotChannel(data.channel_name, data.filter);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function unmonitSpotChannel(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateUnmonitSpotChannel(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
+        try {
+            const resp = Utils_1.ProxyHelper.OkexMonitProxy.unmonitSpotChannel(data.channel_name, data.filter);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     monitSpotTrade,
     unmonitSpotTrade,
     monitSpotTicker,
-    unmonitSpotTicker
+    unmonitSpotTicker,
+    monitSpotChannel,
+    unmonitSpotChannel
 };

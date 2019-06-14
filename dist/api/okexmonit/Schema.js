@@ -54,6 +54,34 @@ class Schema {
         }
         return Schema.validator.errorsText();
     }
+    static validateMonitSpotChannel(data) {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                channel_name: { type: "string", minLenght: 1 },
+                filter: { type: "string", minLenght: 1 }
+            },
+            required: ["channel_name", "filter"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
+    static validateUnmonitSpotChannel(data) {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                channel_name: { type: "string", minLenght: 1 },
+                filter: { type: "string", minLenght: 1 }
+            },
+            required: ["channel_name", "filter"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
 }
 Schema.validator = ajv();
 exports.default = Schema;

@@ -3,7 +3,6 @@ import { APIReturn } from "../Types";
 import { apiSuccess, apiFailure, ProxyHelper } from "../Utils";
 import Schema from "./Schema";
 
-
 async function monitSpotTrade(data: MarkedMap): Promise<APIReturn> {
     const validation = Schema.validateMonitSpotTrade(data);
     if (validation) {
@@ -60,11 +59,40 @@ async function unmonitSpotTicker(data: MarkedMap): Promise<APIReturn> {
     }
 }
 
+async function monitSpotChannel(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateMonitSpotChannel(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
+    try {
+        const resp = ProxyHelper.OkexMonitProxy.monitSpotChannel(data.channel_name, data.filter);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
+async function unmonitSpotChannel(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateUnmonitSpotChannel(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+    try {
+        const resp = ProxyHelper.OkexMonitProxy.unmonitSpotChannel(data.channel_name, data.filter);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
 export default {
     monitSpotTrade,
     unmonitSpotTrade,
     monitSpotTicker,
-    unmonitSpotTicker
+    unmonitSpotTicker,
+    monitSpotChannel,
+    unmonitSpotChannel
 };
 
 

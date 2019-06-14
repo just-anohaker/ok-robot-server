@@ -6,31 +6,17 @@ declare class OkexMonitProxy extends Proxy {
     private _expiredTimeoutHandler?;
     constructor();
     onRegister(): void;
+    private _startExpiredTimer;
+    private _stopExpiredTimer;
     private _checkOkexConnection;
-    monitSpotTrade(instrumentId: string): {
-        result: boolean;
-        notificationName: string;
-    };
-    unmonitSpotTrade(instrumentId: string): {
-        result: boolean;
-        notificationName: string;
-    };
-    monitSpotTicker(instrumentId: string): {
-        result: boolean;
-        notificationName: string;
-    };
-    unmonitSpotTicker(instrumentId: string): {
-        result: boolean;
-        notificationName: string;
-    };
-    monitSpotChannel(channelName: string): {
-        result: boolean;
-        notificationName: string;
-    };
-    unmonitSpotChannel(channelName: string): {
-        result: boolean;
-        notificationName: string;
-    };
+    monitSpotTrade(instrumentId: string): string;
+    unmonitSpotTrade(instrumentId: string): string;
+    monitSpotTicker(instrumentId: string): string;
+    unmonitSpotTicker(instrumentId: string): string;
+    monitSpotChannel(channelName: string, filter: string): string;
+    unmonitSpotChannel(channelName: string, filter: string): string;
+    monitChannel(channelName: string): string;
+    unmonitChannel(channelName: string): string;
     private onOkexConnectionOpened;
     private onOkexConnectionClosed;
     private onOkexConnectionMessage;
