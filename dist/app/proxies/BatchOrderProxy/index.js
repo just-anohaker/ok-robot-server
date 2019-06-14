@@ -58,7 +58,16 @@ class BatchOrderProxy extends Proxy_1.default {
     }
     pageInfo(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield batchOrder_1.default.pageInfo(options);
+            try {
+                yield batchOrder_1.default.pageInfo(options);
+            }
+            catch (error) {
+                return {
+                    result: false,
+                    error_message: error
+                };
+            }
+            return { result: true };
         });
     }
     pageKline(options) {
