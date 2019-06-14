@@ -9,6 +9,7 @@ let channel;
 function initPageInfo(pamams) {
     if (page.has(pamams.instrument_id)) {
         let a = page.get(pamams.instrument_id);
+        a.startWebsocket();
         return a;
     }
     var ac = new PageInfo(pamams.instrument_id);
@@ -62,12 +63,14 @@ class PageInfo {
     constructor(instrument_id) {
         this.instrument_id = instrument_id;
         this.tickerData;
+        this.isClosed;
         this.event = new events_1.EventEmitter();
         this.wss = new V3WebsocketClient(config.websocekHost);
     }
     initData() {
         this.wss.on('open', data => {
             console.log("websocket open!!!");
+            this.isClosed = false;
             this.wss.subscribe(config.channel_trade + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_ticker + ':' + this.instrument_id);
         });
@@ -128,10 +131,9 @@ class PageInfo {
     }
     startWebsocket() {
         console.log('spot.......');
-        // if (this.isClosed == false) {
-        //     return
-        // }
-        let sendDepthTime = undefined;
+        if (this.isClosed == false) {
+            return;
+        }
         this.wss.connect();
     }
     sleep(ms) {

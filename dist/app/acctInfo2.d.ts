@@ -18,11 +18,13 @@ export declare class AccountInfo {
     private pClient;
     private authClient;
     private interval_autoMaker;
+    private interval_reconnet;
     private order_db;
     private autoMakerOrder;
     constructor(instrument_id: any, httpkey: any, httpsecret: any, passphrase: any);
     initOrderData(): Promise<void>;
     stopWebsocket(): void;
+    initData(): void;
     startWebsocket(): void;
     sleep(ms: any): Promise<unknown>;
     getRandomIntInclusive(min: any, max: any): any;

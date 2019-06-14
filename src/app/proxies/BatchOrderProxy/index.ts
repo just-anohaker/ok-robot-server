@@ -49,7 +49,15 @@ class BatchOrderProxy extends Proxy {
         return await batchOrder.marketOrder(options, account);
     }
     async pageInfo(options: any): Promise<any> {
-        return await batchOrder.pageInfo(options);
+        try {
+            await batchOrder.pageInfo(options);
+        } catch (error) {
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        return { result: true };
     }
     async pageKline(options: any): Promise<any> {
         return await batchOrder.pageKline(options);

@@ -10,13 +10,14 @@ let accouts = new Map();
 function acctInfo(pamams): AccountInfo {
     if (accouts.has(pamams.instrument_id + pamams.httpkey)) {
         let a = accouts.get(pamams.instrument_id + pamams.httpkey)
-        // if (a.isClosed) {
-        //     this.wss.connect();
-        // }
+        if (a.isClosed) {
+            a.startWebsocket();
+        }
         return a;
     }
     var ac = new AccountInfo(pamams.instrument_id, pamams.httpkey, pamams.httpsecret, pamams.passphrase);
     accouts.set(pamams.instrument_id + pamams.httpkey, ac);
+    ac.initData();
     ac.startWebsocket();
     return ac
 }
@@ -42,6 +43,7 @@ export class AccountInfo {
     private pClient: any;
     private authClient: any;
     private interval_autoMaker: any;
+    private interval_reconnet: any;
     private order_db: any;
     private autoMakerOrder: any;
     constructor(instrument_id, httpkey, httpsecret, passphrase) {
@@ -100,19 +102,16 @@ export class AccountInfo {
     }
     stopWebsocket() {
         this.wss.close();
+        this.tickerData = undefined;
     }
-
-    startWebsocket() {
-        console.log('spot.......');
-        // if (this.isClosed == false) {
-        //     return
-        // }
+    initData() {
         let sendDepthTime = undefined;
-        this.wss.connect();
+        this.interval_reconnet = setInterval(() => {
+            this.startWebsocket();
+        }, 1000 * 60 * 3)
         this.wss.on('open', data => {
             console.log("websocket open!!!");
             this.initOrderData();
-
         });
         this.wss.on('message', data => {
 
@@ -130,8 +129,8 @@ export class AccountInfo {
             }
         });
         this.wss.on('close', () => {
-            this.isClosed = true
-            this.tickerData = undefined
+            this.isClosed = true;
+            this.tickerData = undefined;
         });
 
         this.event.on('login', data => {
@@ -258,6 +257,13 @@ export class AccountInfo {
 
         }))
     }
+    startWebsocket() {
+        console.log('spot.......');
+        if (this.isClosed == false) {
+            return
+        }
+        this.wss.connect();
+    }
 
     sleep(ms) {
         return new Promise(resolve => {
@@ -331,14 +337,22 @@ export class AccountInfo {
                     'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.autoMaker + Date.now(),
                     'price': randomPrice, 'margin_trading': 1, 'order_type': '0'
                 };
-                console.log("下单 ---", JSON.stringify(toOrder))
-                //判断买一卖一是否有空间下单
-                //判断如果下单失败return 并log
-                //下单价格和数量随机
+                // console.log("下单 ---", JSON.stringify(toOrder))
                 let o = await this.authClient.spot().postOrder(toOrder);
+                let toTaker = {
+                    'type': 'limit', 'side': side2,
+                    'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.autoMaker + Date.now(),
+                    'price': randomPrice, 'margin_trading': 1, 'order_type': '3'//立即成交并取消剩余（IOC）
+                };
+                let o2 = await this.authClient.spot().postOrder(toTaker);
+                // if (o2.result) {
+                //     orderMap.delete(o.order_id);
+                // }
                 console.log("下单 ---后", JSON.stringify(o))
+                console.log("下单 ---后o2", JSON.stringify(o2))
+
                 if (o.result) {//下单成功
-                    await this.sleep(100);
+                    await this.sleep(50);
                     orderMap.forEach(async (value, key, map) => {
                         if (Date.now() - value > order_interval) {
                             try {
@@ -353,21 +367,22 @@ export class AccountInfo {
                         }
                     });
                     orderMap.set(o.order_id, Date.now());
-                    this.autoMakerOrder = await this.authClient.spot().getOrder(o.order_id, { 'instrument_id': this.instrument_id });
-                    let toTaker = {
-                        'type': 'limit', 'side': side2,
-                        'instrument_id': this.instrument_id, 'size': this.autoMakerOrder.size - this.autoMakerOrder.filled_size, 'client_oid': config.autoMaker + Date.now(),
-                        'price': this.autoMakerOrder.price, 'margin_trading': 1, 'order_type': '3'//立即成交并取消剩余（IOC）
-                    };
-                    if (this.autoMakerOrder && this.autoMakerOrder.state == 2) {
-                        orderMap.delete(o.order_id);
-                    } else {
-                        let o2 = await this.authClient.spot().postOrder(toTaker);
-                        if (o2.result) {
-                            orderMap.delete(o.order_id);
-                        }
-                        console.log("下单 ---后o2", JSON.stringify(o2))
-                    }
+                    // this.autoMakerOrder = await this.authClient.spot().getOrder(o.order_id, { 'instrument_id': this.instrument_id });
+                    // let toTaker = {
+                    //     'type': 'limit', 'side': side2,
+                    //     'instrument_id': this.instrument_id, 'size': this.autoMakerOrder.size - this.autoMakerOrder.filled_size, 'client_oid': config.autoMaker + Date.now(),
+                    //     'price': this.autoMakerOrder.price, 'margin_trading': 1, 'order_type': '3'//立即成交并取消剩余（IOC）
+                    // };
+                    // let o2 = await this.authClient.spot().postOrder(toTaker);
+                    // if (o2.result) {
+                    //     orderMap.delete(o.order_id);
+                    // }
+                    // console.log("下单 ---后o2", JSON.stringify(o2))
+                    // if (this.autoMakerOrder && this.autoMakerOrder.state == 2) {
+                    //     orderMap.delete(o.order_id);
+                    // } else {
+
+                    // }
                     // let cancel = await this.authClient.spot().postCancelOrder(o.order_id, { 'instrument_id': this.instrument_id });
 
                 } else {
@@ -382,7 +397,8 @@ export class AccountInfo {
     }
     stopAutoMaker() {
         clearInterval(this.interval_autoMaker)
-        this.interval_autoMaker = undefined
+        clearInterval(this.interval_reconnet)
+        this.interval_autoMaker = undefined;
     }
     isAutoMaker() {
         return this.interval_autoMaker != undefined
