@@ -145,21 +145,18 @@ class OkexMonitProxy extends Proxy {
         try {
             const jsonData = JSON.parse(data);
             if (jsonData.event && typeof jsonData.event === "string") {
-                // TODO: events
                 if (jsonData.event === "login") {
-                    /// login
+                    /// TODO: login
                 } else {
                     console.log("[OkexMonitProxy] okexConnection message:", jsonData.event, jsonData.channel);
                 }
             } else if (jsonData.table && typeof jsonData.table === "string") {
-                // TODO: subscribe response
                 const respData = jsonData.data;
                 if (Array.isArray(respData) && respData.length > 0) {
                     const notificationName = jsonData.table + ":" + respData[0].instrument_id;
                     Facade.getInstance().sendNotification(notificationName, respData);
                 }
             } else {
-                // unhandle data
                 console.log("[OkexMonitProxy] onOkexConnectionMessage unhandle:", data);
             }
         } catch (error) {
