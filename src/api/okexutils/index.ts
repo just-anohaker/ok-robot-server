@@ -6,6 +6,11 @@ import { OkexTradeParameters, OkexCandlesParameters, OkexTickerParameters } from
 
 
 async function getSpotTicker(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateGetSpotTicker(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
     try {
         const resp = await ProxyHelper.OkexUtilsProxy.getSpotTicker(data as OkexTickerParameters);
         return apiSuccess(resp);
@@ -15,6 +20,11 @@ async function getSpotTicker(data: MarkedMap): Promise<APIReturn> {
 }
 
 async function getSpotTrade(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateGetSpotTrade(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
     try {
         const resp = await ProxyHelper.OkexUtilsProxy.getSpotTrade(data as OkexTradeParameters);
         return apiSuccess(resp);
@@ -24,6 +34,11 @@ async function getSpotTrade(data: MarkedMap): Promise<APIReturn> {
 }
 
 async function getSpotCandles(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateGetSpotCandles(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
     try {
         const resp = await ProxyHelper.OkexUtilsProxy.getSpotCandles(data as OkexCandlesParameters);
         return apiSuccess(resp);

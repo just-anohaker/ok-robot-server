@@ -2,51 +2,40 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const ajv = require("ajv");
 class Schema {
-    static validateGenerate(data) {
-        return undefined;
+    static validateGetSpotTicker(data) {
         const validation = Schema.validator.validate({
             type: "object",
             properties: {
-                options: {
-                    type: "object",
-                },
-                account: {
-                    type: "object",
-                }
-            },
+                "instrument_id": { type: "string", minLength: 1 }
+            }
         }, data);
         if (validation) {
             return undefined;
         }
         return Schema.validator.errorsText();
     }
-    static validateStart(data) {
-        const validation = Schema.validator.validate(/*{
-            type: "array",
-            items: {
-                type: "string"
+    static validateGetSpotTrade(data) {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                instrument_id: { type: "string", minLength: 1 },
+                params: { type: "object" }
             },
-            minItems: 1
-        } */ {
-            type: "object"
+            required: ["instrument_id"]
         }, data);
         if (validation) {
             return undefined;
         }
         return Schema.validator.errorsText();
     }
-    static validateCancel(data) {
+    static validateGetSpotCandles(data) {
         const validation = Schema.validator.validate({
             type: "object",
             properties: {
-                options: {
-                    type: "object",
-                },
-                account: {
-                    type: "object",
-                }
+                instrument_id: { type: "string", minLength: 1 },
+                params: { type: "object" }
             },
-            required: ["options", "account"]
+            required: ["instrument_id"]
         }, data);
         if (validation) {
             return undefined;
