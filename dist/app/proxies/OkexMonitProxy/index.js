@@ -19,9 +19,9 @@ class OkexMonitProxy extends Proxy_1.default {
     _checkOkexConnection() {
         if (this._okexConnection === undefined) {
             this._okexConnection = new okex_node_1.V3WebsocketClient();
-            this._okexConnection.on("open", () => this.onOkexConnectionOpened);
+            this._okexConnection.on("open", () => this.onOkexConnectionOpened());
             this._okexConnection.on("close", () => this.onOkexConnectionClosed());
-            this._okexConnection.on("message", (data) => this.onOkexConnectionMessage.bind(this));
+            this._okexConnection.on("message", (data) => this.onOkexConnectionMessage(data));
             this._registerChannels.forEach((value, key) => {
                 if (value === true) {
                     this._okexConnection.subscribe(key);
@@ -32,7 +32,7 @@ class OkexMonitProxy extends Proxy_1.default {
                 clearTimeout(this._expiredTimeoutHandler);
                 this._expiredTimeoutHandler = undefined;
             }
-            setTimeout(() => {
+            this._expiredTimeoutHandler = setTimeout(() => {
                 console.log("[OkexMonitProxy] ExpiredTimeout happened");
                 this._expiredTimeoutHandler = undefined;
                 if (this._okexConnection) {
