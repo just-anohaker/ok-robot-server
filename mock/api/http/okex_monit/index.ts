@@ -43,6 +43,10 @@ class OkexMonitAPI implements IHttp, ISockerIO {
             async (ctx: Koa.Context) => await this.monitSpotChannel(ctx));
         router.post("/api/okex_monitor/spotChannel/unmonit",
             async (ctx: Koa.Context) => await this.unmonitSpotChannel(ctx));
+        router.post("/api/okex_monitor/spotDepth",
+            async (ctx: Koa.Context) => await this.monitSpotDepth(ctx));
+        router.post("/api/okex_monitor/spotDepth/unmonit",
+            async (ctx: Koa.Context) => await this.unmonitSpotDepth(ctx));
 
         this._http!.use(router.routes());
     }
@@ -129,6 +133,24 @@ class OkexMonitAPI implements IHttp, ISockerIO {
 
     private async unmonitSpotChannel(ctx: Koa.Context) {
         const resp = await apiOkexMonit.unmonitSpotChannel(ctx.body || {});
+        if (resp.success) {
+            const eventName: string = resp.result as string;
+            this._unregisterObserver(eventName);
+        }
+        koaResponse(ctx, resp);
+    }
+
+    private async monitSpotDepth(ctx: Koa.Context) {
+        const resp = await apiOkexMonit.monitSpotDepth(ctx.body || {});
+        if (resp.success) {
+            const eventName: string = resp.result as string;
+            this._registerObserver(eventName);
+        }
+        koaResponse(ctx, resp);
+    }
+
+    private async unmonitSpotDepth(ctx: Koa.Context) {
+        const resp = await apiOkexMonit.unmonitSpotDepth(ctx.body || {});
         if (resp.success) {
             const eventName: string = resp.result as string;
             this._unregisterObserver(eventName);

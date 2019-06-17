@@ -14,7 +14,7 @@ export interface UpdateAccount {
     readonly passphrase?: string;
 }
 export interface OKexAccount {
-    name: string;
+    name?: string;
     httpkey: string;
     httpsecret: string;
     passphrase: string;

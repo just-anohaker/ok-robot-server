@@ -1,6 +1,8 @@
 import { V3WebsocketClient } from "@okfe/okex-node";
 import Proxy from "../../../patterns/proxy/Proxy";
 import Facade from "../../../patterns/facade/Facade";
+import DepthMonitor from "./internal/DepthMonitor";
+import { OKexAccount } from "../../Types";
 
 const enum ChannelTAGs {
     SpotTrade = "spot/trade",
@@ -13,12 +15,14 @@ class OkexMonitProxy extends Proxy {
     static readonly NAME: string = "PROXY_OKEX_MONIT";
 
     private _okexConnection?: V3WebsocketClient;
+    private _okexDepthMonitor: Array<DepthMonitor>
     private _registerChannels: Map<string, boolean>
     private _expiredTimeoutHandler?: NodeJS.Timeout;
     constructor() {
         super(OkexMonitProxy.NAME);
 
         this._registerChannels = new Map<string, boolean>();
+        this._okexDepthMonitor = [];
     }
 
     onRegister() {
@@ -35,7 +39,9 @@ class OkexMonitProxy extends Proxy {
             console.log("[OkexMonitProxy] ExpiredTimeout happened");
             this._expiredTimeoutHandler = undefined;
             if (this._okexConnection) {
-                return this._okexConnection.close();
+                const holdOkexConnection = this._okexConnection;
+                this._okexConnection = undefined;
+                return holdOkexConnection.close();
             }
             this._checkOkexConnection();
         }, ExpiredTimeout);
@@ -100,6 +106,7 @@ class OkexMonitProxy extends Proxy {
                 console.log(`[OkexMonitProxy] subscribe(${channelName}) success.`);
             } catch (error) {
                 console.log(`[OkexMonitProxy] subscribe(${channelName}) failure, exception: ${error}.`);
+                this.onOkexConnectionClosed();
                 throw error;
             }
         }
@@ -121,6 +128,27 @@ class OkexMonitProxy extends Proxy {
         }
 
         return channelName;
+    }
+
+    async monitDepth(account: OKexAccount, instrucment_id: string): Promise<string> {
+        const found = this._okexDepthMonitor.filter(monitor => monitor.compareAccount(account));
+        let depthMonitor: DepthMonitor;
+        if (found.length <= 0) {
+            depthMonitor = new DepthMonitor(account.httpkey, account.httpsecret, account.passphrase);
+            this._okexDepthMonitor.push(depthMonitor);
+        } else {
+            depthMonitor = found[0];
+        }
+        return await depthMonitor.monit(instrucment_id);
+    }
+
+    async unmonitDepth(account: OKexAccount, instrucment_id: string): Promise<string> {
+        const found = this._okexDepthMonitor.filter(monitor => monitor.compareAccount(account));
+        if (found.length > 0) {
+            return await found[0].unmonit(instrucment_id);
+        }
+
+        return "spot/depth:" + instrucment_id;
     }
 
     private onOkexConnectionOpened(): void {
@@ -147,6 +175,8 @@ class OkexMonitProxy extends Proxy {
             if (jsonData.event && typeof jsonData.event === "string") {
                 if (jsonData.event === "login") {
                     /// TODO: login
+                } else if (jsonData.event === "error") {
+                    console.log("[OkexMonitProxy] okexConnection error:", jsonData.errorCode, jsonData.message);
                 } else {
                     console.log("[OkexMonitProxy] okexConnection message:", jsonData.event, jsonData.channel);
                 }

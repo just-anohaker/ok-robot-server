@@ -1,0 +1,37 @@
+import { OKexAccount } from "../../../Types";
+declare class DepthMonitor {
+    private httpKey;
+    private httpSecret;
+    private passphrase;
+    private connection?;
+    private authClient;
+    private _expiredTimeoutHandler?;
+    private _isLogined;
+    private _isInitializedDataFlag;
+    private _subscribeEvents;
+    private _pendingSubscribeEvents;
+    private _subscribeInstrumentId;
+    private _monitEventName?;
+    private _pendingOrders;
+    private _bids;
+    private _asks;
+    constructor(httpKey: string, httpSecret: string, passphrase: string);
+    compareAccount(account: OKexAccount): boolean;
+    private _checkOkexConnection;
+    private _login;
+    private _startExpiredTimer;
+    private _stopExpiredTimer;
+    monit(instrument_id: string): Promise<string>;
+    unmonit(instrument_id: string): Promise<string>;
+    _initializeData(): Promise<void>;
+    _initializeSubscribes(): Promise<void>;
+    _uninitializeData(): Promise<void>;
+    _uninitializeSubscribes(): Promise<void>;
+    private onOkexConnectionOpened;
+    private onOkexConnectionClosed;
+    private onOkexConnectionLogined;
+    private onOkexConnectionMessage;
+    private _onOrderEvent;
+    private _onDepthEvent;
+}
+export default DepthMonitor;

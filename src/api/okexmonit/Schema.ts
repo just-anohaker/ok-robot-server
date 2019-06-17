@@ -90,6 +90,52 @@ class Schema {
         }
         return Schema.validator.errorsText();
     }
+
+    static validateMonitSpotDepth(data: any): Validation {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                account: {
+                    type: "object",
+                    properties: {
+                        httpkey: { type: "string", minLenght: 1 },
+                        httpsecret: { type: "string", minLenght: 1 },
+                        passphrase: { type: "string", minLenght: 1 }
+                    },
+                    required: ["httpkey", "httpsecret", "passphrase"]
+                },
+                instrument_id: { type: "string", minLenght: 1 }
+            },
+            required: ["account", "instrument_id"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
+
+    static validateUnmonitSpotDepth(data: any): Validation {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                account: {
+                    type: "object",
+                    properties: {
+                        httpkey: { type: "string", minLenght: 1 },
+                        httpsecret: { type: "string", minLenght: 1 },
+                        passphrase: { type: "string", minLenght: 1 }
+                    },
+                    required: ["httpkey", "httpsecret", "passphrase"]
+                },
+                instrument_id: { type: "string", minLenght: 1 }
+            },
+            required: ["account", "instrument_id"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
 }
 
 export default Schema;

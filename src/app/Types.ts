@@ -17,7 +17,7 @@ export interface UpdateAccount {
 
 
 export interface OKexAccount {
-    name: string;
+    name?: string;
     httpkey: string;
     httpsecret: string;
     passphrase: string;

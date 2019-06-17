@@ -103,11 +103,43 @@ function unmonitSpotChannel(data) {
         }
     });
 }
+function monitSpotDepth(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateMonitSpotDepth(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
+        try {
+            const resp = yield Utils_1.ProxyHelper.OkexMonitProxy.monitDepth(data.account, data.instrument_id);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function unmonitSpotDepth(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateUnmonitSpotDepth(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
+        try {
+            const resp = yield Utils_1.ProxyHelper.OkexMonitProxy.unmonitDepth(data.account, data.instrument_id);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     monitSpotTrade,
     unmonitSpotTrade,
     monitSpotTicker,
     unmonitSpotTicker,
     monitSpotChannel,
-    unmonitSpotChannel
+    unmonitSpotChannel,
+    monitSpotDepth,
+    unmonitSpotDepth
 };

@@ -78,8 +78,37 @@ async function unmonitSpotChannel(data: MarkedMap): Promise<APIReturn> {
     if (validation) {
         return apiFailure(validation);
     }
+
     try {
         const resp = ProxyHelper.OkexMonitProxy.unmonitSpotChannel(data.channel_name, data.filter);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
+async function monitSpotDepth(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateMonitSpotDepth(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
+    try {
+        const resp = await ProxyHelper.OkexMonitProxy.monitDepth(data.account, data.instrument_id);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
+async function unmonitSpotDepth(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateUnmonitSpotDepth(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
+    try {
+        const resp = await ProxyHelper.OkexMonitProxy.unmonitDepth(data.account, data.instrument_id);
         return apiSuccess(resp);
     } catch (error) {
         return apiFailure(error.toString());
@@ -92,7 +121,9 @@ export default {
     monitSpotTicker,
     unmonitSpotTicker,
     monitSpotChannel,
-    unmonitSpotChannel
+    unmonitSpotChannel,
+    monitSpotDepth,
+    unmonitSpotDepth
 };
 
 

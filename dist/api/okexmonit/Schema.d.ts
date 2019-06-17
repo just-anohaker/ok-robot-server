@@ -7,5 +7,7 @@ declare class Schema {
     static validateUnmonitSpotTicker(data: any): Validation;
     static validateMonitSpotChannel(data: any): Validation;
     static validateUnmonitSpotChannel(data: any): Validation;
+    static validateMonitSpotDepth(data: any): Validation;
+    static validateUnmonitSpotDepth(data: any): Validation;
 }
 export default Schema;
