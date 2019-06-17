@@ -12,7 +12,7 @@ module.exports = {
     channel_candle: "spot/candle",
     //instrument_id : "ZIL-USDT",
     currency: 'ETM',
-    SendDepTime: 1000,
+    SendDepTime: 800,
     orderType: {
         limitOrder: 'A',
         marketOrder: 'B',

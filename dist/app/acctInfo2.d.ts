@@ -7,7 +7,7 @@ export declare class AccountInfo {
     private httpkey;
     private httpsecret;
     private passphrase;
-    private instrument_id;
+    instrument_id: any;
     tickerData: any;
     asks: any;
     bids: any;

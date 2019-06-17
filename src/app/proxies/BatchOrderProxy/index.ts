@@ -80,15 +80,8 @@ class BatchOrderProxy extends Proxy {
     async startDepInfo(options: any /*OKexAccount*/): Promise<any> {
         try {
 
-            let acctinfo = await batchOrder.startDepInfo(options);
-            const depthEventName = "depth";
-            if (acctinfo instanceof AccountInfo) {
-                if (acctinfo.event.listenerCount(depthEventName) <= 0) {
-                    acctinfo.event.on(depthEventName, this.onEventHandler(depthEventName));
-                }
-            }
+            await batchOrder.startDepInfo(options);
 
-            //  this.accountInfo.push(acctinfo);
 
         } catch (error) {
             return {
