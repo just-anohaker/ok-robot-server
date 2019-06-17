@@ -55,13 +55,15 @@ class BatchOrderAPI implements IHttp, ISockerIO {
         // Facade.getInstance().registerObserver(NotificationTicker, this._observer);
         // Facade.getInstance().registerObserver(NotificationOrder, this._observer);
 
-        Facade.getInstance().registerObserver("depth", this._observer);
+        //Facade.getInstance().registerObserver("depth", this._observer);
         Facade.getInstance().registerObserver("page/candle:ETM-USDT", this._observer);
         Facade.getInstance().registerObserver("page/candle:ETM-USDK", this._observer);
         Facade.getInstance().registerObserver("page/ticker:ETM-USDT", this._observer);
         Facade.getInstance().registerObserver("page/ticker:ETM-USDK", this._observer);
         Facade.getInstance().registerObserver("page/trade:ETM-USDT", this._observer);
         Facade.getInstance().registerObserver("page/trade:ETM-USDK", this._observer);
+        Facade.getInstance().registerObserver("depth:ETM-USDK", this._observer);
+        Facade.getInstance().registerObserver("depth:ETM-USDT", this._observer);
     }
 
     private generate = async (ctx: Koa.Context) => {

@@ -5,6 +5,7 @@ const { AuthenticatedClient } = require('@okfe/okex-node');
 var config = require('./config');
 import Database from "./../sqlite3";
 import { DbOrders } from "./DbOrders";
+import { Facade } from "./..";
 let accouts = new Map();
 
 function acctInfo(pamams): AccountInfo {
@@ -32,7 +33,7 @@ export class AccountInfo {
     private httpkey: any;
     private httpsecret: any;
     private passphrase: any;
-    private instrument_id: any;
+    public instrument_id: any;
     public tickerData: any;
     public asks: any;
     public bids: any;
@@ -155,14 +156,16 @@ export class AccountInfo {
             //     console.log("订单监听:等待成交---"+JSON.stringify(d.order_id) );  
             // }
 
-            if (this.pendingOrders.has(d.order_id)) {
-                if (d.state == -1 || d.state == 2) {//撤单成功或者完全成交
+
+            if (d.state == -1 || d.state == 2) {//撤单成功或者完全成交
+                if (this.pendingOrders.has(d.order_id)) {
                     this.pendingOrders.delete(d.order_id)
-                } else if (d.state == 0 || d.state == 1) {//部分成交或者等待成交的单子
-                    this.pendingOrders.set(d.order_id, d)
                 }
-                //console.log(d.instrument_id+`买一 `+d.best_bid + ' 卖一 ' +d.best_ask + ' 最新成交价:'+d.last  );  
+            } else if (d.state == 0 || d.state == 1) {//部分成交或者等待成交的单子
+                this.pendingOrders.set(d.order_id, d)
             }
+            //console.log(d.instrument_id+`买一 `+d.best_bid + ' 卖一 ' +d.best_ask + ' 最新成交价:'+d.last  );  
+
 
             //orderPrice.set()
         }))
@@ -248,11 +251,17 @@ export class AccountInfo {
                 })
                 //console.log("now:", Date.now(), sendDepthTime, Date.now() - sendDepthTime)
                 sendDepthTime = Date.now();
-                this.event.emit("depth", {
+                // this.event.emit("depth" + ":" + this.instrument_id, {
+                //     "asks": tem_a,
+                //     "bids": tem_b
+                // });
+                // console.log("depth" + ":" + this.instrument_id)
+                Facade.getInstance().sendNotification("depth" + ":" + this.instrument_id, {
                     "asks": tem_a,
                     "bids": tem_b
                 });
-                //  console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
+
+                // console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
                 // console.log("bids:", JSON.stringify(tem_b.slice(0, 5)))
             }
 
