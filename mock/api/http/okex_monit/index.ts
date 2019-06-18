@@ -159,7 +159,7 @@ class OkexMonitAPI implements IHttp, ISockerIO {
     }
 
     private onNotification = (notification: INotification): void => {
-        // console.log("[OkexMonitAPI] onNotification:", notification.getName(), notification.getBody());
+        console.log("[OkexMonitAPI] onNotification:", notification.getName(), notification.getBody());
         this._io!.emit(notification.getName(), notification.getBody());
     }
 }

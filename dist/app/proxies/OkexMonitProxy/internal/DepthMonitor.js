@@ -7,12 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const okex_node_1 = require("@okfe/okex-node");
-const Facade_1 = __importDefault(require("../../../../patterns/facade/Facade"));
 const Utils_1 = require("./Utils");
 const ExpiredTimeout = 30000;
 const MaxPendingCount = 1000;
@@ -284,11 +280,6 @@ class DepthMonitor {
                 else {
                     console.log("[DepthMonitor] onOkexConnectionMessage unexcepted table:", jsonData.table);
                 }
-                const respData = jsonData.data;
-                if (Array.isArray(respData) && respData.length > 0) {
-                    const notificationName = jsonData.table + ":" + respData[0].instrument_id;
-                    Facade_1.default.getInstance().sendNotification(notificationName, respData);
-                }
             }
             else {
                 console.log("[DepthMonitor] onOkexConnectionMessage unhandle:", data);
@@ -325,7 +316,7 @@ class DepthMonitor {
         });
     }
     _onDepthEvent(jsonData) {
-        console.log("[DepthMonitor] _onDepthEvent:", jsonData.action, JSON.stringify(jsonData.data));
+        // console.log("[DepthMonitor] _onDepthEvent:", jsonData.action, JSON.stringify(jsonData.data));
         if (!jsonData.action
             || typeof jsonData.action !== "string"
             || !jsonData.data
@@ -338,8 +329,65 @@ class DepthMonitor {
             this._asks = jsonData.data[0].asks;
         }
         else {
+            // action is update
+            DepthMonitor._updateDepthData(jsonData.data[0].bids, this._bids, (a, b) => a[0] <= b[0]);
+            DepthMonitor._updateDepthData(jsonData.data[0].asks, this._asks, (a, b) => a[0] >= b[0]);
         }
         // TODO: send notification
+        const depthInfo = this._calcDepthInfo();
+        // Facade.getInstance().sendNotification(this._monitEventName, depthInfo);
+    }
+    _calcDepthInfo() {
+        const orderPrices = new Map();
+        for (const key in this._pendingOrders) {
+            const item = this._pendingOrders[key];
+            if (orderPrices.has(item.price)) {
+                const holdSize = orderPrices.get(item.price);
+                orderPrices.set(item.price, holdSize + (Number(item.size) - Number(item.filled_size)));
+            }
+            else {
+                orderPrices.set(item.price, Number(item.size) - Number(item.filled_size));
+            }
+        }
+        const holdAsks = this._asks.slice();
+        const holdBids = this._bids.slice();
+        DepthMonitor._combinaPendingOrder(orderPrices, holdAsks);
+        DepthMonitor._combinaPendingOrder(orderPrices, holdBids);
+        return {
+            asks: holdAsks,
+            bids: holdBids
+        };
+    }
+    static _updateDepthData(src, dist, compare) {
+        src.forEach(aItem => {
+            const foundIndex = dist.findIndex(value => {
+                return compare(aItem, value);
+            });
+            if (foundIndex >= 0) {
+                if (aItem[0] === dist[foundIndex][0]) {
+                    if (aItem[1] === "0") {
+                        dist.splice(foundIndex, 1);
+                    }
+                    else {
+                        dist[foundIndex] = aItem;
+                    }
+                }
+                else {
+                    dist.splice(foundIndex, 0, aItem);
+                }
+            }
+            else {
+                dist.push(aItem);
+            }
+        });
+    }
+    static _combinaPendingOrder(pendingData, dist) {
+        dist.forEach(elem => {
+            if (pendingData.has(elem[0])) {
+                const holdSize = pendingData.get(elem[0]);
+                elem.push(holdSize);
+            }
+        });
     }
 }
 exports.default = DepthMonitor;

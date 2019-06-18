@@ -26,6 +26,14 @@ const enum DepthAction {
     kUpdate = "update"
 }
 
+type DepthDataFormat = [string, string, string];
+type DepthItemFormat = [string, string, string, number]
+
+interface DepthInfo {
+    bids: DepthItemFormat[],
+    asks: DepthItemFormat[]
+}
+
 class DepthMonitor {
     private connection?: V3WebsocketClient;
     private authClient: any;
@@ -305,12 +313,6 @@ class DepthMonitor {
                 } else {
                     console.log("[DepthMonitor] onOkexConnectionMessage unexcepted table:", jsonData.table);
                 }
-
-                const respData = jsonData.data;
-                if (Array.isArray(respData) && respData.length > 0) {
-                    const notificationName = jsonData.table + ":" + respData[0].instrument_id;
-                    Facade.getInstance().sendNotification(notificationName, respData);
-                }
             } else {
                 console.log("[DepthMonitor] onOkexConnectionMessage unhandle:", data);
             }
@@ -347,7 +349,7 @@ class DepthMonitor {
     }
 
     private _onDepthEvent(jsonData: any) {
-        console.log("[DepthMonitor] _onDepthEvent:", jsonData.action, JSON.stringify(jsonData.data));
+        // console.log("[DepthMonitor] _onDepthEvent:", jsonData.action, JSON.stringify(jsonData.data));
         if (!jsonData.action
             || typeof jsonData.action !== "string"
             || !jsonData.data
@@ -360,10 +362,77 @@ class DepthMonitor {
             this._bids = jsonData.data[0].bids;
             this._asks = jsonData.data[0].asks;
         } else {
-
+            // action is update
+            DepthMonitor._updateDepthData(
+                jsonData.data[0].bids,
+                this._bids,
+                (a: DepthDataFormat, b: DepthDataFormat) => a[0] <= b[0]
+            );
+            DepthMonitor._updateDepthData(
+                jsonData.data[0].asks,
+                this._asks,
+                (a: DepthDataFormat, b: DepthDataFormat) => a[0] >= b[0]
+            );
         }
 
         // TODO: send notification
+        const depthInfo = this._calcDepthInfo();
+        // Facade.getInstance().sendNotification(this._monitEventName, depthInfo);
+    }
+
+    private _calcDepthInfo(): DepthInfo {
+        const orderPrices: Map<string, number> = new Map<string, number>();
+        for (const key in this._pendingOrders) {
+            const item = this._pendingOrders[key];
+            if (orderPrices.has(item.price)) {
+                const holdSize = orderPrices.get(item.price);
+                orderPrices.set(item.price, holdSize + (Number(item.size) - Number(item.filled_size)));
+            } else {
+                orderPrices.set(item.price, Number(item.size) - Number(item.filled_size));
+            }
+        }
+
+        const holdAsks = this._asks.slice();
+        const holdBids = this._bids.slice();
+        DepthMonitor._combinaPendingOrder(orderPrices, holdAsks);
+        DepthMonitor._combinaPendingOrder(orderPrices, holdBids);
+
+        return {
+            asks: holdAsks,
+            bids: holdBids
+        };
+    }
+
+    private static _updateDepthData(src: DepthDataFormat[], dist: DepthDataFormat[],
+        compare: (a: DepthDataFormat, b: DepthDataFormat) => boolean) {
+        src.forEach(aItem => {
+            const foundIndex = dist.findIndex(value => {
+                return compare(aItem, value);
+            });
+
+            if (foundIndex >= 0) {
+                if (aItem[0] === dist[foundIndex][0]) {
+                    if (aItem[1] === "0") {
+                        dist.splice(foundIndex, 1);
+                    } else {
+                        dist[foundIndex] = aItem;
+                    }
+                } else {
+                    dist.splice(foundIndex, 0, aItem);
+                }
+            } else {
+                dist.push(aItem);
+            }
+        });
+    }
+
+    private static _combinaPendingOrder(pendingData: Map<string, number>, dist: DepthItemFormat[]) {
+        dist.forEach(elem => {
+            if (pendingData.has(elem[0])) {
+                const holdSize = pendingData.get(elem[0]);
+                elem.push(holdSize);
+            }
+        })
     }
 }
 

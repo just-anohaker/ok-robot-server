@@ -33,5 +33,8 @@ declare class DepthMonitor {
     private onOkexConnectionMessage;
     private _onOrderEvent;
     private _onDepthEvent;
+    private _calcDepthInfo;
+    private static _updateDepthData;
+    private static _combinaPendingOrder;
 }
 export default DepthMonitor;
