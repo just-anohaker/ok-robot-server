@@ -7,8 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const okex_node_1 = require("@okfe/okex-node");
+const Facade_1 = __importDefault(require("../../../../patterns/facade/Facade"));
 const Utils_1 = require("./Utils");
 const ExpiredTimeout = 30000;
 const MaxPendingCount = 1000;
@@ -335,7 +339,7 @@ class DepthMonitor {
         }
         // TODO: send notification
         const depthInfo = this._calcDepthInfo();
-        // Facade.getInstance().sendNotification(this._monitEventName, depthInfo);
+        Facade_1.default.getInstance().sendNotification(this._monitEventName, depthInfo);
     }
     _calcDepthInfo() {
         const orderPrices = new Map();

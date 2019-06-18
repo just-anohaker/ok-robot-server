@@ -377,7 +377,7 @@ class DepthMonitor {
 
         // TODO: send notification
         const depthInfo = this._calcDepthInfo();
-        // Facade.getInstance().sendNotification(this._monitEventName, depthInfo);
+        Facade.getInstance().sendNotification(this._monitEventName, depthInfo);
     }
 
     private _calcDepthInfo(): DepthInfo {
