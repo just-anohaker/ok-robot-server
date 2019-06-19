@@ -73,7 +73,10 @@ class DepthMonitor {
             if (this.connection) {
                 const holdOkexConnection = this.connection;
                 this.connection = undefined;
-                return holdOkexConnection.close();
+                holdOkexConnection.removeAllListeners("open");
+                holdOkexConnection.removeAllListeners("close");
+                holdOkexConnection.removeAllListeners("message");
+                holdOkexConnection.close();
             }
             this._checkOkexConnection();
         }, ExpiredTimeout);

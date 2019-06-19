@@ -35,7 +35,10 @@ class OkexMonitProxy extends Proxy_1.default {
             if (this._okexConnection) {
                 const holdOkexConnection = this._okexConnection;
                 this._okexConnection = undefined;
-                return holdOkexConnection.close();
+                holdOkexConnection.removeAllListeners("open");
+                holdOkexConnection.removeAllListeners("close");
+                holdOkexConnection.removeAllListeners("message");
+                holdOkexConnection.close();
             }
             this._checkOkexConnection();
         }, ExpiredTimeout);
