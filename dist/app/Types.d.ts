@@ -99,3 +99,14 @@ export interface OkexCandlesParameters {
         [key: string]: any;
     } | string;
 }
+export interface OkexWalletInfo {
+    id: string;
+    currency: string;
+    hold: string;
+    available: string;
+    balance: string;
+}
+export interface OkexCurrencyInfo {
+    name?: string;
+    currency: string;
+}

@@ -36,6 +36,21 @@ class OkexUtilsProxy extends Proxy_1.default {
             return yield this.publicClient.spot().getSpotCandles(args.instrument_id, args.params);
         });
     }
+    getWallet(account, currencies) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const authClient = okex_node_1.AuthenticatedClient(account.httpkey, account.httpsecret, account.passphrase);
+            const resp = yield authClient.spot().getAccounts();
+            console.log("[OkexUtilsProxy] getWallet:", resp);
+            return resp.filter(wallet => currencies.includes(wallet.currency));
+        });
+    }
+    getWalletList(account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const authClient = okex_node_1.AuthenticatedClient(account.httpkey, account.httpsecret, account.passphrase);
+            const resp = yield authClient.account().getCurrencies();
+            return resp.map(wallet => ({ name: wallet.name, currency: wallet.currency }));
+        });
+    }
 }
 OkexUtilsProxy.NAME = "PROXY_OKEX_UTILS";
 exports.default = OkexUtilsProxy;

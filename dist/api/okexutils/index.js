@@ -54,8 +54,32 @@ function getSpotCandles(data) {
         }
     });
 }
+function getWallet(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getWallet(data.account, data.currencies);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function getWalletList(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getWalletList(data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     getSpotTicker,
     getSpotTrade,
-    getSpotCandles
+    getSpotCandles,
+    getWallet,
+    getWalletList
 };

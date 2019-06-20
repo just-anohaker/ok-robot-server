@@ -31,6 +31,8 @@ class OkexUtilsAPI implements IHttp, ISockerIO {
         router.post("/api/okex_utils/getSpotTrade", this.getSpotTrade);
         router.post("/api/okex_utils/getSpotTicker", this.getSpotTicker);
         router.post("/api/okex_utils/getSpotCandles", this.getSpotCandles);
+        router.post("/api/okex_utils/getWallet", this.getWallet);
+        router.post("/api/okex_utils/getWalletList", this.getWalletList);
 
         this._http!.use(router.routes());
     }
@@ -55,6 +57,14 @@ class OkexUtilsAPI implements IHttp, ISockerIO {
 
     private getSpotCandles = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiOkexUtils.getSpotCandles(ctx.body || {}));
+    }
+
+    private getWallet = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiOkexUtils.getWallet(ctx.body || {}));
+    }
+
+    private getWalletList = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiOkexUtils.getWalletList(ctx.body || {}));
     }
 
     private onNotification = (notification: INotification): void => {

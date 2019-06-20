@@ -47,8 +47,28 @@ async function getSpotCandles(data: MarkedMap): Promise<APIReturn> {
     }
 }
 
+async function getWallet(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.OkexUtilsProxy.getWallet(data.account, data.currencies);
+        return apiSuccess(resp);
+    } catch (error) {
+        apiFailure(error.toString());
+    }
+}
+
+async function getWalletList(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.OkexUtilsProxy.getWalletList(data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        apiFailure(error.toString());
+    }
+}
+
 export default {
     getSpotTicker,
     getSpotTrade,
-    getSpotCandles
+    getSpotCandles,
+    getWallet,
+    getWalletList
 };
