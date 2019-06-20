@@ -40,7 +40,6 @@ class OkexUtilsProxy extends Proxy_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             const authClient = okex_node_1.AuthenticatedClient(account.httpkey, account.httpsecret, account.passphrase);
             const resp = yield authClient.spot().getAccounts();
-            console.log("[OkexUtilsProxy] getWallet:", resp);
             return resp.filter(wallet => currencies.includes(wallet.currency));
         });
     }

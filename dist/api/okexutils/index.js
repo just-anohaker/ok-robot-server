@@ -7,8 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Utils_1 = require("../Utils");
+const Schema_1 = __importDefault(require("./Schema"));
 function getSpotTicker(data) {
     return __awaiter(this, void 0, void 0, function* () {
         // const validation = Schema.validateGetSpotTicker(data);
@@ -56,6 +60,10 @@ function getSpotCandles(data) {
 }
 function getWallet(data) {
     return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateGetWallet(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
         try {
             const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getWallet(data.account, data.currencies);
             return Utils_1.apiSuccess(resp);
@@ -67,6 +75,10 @@ function getWallet(data) {
 }
 function getWalletList(data) {
     return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateGetWalletList(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
         try {
             const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getWalletList(data.account);
             return Utils_1.apiSuccess(resp);

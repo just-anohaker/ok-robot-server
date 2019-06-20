@@ -38,7 +38,6 @@ class OkexUtilsProxy extends Proxy {
     async getWallet(account: OKexAccount, currencies: string[]): Promise<OkexWalletInfo[]> {
         const authClient = AuthenticatedClient(account.httpkey, account.httpsecret, account.passphrase);
         const resp = await authClient.spot().getAccounts();
-        console.log("[OkexUtilsProxy] getWallet:", resp);
         return resp.filter(wallet => currencies.includes(wallet.currency));
     }
 

@@ -47,6 +47,58 @@ class Schema {
         }
         return Schema.validator.errorsText();
     }
+
+    static validateGetWallet(data: any): Validation {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                account: {
+                    type: "object",
+                    properties: {
+                        httpkey: { type: "string", minLenght: 1 },
+                        httpsecret: { type: "string", minLenght: 1 },
+                        passphrase: { type: "string", minLenght: 1 }
+                    },
+                    required: ["httpkey", "httpsecret", "passphrase"]
+                },
+                currencies: {
+                    type: "array",
+                    items: {
+                        type: "string"
+                    },
+                    uniqueItems: true,
+                    minItems: 1
+                }
+            },
+            required: ["account", "currencies"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
+
+    static validateGetWalletList(data: any): Validation {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                account: {
+                    type: "object",
+                    properties: {
+                        httpkey: { type: "string", minLenght: 1 },
+                        httpsecret: { type: "string", minLenght: 1 },
+                        passphrase: { type: "string", minLenght: 1 }
+                    },
+                    required: ["httpkey", "httpsecret", "passphrase"]
+                }
+            },
+            required: ["account"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
 }
 
 export default Schema;

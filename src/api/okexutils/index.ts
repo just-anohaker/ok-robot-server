@@ -48,6 +48,11 @@ async function getSpotCandles(data: MarkedMap): Promise<APIReturn> {
 }
 
 async function getWallet(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateGetWallet(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
     try {
         const resp = await ProxyHelper.OkexUtilsProxy.getWallet(data.account, data.currencies);
         return apiSuccess(resp);
@@ -57,6 +62,11 @@ async function getWallet(data: MarkedMap): Promise<APIReturn> {
 }
 
 async function getWalletList(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateGetWalletList(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
     try {
         const resp = await ProxyHelper.OkexUtilsProxy.getWalletList(data.account);
         return apiSuccess(resp);
