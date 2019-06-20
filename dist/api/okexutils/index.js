@@ -15,10 +15,10 @@ const Utils_1 = require("../Utils");
 const Schema_1 = __importDefault(require("./Schema"));
 function getSpotTicker(data) {
     return __awaiter(this, void 0, void 0, function* () {
-        // const validation = Schema.validateGetSpotTicker(data);
-        // if (validation) {
-        //     return apiFailure(validation);
-        // }
+        const validation = Schema_1.default.validateGetSpotTicker(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
         try {
             const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotTicker(data);
             return Utils_1.apiSuccess(resp);
@@ -30,10 +30,10 @@ function getSpotTicker(data) {
 }
 function getSpotTrade(data) {
     return __awaiter(this, void 0, void 0, function* () {
-        // const validation = Schema.validateGetSpotTrade(data);
-        // if (validation) {
-        //     return apiFailure(validation);
-        // }
+        const validation = Schema_1.default.validateGetSpotTrade(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
         try {
             const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotTrade(data);
             return Utils_1.apiSuccess(resp);
@@ -45,10 +45,10 @@ function getSpotTrade(data) {
 }
 function getSpotCandles(data) {
     return __awaiter(this, void 0, void 0, function* () {
-        // const validation = Schema.validateGetSpotCandles(data);
-        // if (validation) {
-        //     return apiFailure(validation);
-        // }
+        const validation = Schema_1.default.validateGetSpotCandles(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
         try {
             const resp = yield Utils_1.ProxyHelper.OkexUtilsProxy.getSpotCandles(data);
             return Utils_1.apiSuccess(resp);
