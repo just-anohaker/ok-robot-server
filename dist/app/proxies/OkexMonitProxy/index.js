@@ -15,12 +15,14 @@ const okex_node_1 = require("@okfe/okex-node");
 const Proxy_1 = __importDefault(require("../../../patterns/proxy/Proxy"));
 const Facade_1 = __importDefault(require("../../../patterns/facade/Facade"));
 const DepthMonitor_1 = __importDefault(require("./internal/DepthMonitor"));
+const WalletMonitor_1 = __importDefault(require("./internal/WalletMonitor"));
 const ExpiredTimeout = 30000;
 class OkexMonitProxy extends Proxy_1.default {
     constructor() {
         super(OkexMonitProxy.NAME);
         this._registerChannels = new Map();
         this._okexDepthMonitor = [];
+        this._okexWalletMonitor = [];
     }
     onRegister() {
         // TODO
@@ -132,6 +134,29 @@ class OkexMonitProxy extends Proxy_1.default {
                 return yield found[0].unmonit(instrucment_id);
             }
             return "spot/depth:" + instrucment_id;
+        });
+    }
+    monitWallet(account, currency) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const found = this._okexWalletMonitor.filter(monitor => monitor.compareAccount(account));
+            let walletMonitor;
+            if (found.length <= 0) {
+                walletMonitor = new WalletMonitor_1.default(account.httpkey, account.httpsecret, account.passphrase);
+                this._okexWalletMonitor.push(walletMonitor);
+            }
+            else {
+                walletMonitor = found[0];
+            }
+            return yield walletMonitor.monit(currency);
+        });
+    }
+    unmonitWallet(account, currency) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const found = this._okexWalletMonitor.filter(monitor => monitor.compareAccount(account));
+            if (found.length > 0) {
+                return yield found[0].unmonit(currency);
+            }
+            return "spot/account:" + currency;
         });
     }
     onOkexConnectionOpened() {

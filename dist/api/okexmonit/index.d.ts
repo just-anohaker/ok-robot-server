@@ -8,6 +8,8 @@ declare function monitSpotChannel(data: MarkedMap): Promise<APIReturn>;
 declare function unmonitSpotChannel(data: MarkedMap): Promise<APIReturn>;
 declare function monitSpotDepth(data: MarkedMap): Promise<APIReturn>;
 declare function unmonitSpotDepth(data: MarkedMap): Promise<APIReturn>;
+declare function monitWallet(data: MarkedMap): Promise<APIReturn>;
+declare function unmonitWallet(data: MarkedMap): Promise<APIReturn>;
 declare const _default: {
     monitSpotTrade: typeof monitSpotTrade;
     unmonitSpotTrade: typeof unmonitSpotTrade;
@@ -17,5 +19,7 @@ declare const _default: {
     unmonitSpotChannel: typeof unmonitSpotChannel;
     monitSpotDepth: typeof monitSpotDepth;
     unmonitSpotDepth: typeof unmonitSpotDepth;
+    monitWallet: typeof monitWallet;
+    unmonitWallet: typeof unmonitWallet;
 };
 export default _default;

@@ -61,14 +61,6 @@ class DepthMonitor {
     }
 
     compareAccount(account: OKexAccount): boolean {
-        const selfAccount = {
-            httpkey: this.httpKey,
-            httpsecret: this.httpSecret,
-            passphrase: this.passphrase
-        };
-        console.log("args: ", account);
-        console.log("selfArgs: ", selfAccount);
-
         return (this.httpKey == account.httpkey
             && this.httpSecret === account.httpsecret
             && this.passphrase === account.passphrase);

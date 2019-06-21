@@ -133,6 +133,36 @@ function unmonitSpotDepth(data) {
         }
     });
 }
+function monitWallet(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateMonitWallet(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
+        try {
+            const resp = yield Utils_1.ProxyHelper.OkexMonitProxy.monitWallet(data.account, data.currency);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function unmonitWallet(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateUnmonitWallet(data);
+        if (validation) {
+            return Utils_1.apiFailure(validation);
+        }
+        try {
+            const resp = yield Utils_1.ProxyHelper.OkexMonitProxy.unmonitWallet(data.account, data.currency);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     monitSpotTrade,
     unmonitSpotTrade,
@@ -141,5 +171,7 @@ exports.default = {
     monitSpotChannel,
     unmonitSpotChannel,
     monitSpotDepth,
-    unmonitSpotDepth
+    unmonitSpotDepth,
+    monitWallet,
+    unmonitWallet
 };

@@ -1,8 +1,9 @@
 import { V3WebsocketClient } from "@okfe/okex-node";
 import Proxy from "../../../patterns/proxy/Proxy";
 import Facade from "../../../patterns/facade/Facade";
-import DepthMonitor from "./internal/DepthMonitor";
 import { OKexAccount } from "../../Types";
+import DepthMonitor from "./internal/DepthMonitor";
+import WalletMonitor from "./internal/WalletMonitor";
 
 const enum ChannelTAGs {
     SpotTrade = "spot/trade",
@@ -15,14 +16,16 @@ class OkexMonitProxy extends Proxy {
     static readonly NAME: string = "PROXY_OKEX_MONIT";
 
     private _okexConnection?: V3WebsocketClient;
-    private _okexDepthMonitor: Array<DepthMonitor>
-    private _registerChannels: Map<string, boolean>
+    private _okexDepthMonitor: Array<DepthMonitor>;
+    private _okexWalletMonitor: Array<WalletMonitor>;
+    private _registerChannels: Map<string, boolean>;
     private _expiredTimeoutHandler?: NodeJS.Timeout;
     constructor() {
         super(OkexMonitProxy.NAME);
 
         this._registerChannels = new Map<string, boolean>();
         this._okexDepthMonitor = [];
+        this._okexWalletMonitor = [];
     }
 
     onRegister() {
@@ -142,6 +145,7 @@ class OkexMonitProxy extends Proxy {
         } else {
             depthMonitor = found[0];
         }
+
         return await depthMonitor.monit(instrucment_id);
     }
 
@@ -152,6 +156,28 @@ class OkexMonitProxy extends Proxy {
         }
 
         return "spot/depth:" + instrucment_id;
+    }
+
+    async monitWallet(account: OKexAccount, currency: string): Promise<string> {
+        const found = this._okexWalletMonitor.filter(monitor => monitor.compareAccount(account));
+        let walletMonitor: WalletMonitor;
+        if (found.length <= 0) {
+            walletMonitor = new WalletMonitor(account.httpkey, account.httpsecret, account.passphrase);
+            this._okexWalletMonitor.push(walletMonitor);
+        } else {
+            walletMonitor = found[0];
+        }
+
+        return await walletMonitor.monit(currency);
+    }
+
+    async unmonitWallet(account: OKexAccount, currency: string): Promise<string> {
+        const found = this._okexWalletMonitor.filter(monitor => monitor.compareAccount(account));
+        if (found.length > 0) {
+            return await found[0].unmonit(currency);
+        }
+
+        return "spot/account:" + currency;
     }
 
     private onOkexConnectionOpened(): void {

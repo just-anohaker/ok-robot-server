@@ -4,6 +4,7 @@ declare class OkexMonitProxy extends Proxy {
     static readonly NAME: string;
     private _okexConnection?;
     private _okexDepthMonitor;
+    private _okexWalletMonitor;
     private _registerChannels;
     private _expiredTimeoutHandler?;
     constructor();
@@ -21,6 +22,8 @@ declare class OkexMonitProxy extends Proxy {
     unmonitChannel(channelName: string): string;
     monitDepth(account: OKexAccount, instrucment_id: string): Promise<string>;
     unmonitDepth(account: OKexAccount, instrucment_id: string): Promise<string>;
+    monitWallet(account: OKexAccount, currency: string): Promise<string>;
+    unmonitWallet(account: OKexAccount, currency: string): Promise<string>;
     private onOkexConnectionOpened;
     private onOkexConnectionClosed;
     private onOkexConnectionMessage;

@@ -136,6 +136,52 @@ class Schema {
         }
         return Schema.validator.errorsText();
     }
+
+    static validateMonitWallet(data: any): Validation {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                account: {
+                    type: "object",
+                    properties: {
+                        httpkey: { type: "string", minLenght: 1 },
+                        httpsecret: { type: "string", minLenght: 1 },
+                        passphrase: { type: "string", minLenght: 1 }
+                    },
+                    required: ["httpkey", "httpsecret", "passphrase"]
+                },
+                currency: { type: "string", minLenght: 1 }
+            },
+            required: ["account", "currency"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
+
+    static validateUnmonitWallet(data: any): Validation {
+        const validation = Schema.validator.validate({
+            type: "object",
+            properties: {
+                account: {
+                    type: "object",
+                    properties: {
+                        httpkey: { type: "string", minLenght: 1 },
+                        httpsecret: { type: "string", minLenght: 1 },
+                        passphrase: { type: "string", minLenght: 1 }
+                    },
+                    required: ["httpkey", "httpsecret", "passphrase"]
+                },
+                currency: { type: "string", minLenght: 1 }
+            },
+            required: ["account", "currency"]
+        }, data);
+        if (validation) {
+            return undefined;
+        }
+        return Schema.validator.errorsText();
+    }
 }
 
 export default Schema;

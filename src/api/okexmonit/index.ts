@@ -115,6 +115,34 @@ async function unmonitSpotDepth(data: MarkedMap): Promise<APIReturn> {
     }
 }
 
+async function monitWallet(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateMonitWallet(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
+    try {
+        const resp = await ProxyHelper.OkexMonitProxy.monitWallet(data.account, data.currency);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
+async function unmonitWallet(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateUnmonitWallet(data);
+    if (validation) {
+        return apiFailure(validation);
+    }
+
+    try {
+        const resp = await ProxyHelper.OkexMonitProxy.unmonitWallet(data.account, data.currency);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+
 export default {
     monitSpotTrade,
     unmonitSpotTrade,
@@ -123,7 +151,9 @@ export default {
     monitSpotChannel,
     unmonitSpotChannel,
     monitSpotDepth,
-    unmonitSpotDepth
+    unmonitSpotDepth,
+    monitWallet,
+    unmonitWallet
 };
 
 

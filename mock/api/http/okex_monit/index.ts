@@ -47,6 +47,10 @@ class OkexMonitAPI implements IHttp, ISockerIO {
             async (ctx: Koa.Context) => await this.monitSpotDepth(ctx));
         router.post("/api/okex_monitor/spotDepth/unmonit",
             async (ctx: Koa.Context) => await this.unmonitSpotDepth(ctx));
+        router.post("/api/okex_monitor/spotWallet",
+            async (ctx: Koa.Context) => await this.monitWallet(ctx));
+        router.post("/api/okex_monitor/spotWallet/unmonit",
+            async (ctx: Koa.Context) => await this.unmonitWallet(ctx));
 
         this._http!.use(router.routes());
     }
@@ -151,6 +155,24 @@ class OkexMonitAPI implements IHttp, ISockerIO {
 
     private async unmonitSpotDepth(ctx: Koa.Context) {
         const resp = await apiOkexMonit.unmonitSpotDepth(ctx.body || {});
+        if (resp.success) {
+            const eventName: string = resp.result as string;
+            this._unregisterObserver(eventName);
+        }
+        koaResponse(ctx, resp);
+    }
+
+    private async monitWallet(ctx: Koa.Context) {
+        const resp = await apiOkexMonit.monitWallet(ctx.body || {});
+        if (resp.success) {
+            const eventName: string = resp.result as string;
+            this._registerObserver(eventName);
+        }
+        koaResponse(ctx, resp);
+    }
+
+    private async unmonitWallet(ctx: Koa.Context) {
+        const resp = await apiOkexMonit.unmonitWallet(ctx.body || {});
         if (resp.success) {
             const eventName: string = resp.result as string;
             this._unregisterObserver(eventName);
