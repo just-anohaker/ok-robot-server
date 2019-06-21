@@ -28,9 +28,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
     //价格范围 bprice eprice  买入个数 amount
     //挂单数量 orderCount 平均拆分
     console.log("params:" + JSON.stringify(params))
-    const authClient = new AuthenticatedClient(acct.httpkey,
-        acct.httpsecret, acct.passphrase, config.urlHost);
-    const order_db = new DbOrders(Database.getInstance().Sqlite3Handler, acct);
+
     let orderCount = (params.topPrice - params.startPrice) / (params.startPrice * params.incr)
     let batchOrder = new Array()
     let cost = 0;
@@ -57,12 +55,35 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
             'type': 'limit', 'side': side,
             'instrument_id': params.instrument_id, 'size': sizes[i],
             'client_oid': config.orderType.batchOrder + Date.now() + 'X' + i, //TODO 注意限价
-            'price': prices[i], 'margin_trading': 1, 'order_type': '0'
+            'price': prices[i].toFixed(4), 'margin_trading': 1, 'order_type': '0'
         }
         batchOrder.push(order);
-        cost += order.price * order.size;
+        cost += parseFloat(order.price) * order.size;
     }
-    console.log("订单---" + JSON.stringify(batchOrder))//
+
+
+    return {
+        result: true,
+        orders: batchOrder,
+        cost
+    }
+
+}
+/**
+ * 接口:
+ * params:
+ * {
+ * orders   
+ * }
+ * acct:account
+  return 一个对象
+ * }
+ */
+async function toBatchOrder(params, acct) {
+    let batchOrder = params.orders;
+    const authClient = new AuthenticatedClient(acct.httpkey,
+        acct.httpsecret, acct.passphrase, config.urlHost);
+    const order_db = new DbOrders(Database.getInstance().Sqlite3Handler, acct);
     try {
         for (let j = 0; j < batchOrder.length; j += 10) {
             let tmp = batchOrder.slice(j, j + 10)
@@ -77,7 +98,7 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
             await sleep(50);//每秒20次 限制是每2秒50次
             console.log("订单tmp---" + JSON.stringify(res))//
         }
-        console.log('orderCount ' + orderCount + 'cost:' + cost)
+        //   console.log('orderCount ' + orderCount + 'cost:' + cost)
     } catch (e) {
         console.log(e)
         return {
@@ -85,15 +106,9 @@ async function genBatchOrder(params, acct) {//TODO 注意价格限制
             error_message: e + ''
         }
     }
-
     return {
-        result: true,
-        orders: batchOrder,
-        cost
+        result: true
     }
-    //     return {orders:[{'type': 'limit', 'side': 'buy', 'instrument_id': 'BTC-USDT', 'size': 0.001, 'client_oid': 'oktspot79', 'price': '4638.51', 'funds': '', 'margin_trading': '1', 'order_type': '3'}],
-    //     cost:1000
-    //  }
 }
 function sleep(ms) {
     return new Promise(resolve => {
@@ -534,6 +549,7 @@ async function startMaker(params, acct) {
 //    {httpkey:config.httpkey,httpsecret:config.httpsecret,passphrase:config.passphrase})
 export default {
     genBatchOrder,
+    toBatchOrder,
     cancelBatchOrder,
     limitOrder,
     marketOrder,

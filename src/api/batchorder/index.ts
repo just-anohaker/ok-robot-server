@@ -17,6 +17,19 @@ async function generate(data: MarkedMap): Promise<APIReturn> {
     }
 }
 
+async function toBatchOrder(data: MarkedMap): Promise<APIReturn> {
+    const validation = Schema.validateGenerate(data);
+    if (validation !== undefined) {
+        return apiFailure(validation);
+    }
+
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.toBatchOrder(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
 // async function start(data: MarkedMap): Promise<APIReturn> {
 //     const validation = Schema.validateStart(data);
 //     if (validation !== undefined) {
@@ -146,6 +159,7 @@ async function getCandlesData(data: MarkedMap): Promise<APIReturn> {
 
 export default {
     generate,
+    toBatchOrder,
     cancel,
     limitOrder,
     marketOrder,

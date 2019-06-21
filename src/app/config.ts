@@ -20,6 +20,7 @@ module.exports = {
         marketOrder: 'B',
         batchOrder: 'C',
         iceOrder: 'D',
-        autoMaker: 'E'
+        autoMaker: 'E',
+        onlyMaker: 'F'
     }
 }

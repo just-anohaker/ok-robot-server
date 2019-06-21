@@ -28,6 +28,21 @@ function generate(data) {
         }
     });
 }
+function toBatchOrder(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validation = Schema_1.default.validateGenerate(data);
+        if (validation !== undefined) {
+            return Utils_1.apiFailure(validation);
+        }
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.toBatchOrder(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 // async function start(data: MarkedMap): Promise<APIReturn> {
 //     const validation = Schema.validateStart(data);
 //     if (validation !== undefined) {
@@ -172,6 +187,7 @@ function getCandlesData(data) {
 }
 exports.default = {
     generate,
+    toBatchOrder,
     cancel,
     limitOrder,
     marketOrder,

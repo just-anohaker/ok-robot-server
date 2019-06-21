@@ -2,9 +2,10 @@
  * 接口:
  * params:
  * {
- * topPrice  //交易最高价
- * bottomPrice //交易最低价
- * costLimit //成本上限
+ * distance  //离盘口的距离
+ * startSize //开始数量
+ * topSize //
+ * countPerM
  * }
  * acct:
  * {
@@ -17,11 +18,17 @@
 /***
  * 接口:  成功返回true 失败返回false
  */
-declare function initAutoMarket(_params: any, _acct: any): void;
+declare function initAutoMarket(_params: any, _acct: any): Promise<{
+    result: boolean;
+    error_message: string;
+} | {
+    result: boolean;
+    error_message?: undefined;
+}>;
 /***
  * 接口:停止交易
  */
-declare function stopAutoMarket(): boolean;
+declare function stopAutoMarket(): Promise<boolean>;
 /***
  * 接口:开始交易
  */

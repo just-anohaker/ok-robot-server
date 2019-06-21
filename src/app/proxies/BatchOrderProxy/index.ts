@@ -33,6 +33,18 @@ class BatchOrderProxy extends Proxy {
         return result;
     }
 
+    async toBatchOrder(options: any /*BatchOrderOptions*/, account: any /*OKexAccount*/): Promise<any> {
+        let result;
+        try {
+            result = await batchOrder.toBatchOrder(options, account);
+        } catch (error) {
+            return {
+                result: false,
+                error_message: error + ''
+            };
+        }
+        return result;
+    }
     // start(client_oids: any /*string[]*/): boolean {
     //     return batchOrder.startBatchOrder(client_oids);
     // }

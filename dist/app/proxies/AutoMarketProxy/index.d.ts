@@ -4,7 +4,7 @@ declare class AutoMarketProxy extends Proxy {
     constructor();
     onRegister(): void;
     init(options: any, account: any): any;
-    stop(): boolean;
+    stop(): Promise<any>;
     start(): boolean;
     isRunning(): boolean;
     readonly OptionsAndAccount: {

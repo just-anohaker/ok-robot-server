@@ -18,7 +18,7 @@ class AutoMarketProxy extends Proxy_1.default {
     }
     stop() {
         // TODO
-        return false;
+        return autoMarket_1.default.stopAutoMarket();
     }
     start() {
         // TODO

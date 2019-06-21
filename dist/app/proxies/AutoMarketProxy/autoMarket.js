@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -10,6 +18,7 @@ const { AuthenticatedClient } = require('@okfe/okex-node');
 const config = require('../../config');
 const publicInfo_1 = __importDefault(require("../../publicInfo"));
 let authClient;
+let toCancel = new Array();
 let orderData = new Map();
 let asks;
 let bids;
@@ -18,13 +27,15 @@ let acct;
 let params;
 let AT_startFlag = false;
 var interval_rangeTaker;
+var interval_canelOrder;
 /**
  * 接口:
  * params:
  * {
- * topPrice  //交易最高价
- * bottomPrice //交易最低价
- * costLimit //成本上限
+ * distance  //离盘口的距离
+ * startSize //开始数量
+ * topSize //
+ * countPerM
  * }
  * acct:
  * {
@@ -38,27 +49,71 @@ var interval_rangeTaker;
  * 接口:  成功返回true 失败返回false
  */
 function initAutoMarket(_params, _acct) {
-    console.log("initAutoMarket! ");
-    params = _params;
-    acct = _acct;
-    pci = publicInfo_1.default();
-    AT_startFlag = false;
-    orderData = new Map();
-    authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("initAutoMarket! ");
+        params = _params;
+        acct = _acct;
+        // if (pci != undefined) {
+        //     pci = publicInfo.initPublicInfo({ intrument_id: _params.intrument_id });
+        //     AT_startFlag = false;
+        //     orderData = new Map();
+        //     authClient = new AuthenticatedClient(acct.httpkey,
+        //         acct.httpsecret, acct.passphrase, config.urlHost);
+        // }
+        try {
+            if (pci == undefined) {
+                _acct.instrument_id = _params.instrument_id;
+                pci = yield publicInfo_1.default.initPublicInfo({ instrument_id: _params.instrument_id });
+                AT_startFlag = true;
+                orderData = new Map();
+                rangeTrading(_params, _acct);
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                result: false,
+                error_message: error + ''
+            };
+        }
+        return {
+            result: true
+        };
+    });
 }
 /***
  * 接口:停止交易
  */
 function stopAutoMarket() {
-    console.log("stopAutoMarket! ");
-    if (AT_startFlag) {
-        AT_startFlag = false;
-        clearInterval(interval_rangeTaker);
-        return true;
-    }
-    else {
-        return false;
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("stopAutoMarket! ");
+        if (interval_rangeTaker != undefined) {
+            AT_startFlag = false;
+            clearInterval(interval_rangeTaker);
+            clearInterval(interval_canelOrder);
+            interval_rangeTaker = undefined;
+            interval_canelOrder = undefined;
+            pci.stopWebsocket();
+            for (let j = 0; j < toCancel.length; j += 10) {
+                let tmp = toCancel.slice(j, j + 10);
+                // console.log("CancelBatchOrders interval_canelOrder:" + tmp)
+                authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
+                    batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                        if (ele.result == true) {
+                            // console.log("Cancel Order ok:" + ele.order_id)
+                            toCancel = toCancel.filter(o => o != ele.order_id);
+                        }
+                    });
+                }));
+                yield sleep(100);
+            }
+            pci = undefined;
+            return true;
+        }
+        else {
+            return false;
+        }
+    });
 }
 /***
  * 接口:开始交易
@@ -66,7 +121,7 @@ function stopAutoMarket() {
 function startAutoMarket() {
     console.log("startAutoMarket! ");
     if (!AT_startFlag) {
-        rangeTrading();
+        //rangeTrading()
         AT_startFlag = true;
         return true;
     }
@@ -81,6 +136,13 @@ function startAutoMarket() {
 function isRunning() {
     return AT_startFlag;
 }
+function sleep(ms) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms);
+        });
+    });
+}
 /***
  * 接口:返回正在运行的参数
  * {Params:{}, //如第一个方法中的参数
@@ -88,72 +150,160 @@ function isRunning() {
  * }
  */
 function getParamsAndAcct() {
-    return { params: params,
-        acct: params };
+    return {
+        params: params,
+        acct: params
+    };
 }
-function rangeTrading() {
-    //定时获得深度,如果超出了就将目标价格的订单全部吃完
-    interval_rangeTaker = setInterval(() => {
-        if (pci.tickerData) {
-            // var instrument_id = tickerData.instrument_id
-            // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
-            pci.pClient.spot().getSpotBook(config.instrument_id, { size: 200 }).then(res => {
-                if (res.asks && res.bids) {
-                    if (params.bottomPrice > res.asks[0][0]) { //卖一的价格低于设置的底部价格,拉盘
-                        let takeIndex = pci.asks.findIndex(function (ask) {
-                            return params.bottomPrice < ask[0];
-                        });
-                        let toTake;
-                        if (takeIndex < 0) {
-                            toTake = res.asks;
-                        }
-                        else { //TODO 如果没有找到index 则全吃?
-                            toTake = res.asks.slice(0, takeIndex);
-                        }
-                        let batchOrder = new Array();
-                        let pre_price = 0;
-                        toTake.forEach((ele) => {
-                            batchOrder.push({
-                                'type': 'limit', 'side': 'buy',
-                                'instrument_id': config.instrument_id, 'size': ele[1],
-                                'client_oid': 'spot123',
-                                'price': ele[0], 'margin_trading': 1, 'order_type': '3'
-                            }); //立即成交并取消剩余
-                            pre_price += ele[0] * ele[1];
-                        });
-                        // console.log("触发托盘 需要下单:" + JSON.stringify(batchOrder));  //TODO 如果单子的数量大于10个就要拆分
-                        console.log("预计成本: " + JSON.stringify(pre_price) + ' USDT');
-                        // authClient.spot().postBatchOrders(JSON.stringify(toTake.slice(0,10)))
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+}
+function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min; //含最大值，含最小值 
+}
+/* params:
+* {
+* distance  //离盘口的距离
+* startSize //开始数量
+* topSize //
+* countPerM
+* }
+* */
+function rangeTrading(params, acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        AT_startFlag = true;
+        let order_interval = 60 * 1000 / params.countPerM;
+        authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
+        if (interval_rangeTaker != undefined)
+            return;
+        interval_rangeTaker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+            if (pci.asks && pci.bids) {
+                let asks = pci.asks.slice(params.distance, params.distance + 1);
+                let bids = pci.bids.slice(params.distance, params.distance + 1);
+                let asks_orders = new Array();
+                let bids_orders = new Array();
+                // console.log("asks====", JSON.stringify(asks))
+                // console.log(JSON.stringify(bids))
+                for (let i = 1; i <= 10; i++) {
+                    let perSize = getRandomArbitrary(parseFloat(params.startSize), parseFloat(params.topSize)).toFixed(4);
+                    let sellprice;
+                    let buyprice;
+                    if (pci.instrumentInfo != undefined) {
+                        sellprice = (parseFloat(asks[0]) + i * parseFloat(pci.instrumentInfo.size_increment)).toFixed(4);
+                        buyprice = (parseFloat(bids[0]) - i * parseFloat(pci.instrumentInfo.size_increment)).toFixed(4);
                     }
-                    else if (params.topPrice < res.bids[0][0]) { //买一的价格高于设置的顶部价格,压盘
-                        let takeIndex = pci.bids.findIndex(function (bid) {
-                            return params.topPrice > bid[0];
-                        });
-                        let toTake;
-                        if (takeIndex < 0) {
-                            toTake = res.bids;
-                        }
-                        else { //TODO 如果没有找到index 则全吃?
-                            toTake = res.bids.slice(0, takeIndex);
-                        }
-                        let batchOrder = new Array();
-                        let pre_price = 0;
-                        toTake.forEach((ele) => {
-                            batchOrder.push({
-                                'type': 'limit', 'side': 'sell',
-                                'instrument_id': config.instrument_id, 'size': ele[1],
-                                'client_oid': 'spot123',
-                                'price': ele[0], 'margin_trading': 1, 'order_type': '3'
-                            }); //立即成交并取消剩余
-                            pre_price += ele[0] * ele[1];
-                        });
-                        /// console.log("触发压盘 需要下单:" + JSON.stringify(batchOrder));  //TODO 如果单子的数量大于10个就要拆分
-                        console.log("预计成本: " + JSON.stringify(pre_price) + ' USDT');
+                    else {
+                        sellprice = (parseFloat(asks[0]) + i * 0.0001).toFixed(4);
+                        buyprice = (parseFloat(bids[0]) - i * 0.0001).toFixed(4);
+                    }
+                    let sellOrder = {
+                        'type': 'limit', 'side': 'sell',
+                        'instrument_id': params.instrument_id, 'size': perSize, 'client_oid': config.orderType.onlyMaker + Date.now() + 'S',
+                        'price': sellprice, 'margin_trading': 1, 'order_type': '1' //postonly
+                    };
+                    let buyOrder = {
+                        'type': 'limit', 'side': 'buy',
+                        'instrument_id': params.instrument_id, 'size': perSize, 'client_oid': config.orderType.onlyMaker + Date.now() + 'B',
+                        'price': buyprice, 'margin_trading': 1, 'order_type': '1' //postonly
+                    };
+                    asks_orders.push(sellOrder);
+                    bids_orders.push(buyOrder);
+                }
+                let asks_o = new Array();
+                let bids_o = new Array();
+                for (let j = 0; j < 10; j++) {
+                    let randInt = getRandomIntInclusive(0, 19);
+                    if (randInt < 10) {
+                        bids_o = bids_o.concat(bids_orders.slice(randInt, randInt + 1));
+                    }
+                    else {
+                        randInt = randInt % 10;
+                        asks_o = asks_o.concat(asks_orders.slice(randInt, randInt + 1));
                     }
                 }
-            });
-        }
-    }, 5 * 1000);
+                let orderss = asks_o.concat(bids_o);
+                authClient.spot().postBatchOrders(orderss).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
+                    let order_ids = [];
+                    batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                        //  console.log("interval_autoMaker" + ele.result + "---" + ele.order_id)
+                        if (ele.result) {
+                            order_ids.push(ele.order_id);
+                            toCancel.push(ele.order_id);
+                        }
+                    });
+                    // await sleep(200)
+                    //console.log("下单 orderss---", JSON.stringify(orderss))
+                    try {
+                        authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': order_ids }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
+                            batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                                if (ele.result == true) { //没有成功撤单就交给垃圾回收
+                                    // console.log("Cancel Order ok------:" + ele.order_id)
+                                    toCancel = toCancel.filter(o => o != ele.order_id);
+                                }
+                            });
+                        }));
+                    }
+                    catch (error) {
+                        console.log("CancelBatchOrders orderss " + error);
+                        // batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                        //     if (ele.result) {
+                        //         toCancel.push(ele.order_id)
+                        //     }
+                        // })
+                    }
+                }));
+                // if (bids_o.length > 0) {
+                //     authClient.spot().postBatchOrders(bids_o).then(async batch_o => {
+                //         let order_ids = []
+                //         batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                //             //  console.log("interval_autoMaker" + ele.result + "---" + ele.order_id)
+                //             if (ele.result) {
+                //                 order_ids.push(ele.order_id)
+                //             }
+                //         })
+                //         // await sleep(200)
+                //         // console.log("撤单 ---", JSON.stringify(order_ids))
+                //         console.log("下单 bids_o---", JSON.stringify(bids_o))
+                //         try {
+                //             authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': order_ids }]).then(async batch_o => {
+                //                 batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                //                     //  console.log("interval_autoMaker" + ele.result + "---" + ele.order_id)
+                //                     if (!ele.result) {//没有成功撤单就交给垃圾回收
+                //                         toCancel.push(ele.order_id)
+                //                     }
+                //                 })
+                //             });
+                //         } catch (error) {
+                //             //TODO
+                //             console.log("CancelBatchOrders bids_o" + error)
+                //             batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                //                 if (ele.result) {
+                //                     toCancel.push(ele.order_id)
+                //                 }
+                //             })
+                //         }
+                //     });
+                // }
+            }
+        }), order_interval);
+        interval_canelOrder = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+            for (let j = 0; j < toCancel.length; j += 10) {
+                let tmp = toCancel.slice(j, j + 10);
+                // console.log("CancelBatchOrders interval_canelOrder:" + tmp)
+                authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
+                    batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                        if (ele.result == true) {
+                            // console.log("Cancel Order ok:" + ele.order_id)
+                            toCancel = toCancel.filter(o => o != ele.order_id);
+                        }
+                    });
+                }));
+                yield sleep(100);
+            }
+        }), 500);
+    });
 }
 /**********  稳定市价  end  ***********************/
 exports.default = {

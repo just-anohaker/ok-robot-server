@@ -37,6 +37,21 @@ class BatchOrderProxy extends Proxy_1.default {
             return result;
         });
     }
+    toBatchOrder(options /*BatchOrderOptions*/, account /*OKexAccount*/) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let result;
+            try {
+                result = yield batchOrder_1.default.toBatchOrder(options, account);
+            }
+            catch (error) {
+                return {
+                    result: false,
+                    error_message: error + ''
+                };
+            }
+            return result;
+        });
+    }
     // start(client_oids: any /*string[]*/): boolean {
     //     return batchOrder.startBatchOrder(client_oids);
     // }

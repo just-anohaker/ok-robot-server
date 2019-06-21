@@ -5,6 +5,7 @@ declare class BatchOrderProxy extends Proxy {
     constructor();
     onRegister(): void;
     generate(options: any, account: any): Promise<any>;
+    toBatchOrder(options: any, account: any): Promise<any>;
     cancel(options: any, account: any): Promise<any>;
     limitOrder(options: any, account: any): Promise<any>;
     marketOrder(options: any, account: any): Promise<any>;

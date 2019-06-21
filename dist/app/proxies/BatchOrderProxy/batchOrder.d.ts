@@ -17,13 +17,24 @@ import { PageInfo } from "../../PageInfo";
  */
 declare function genBatchOrder(params: any, acct: any): Promise<{
     result: boolean;
-    error_message: string;
-    orders?: undefined;
-    cost?: undefined;
-} | {
-    result: boolean;
     orders: any[];
     cost: number;
+}>;
+/**
+ * 接口:
+ * params:
+ * {
+ * orders
+ * }
+ * acct:account
+  return 一个对象
+ * }
+ */
+declare function toBatchOrder(params: any, acct: any): Promise<{
+    result: boolean;
+    error_message: string;
+} | {
+    result: boolean;
     error_message?: undefined;
 }>;
 /****
@@ -194,6 +205,7 @@ declare function getCandlesData(params: any): Promise<{
 }>;
 declare const _default: {
     genBatchOrder: typeof genBatchOrder;
+    toBatchOrder: typeof toBatchOrder;
     cancelBatchOrder: typeof cancelBatchOrder;
     limitOrder: typeof limitOrder;
     marketOrder: typeof marketOrder;

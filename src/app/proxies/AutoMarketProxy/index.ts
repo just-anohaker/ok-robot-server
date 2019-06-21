@@ -18,9 +18,9 @@ class AutoMarketProxy extends Proxy {
         autoMarket.initAutoMarket(options, account)
     }
 
-    stop(): boolean {
+    stop(): Promise<any> {
         // TODO
-        return false;
+        return autoMarket.stopAutoMarket();
     }
 
     start(): boolean {

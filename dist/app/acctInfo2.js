@@ -227,31 +227,16 @@ class AccountInfo {
                 let tem_b = this.bids.slice();
                 tem_a.forEach((element, index, array) => {
                     if (this.orderPrice.has(element[0])) {
-                        if (array[index] < 4) {
-                            array[index].push(this.orderPrice.get(element[0]));
-                        }
-                        else {
-                            array[index][3] = this.orderPrice.get(element[0]);
-                        }
+                        array[index][3] = this.orderPrice.get(element[0]);
                     }
                 });
                 tem_b.forEach((element, index, array) => {
                     if (this.orderPrice.has(element[0])) {
-                        if (array[index] < 4) {
-                            array[index].push(this.orderPrice.get(element[0]));
-                        }
-                        else {
-                            array[index][3] = this.orderPrice.get(element[0]);
-                        }
+                        array[index][3] = this.orderPrice.get(element[0]);
                     }
                 });
                 //console.log("now:", Date.now(), sendDepthTime, Date.now() - sendDepthTime)
                 sendDepthTime = Date.now();
-                // this.event.emit("depth" + ":" + this.instrument_id, {
-                //     "asks": tem_a,
-                //     "bids": tem_b
-                // });
-                // console.log("depth" + ":" + this.instrument_id)
                 __1.Facade.getInstance().sendNotification("depth" + ":" + this.instrument_id, {
                     "asks": tem_a,
                     "bids": tem_b
@@ -357,8 +342,6 @@ class AccountInfo {
                     'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.orderType.autoMaker + Date.now() + 'T',
                     'price': randomPrice, 'margin_trading': 1, 'order_type': '3' //立即成交并取消剩余（IOC）
                 };
-                //  let o = await this.authClient.spot().postOrder(toOrder);
-                //  let o2 = await this.authClient.spot().postOrder(toTaker);
                 let order_array = new Array();
                 order_array.push(toOrder);
                 order_array.push(toTaker);
@@ -373,46 +356,7 @@ class AccountInfo {
                 });
                 // console.log("撤单 ---", JSON.stringify(order_ids))
                 let result = yield this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': this.instrument_id, 'order_ids': order_ids }]);
-                // if (o2.result) {
-                //     orderMap.delete(o.order_id);
-                // }
-                // console.log("下单 ---后", JSON.stringify(batch_o))
                 console.log("撤单 ---后o2", JSON.stringify(result));
-                // if (o.result) {//下单成功
-                // await this.sleep(50);
-                // orderMap.forEach(async (value, key, map) => {
-                //     if (Date.now() - value > order_interval) {
-                //         try {
-                //             let res = await this.authClient.spot().postCancelOrder(key, { 'instrument_id': this.instrument_id })
-                //             if (res.result) {
-                //                 map.delete(key);
-                //             }
-                //         } catch (error) {
-                //             console.log("error----" + error)
-                //             //console.log("error----" + error.code)
-                //         }
-                //     }
-                // });
-                // orderMap.set(o.order_id, Date.now());
-                // this.autoMakerOrder = await this.authClient.spot().getOrder(o.order_id, { 'instrument_id': this.instrument_id });
-                // let toTaker = {
-                //     'type': 'limit', 'side': side2,
-                //     'instrument_id': this.instrument_id, 'size': this.autoMakerOrder.size - this.autoMakerOrder.filled_size, 'client_oid': config.autoMaker + Date.now(),
-                //     'price': this.autoMakerOrder.price, 'margin_trading': 1, 'order_type': '3'//立即成交并取消剩余（IOC）
-                // };
-                // let o2 = await this.authClient.spot().postOrder(toTaker);
-                // if (o2.result) {
-                //     orderMap.delete(o.order_id);
-                // }
-                // console.log("下单 ---后o2", JSON.stringify(o2))
-                // if (this.autoMakerOrder && this.autoMakerOrder.state == 2) {
-                //     orderMap.delete(o.order_id);
-                // } else {
-                // }
-                // let cancel = await this.authClient.spot().postCancelOrder(o.order_id, { 'instrument_id': this.instrument_id });
-                // } else {
-                //    console.log("下单失败:", o.error_message);
-                // }
             }
             else {
                 this.tickerData == undefined ? console.log("无法获取当前盘口价格!")
