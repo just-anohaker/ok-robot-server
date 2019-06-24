@@ -53,13 +53,6 @@ function initAutoMarket(_params, _acct) {
         console.log("initAutoMarket! ");
         params = _params;
         acct = _acct;
-        // if (pci != undefined) {
-        //     pci = publicInfo.initPublicInfo({ intrument_id: _params.intrument_id });
-        //     AT_startFlag = false;
-        //     orderData = new Map();
-        //     authClient = new AuthenticatedClient(acct.httpkey,
-        //         acct.httpsecret, acct.passphrase, config.urlHost);
-        // }
         try {
             if (pci == undefined) {
                 _acct.instrument_id = _params.instrument_id;
@@ -93,7 +86,6 @@ function stopAutoMarket() {
             clearInterval(interval_canelOrder);
             interval_rangeTaker = undefined;
             interval_canelOrder = undefined;
-            pci.stopWebsocket();
             for (let j = 0; j < toCancel.length; j += 10) {
                 let tmp = toCancel.slice(j, j + 10);
                 // console.log("CancelBatchOrders interval_canelOrder:" + tmp)
@@ -107,6 +99,7 @@ function stopAutoMarket() {
                 }));
                 yield sleep(100);
             }
+            pci.stopWebsocket();
             pci = undefined;
             return true;
         }
@@ -248,11 +241,6 @@ function rangeTrading(params, acct) {
                         }
                         catch (error) {
                             console.log("CancelBatchOrders orderss " + error);
-                            // batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
-                            //     if (ele.result) {
-                            //         toCancel.push(ele.order_id)
-                            //     }
-                            // })
                         }
                     }));
                 }
@@ -262,24 +250,35 @@ function rangeTrading(params, acct) {
             }
         }), order_interval);
         interval_canelOrder = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-            for (let j = 0; j < toCancel.length; j += 10) {
-                let tmp = toCancel.slice(j, j + 10);
-                // console.log("CancelBatchOrders interval_canelOrder:" + tmp)
-                authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
-                    batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
-                        if (ele.result == true) {
-                            // console.log("Cancel Order ok:" + ele.order_id)
-                            toCancel = toCancel.filter(o => o != ele.order_id);
-                        }
-                        else {
-                            if (ele.code == "33014") {
+            let res;
+            let limit = 100;
+            try {
+                let order_ids = [];
+                res = yield authClient.spot().getOrdersPending({ 'instrument_id': params.instrument_id, 'limit': limit });
+                res.forEach((ele) => {
+                    if (ele.client_oid.substring(0, 1) == config.orderType.onlyMaker) {
+                        order_ids.push(ele.order_id);
+                    }
+                });
+                // console.log("自动补单,取消未完成订单:", order_ids)
+                if (order_ids.length <= 0)
+                    return;
+                try {
+                    authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': order_ids }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
+                        batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                            if (ele.result == true) { //没有成功撤单就交给垃圾回收
+                                // console.log("Cancel Order ok------:" + ele.order_id)
                                 toCancel = toCancel.filter(o => o != ele.order_id);
-                                console.log("error order_id", ele.order_id);
                             }
-                        }
-                    });
-                }));
-                yield sleep(100);
+                        });
+                    }));
+                }
+                catch (error) {
+                    console.log("CancelBatchOrders orderss interval_canelOrder " + error);
+                }
+            }
+            catch (e) {
+                console.log(e);
             }
         }), 10 * 1000);
     });

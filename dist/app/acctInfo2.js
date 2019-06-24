@@ -264,7 +264,7 @@ class AccountInfo {
         return Math.floor(Math.random() * (max - min + 1)) + min; //含最大值，含最小值 
     }
     getRandomArbitrary(min, max) {
-        return Math.random() * (max - min) + min;
+        return Math.random() * (max - min) + min; //这个值不小于 min（有可能等于），并且小于（不等于）max。
     }
     orderMonitor() {
         //将所有的订单都获取缓存,循环执行订单的自动撤消 
@@ -303,13 +303,13 @@ class AccountInfo {
         let orderMap = new Map();
         console.log("order_interval", order_interval);
         this.interval_autoMaker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-            if (this.tickerData && parseFloat(this.tickerData.best_ask) - parseFloat(this.tickerData.best_bid) >= 0.0002) { //TODO 确认tickerdata 短期内有更新  TODO 精度确认
+            if (this.tickerData && Number(this.tickerData.best_ask) - Number(this.tickerData.best_bid) > 0.00019) { //TODO 确认tickerdata 短期内有更新  TODO 精度确认
                 // var instrument_id = tickerData.instrument_id
                 // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
                 console.log("interval ---" + this.tickerData.instrument_id + `买一 ` + this.tickerData.best_bid + ' 卖一 ' + this.tickerData.best_ask);
-                let randomPrice = this.getRandomArbitrary(parseFloat(this.tickerData.best_bid), parseFloat(this.tickerData.best_ask));
+                let randomPrice = this.getRandomArbitrary(parseFloat(this.tickerData.best_bid) + 0.0001, parseFloat(this.tickerData.best_ask));
                 let perSize = this.getRandomArbitrary(parseFloat(params.perStartSize), parseFloat(params.perTopSize));
-                console.log("random perSize ---", perSize);
+                console.log("random randomPrice ---", randomPrice);
                 let side1;
                 let side2;
                 if (params.type == 1) {
