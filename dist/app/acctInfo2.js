@@ -303,7 +303,7 @@ class AccountInfo {
         let orderMap = new Map();
         console.log("order_interval", order_interval);
         this.interval_autoMaker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-            if (this.tickerData && this.tickerData.best_ask - this.tickerData.best_bid > 0.0001) { //TODO 确认tickerdata 短期内有更新  TODO 精度确认
+            if (this.tickerData && parseFloat(this.tickerData.best_ask) - parseFloat(this.tickerData.best_bid) >= 0.0002) { //TODO 确认tickerdata 短期内有更新  TODO 精度确认
                 // var instrument_id = tickerData.instrument_id
                 // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
                 console.log("interval ---" + this.tickerData.instrument_id + `买一 ` + this.tickerData.best_bid + ' 卖一 ' + this.tickerData.best_ask);
