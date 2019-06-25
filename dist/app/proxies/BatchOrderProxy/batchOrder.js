@@ -169,6 +169,9 @@ function cancelBatchOrder(params, acct) {
                     if (params.startPrice <= ele.price && params.topPrice >= ele.price) {
                         order_ids.push(ele.order_id);
                     }
+                    else if (params.startPrice == 0 && params.topPrice == 0) {
+                        order_ids.push(ele.order_id);
+                    }
                 });
                 //console.log("应该撤消的订单为" + JSON.stringify(order_ids))
                 if (order_ids.length > 0) {

@@ -14,7 +14,16 @@ class AutoMarketProxy extends Proxy_1.default {
     }
     init(options /*AutoMarketOptions*/, account /*OKexAccount*/) {
         // TODO
-        autoMarket_1.default.initAutoMarket(options, account);
+        try {
+            autoMarket_1.default.initAutoMarket(options, account);
+        }
+        catch (error) {
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        return { result: true };
     }
     stop() {
         // TODO

@@ -38,7 +38,7 @@ async function stop(): Promise<APIReturn> {
 async function isrunning(): Promise<APIReturn> {
     try {
         const bIsRunning = ProxyHelper.AutoMarketProxy.isRunning();
-        return apiSuccess({ running: bIsRunning });
+        return apiSuccess(bIsRunning);
     } catch (error) {
         return apiFailure(error.toString());
     }

@@ -54,7 +54,7 @@ function isrunning() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const bIsRunning = Utils_1.ProxyHelper.AutoMarketProxy.isRunning();
-            return Utils_1.apiSuccess({ running: bIsRunning });
+            return Utils_1.apiSuccess(bIsRunning);
         }
         catch (error) {
             return Utils_1.apiFailure(error.toString());

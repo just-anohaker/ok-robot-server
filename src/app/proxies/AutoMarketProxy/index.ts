@@ -15,7 +15,16 @@ class AutoMarketProxy extends Proxy {
 
     init(options: any /*AutoMarketOptions*/, account: any /*OKexAccount*/): any {
         // TODO
-        autoMarket.initAutoMarket(options, account)
+
+        try {
+            autoMarket.initAutoMarket(options, account)
+        } catch (error) {
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        return { result: true };
     }
 
     stop(): Promise<any> {

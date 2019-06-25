@@ -156,6 +156,8 @@ async function cancelBatchOrder(params, acct) {
                 console.log("价格和id" + ele.price + "---" + ele.order_id)
                 if (params.startPrice <= ele.price && params.topPrice >= ele.price) {
                     order_ids.push(ele.order_id)
+                } else if (params.startPrice == 0 && params.topPrice == 0) {
+                    order_ids.push(ele.order_id)
                 }
             })
             //console.log("应该撤消的订单为" + JSON.stringify(order_ids))

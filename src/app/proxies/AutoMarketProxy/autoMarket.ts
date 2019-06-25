@@ -41,16 +41,21 @@ var interval_canelOrder
  */
 async function initAutoMarket(_params, _acct) {
     console.log("initAutoMarket! ");
-
-    params = _params;
-    acct = _acct;
     try {
         if (pci == undefined) {
+            params = _params;
+            acct = _acct;
             _acct.instrument_id = _params.instrument_id
             pci = await publicInfo.initPublicInfo({ instrument_id: _params.instrument_id });
             AT_startFlag = true;
             orderData = new Map();
             rangeTrading(_params, _acct)
+        } else {
+            return {
+                result: false,
+                error_message: 'AutoMarket is running!!'
+            };
+
         }
 
     } catch (error) {
@@ -92,6 +97,8 @@ async function stopAutoMarket() {
         }
         pci.stopWebsocket();
         pci = undefined
+        params = undefined;
+        acct = undefined;
         return true
     } else {
         return false
@@ -117,7 +124,7 @@ function startAutoMarket() {
  * 接口:正在运行返回true 否则返回false
  */
 function isRunning() {
-    return AT_startFlag
+    return interval_rangeTaker != undefined
 }
 async function sleep(ms) {
     return new Promise(resolve => {
@@ -147,11 +154,12 @@ function getRandomIntInclusive(min, max) {
 
 /* params:
 * {
-* distance  //离盘口的距离
+* distance  //盘口距离
 * startSize //开始数量
-* topSize //
-* countPerM
+* topSize //最大数量
+* countPerM //每分钟挂撤次数
 * }
+* acct:{}
 * */
 async function rangeTrading(params, acct) {
     AT_startFlag = true;
@@ -228,13 +236,13 @@ async function rangeTrading(params, acct) {
                             })
                         });
                     } catch (error) {
-                        console.log("CancelBatchOrders orderss " + error)
+                        console.log("CancelBatchOrders error " + error)
 
                     }
 
                 });
             } catch (error) {
-                console.log("CancelBatchOrders orderss " + error)
+                console.log("postBatchOrders error " + error)
 
             }
 
