@@ -222,9 +222,9 @@ export class AccountInfo {
                 //合并订单价格
                 for (var order of this.pendingOrders.values()) {
                     if (this.orderPrice.has(order.price)) {
-                        this.orderPrice.set(order.price, this.orderPrice.get(order.price) + (order.size - order.filled_size))
+                        this.orderPrice.set(order.price, Number(Number(this.orderPrice.get(order.price) + (order.size - order.filled_size)).toFixed(4)))
                     } else {
-                        this.orderPrice.set(order.price, (order.size - order.filled_size))
+                        this.orderPrice.set(order.price, Number(Number(order.size - order.filled_size).toFixed(4)))
                     }
                 }
                 //将订单的数据合并到深度信息中
