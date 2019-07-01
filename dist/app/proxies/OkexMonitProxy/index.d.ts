@@ -7,6 +7,7 @@ declare class OkexMonitProxy extends Proxy {
     private _okexWalletMonitor;
     private _registerChannels;
     private _expiredTimeoutHandler?;
+    private _isValidable;
     constructor();
     onRegister(): void;
     private _startExpiredTimer;

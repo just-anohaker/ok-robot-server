@@ -20,6 +20,7 @@ class WalletMonitor {
         this.httpSecret = httpSecret;
         this.passphrase = passphrase;
         this._isLogined = false;
+        this._isValidable = true;
         this._subscribeEvents = [];
         this._pendingSubscribeEvents = [];
     }
@@ -29,7 +30,7 @@ class WalletMonitor {
             && this.passphrase === account.passphrase);
     }
     _checkOkexConnection() {
-        if (this.connection === undefined) {
+        if (this._isValidable && this.connection === undefined) {
             this.connection = new okex_node_1.V3WebsocketClient();
             this.connection.on("open", () => this.onOkexConnectionOpened());
             this.connection.on("close", () => this.onOkexConnectionClosed());
@@ -41,7 +42,7 @@ class WalletMonitor {
     }
     _login() {
         const connection = this._checkOkexConnection();
-        if (!this._isLogined) {
+        if (connection && !this._isLogined) {
             connection.login(this.httpKey, this.httpSecret, this.passphrase);
         }
     }
@@ -72,22 +73,24 @@ class WalletMonitor {
             console.log("monit:");
             const connection = this._checkOkexConnection();
             const subscribeEvent = "spot/account:" + currency;
-            if (this._subscribeEvents.includes(subscribeEvent) ||
-                this._pendingSubscribeEvents.includes(subscribeEvent)) {
-                return subscribeEvent;
-            }
-            if (this._isLogined) {
-                try {
-                    connection.subscribe(subscribeEvent);
-                    this._subscribeEvents.push(subscribeEvent);
+            if (connection) {
+                if (this._subscribeEvents.includes(subscribeEvent) ||
+                    this._pendingSubscribeEvents.includes(subscribeEvent)) {
+                    return subscribeEvent;
                 }
-                catch (error) {
+                if (this._isLogined) {
+                    try {
+                        connection.subscribe(subscribeEvent);
+                        this._subscribeEvents.push(subscribeEvent);
+                    }
+                    catch (error) {
+                        this._pendingSubscribeEvents.push(subscribeEvent);
+                        this.onOkexConnectionClosed();
+                    }
+                }
+                else {
                     this._pendingSubscribeEvents.push(subscribeEvent);
-                    this.onOkexConnectionClosed();
                 }
-            }
-            else {
-                this._pendingSubscribeEvents.push(subscribeEvent);
             }
             return subscribeEvent;
         });
@@ -97,16 +100,18 @@ class WalletMonitor {
             console.log("unmonit:");
             const connection = this._checkOkexConnection();
             const subscribeEvent = "spot/account:" + currency;
-            if (this._subscribeEvents.includes(subscribeEvent)) {
-                if (this._isLogined) {
-                    connection.unsubscribe(subscribeEvent);
+            if (connection) {
+                if (this._subscribeEvents.includes(subscribeEvent)) {
+                    if (this._isLogined) {
+                        connection.unsubscribe(subscribeEvent);
+                    }
+                    this._subscribeEvents.splice(this._subscribeEvents.findIndex(value => value === subscribeEvent), 1);
                 }
-                this._subscribeEvents.splice(this._subscribeEvents.findIndex(value => value === subscribeEvent), 1);
+                else if (this._pendingSubscribeEvents.includes(subscribeEvent)) {
+                    this._pendingSubscribeEvents.splice(this._pendingSubscribeEvents.findIndex(value => value === subscribeEvent), 1);
+                }
             }
-            else if (this._pendingSubscribeEvents.includes(subscribeEvent)) {
-                this._pendingSubscribeEvents.splice(this._pendingSubscribeEvents.findIndex(value => value === subscribeEvent), 1);
-            }
-            return "spot/account:" + currency;
+            return subscribeEvent;
         });
     }
     onOkexConnectionOpened() {
@@ -132,12 +137,14 @@ class WalletMonitor {
         this._isLogined = true;
         // this._initializeSubscribes();
         const connection = this._checkOkexConnection();
-        this._pendingSubscribeEvents.forEach(eventName => {
-            console.log("[WalletMonitor] okexConnection subscribe pending:", eventName);
-            connection.subscribe(eventName);
-            this._subscribeEvents.push(eventName);
-        });
-        this._pendingSubscribeEvents = [];
+        if (connection) {
+            this._pendingSubscribeEvents.forEach(eventName => {
+                console.log("[WalletMonitor] okexConnection subscribe pending:", eventName);
+                connection.subscribe(eventName);
+                this._subscribeEvents.push(eventName);
+            });
+            this._pendingSubscribeEvents = [];
+        }
     }
     onOkexConnectionMessage(data) {
         // console.log("[OkexMonitProxy] okexConnection message recieved:", typeof data, data);
@@ -149,6 +156,7 @@ class WalletMonitor {
                 }
                 else if (jsonData.event === "error") {
                     console.log("[WalletMonitor] okexConnection error:", jsonData.errorCode, jsonData.message);
+                    this._isValidable = false;
                 }
                 else {
                     console.log("[WalletMonitor] okexConnection message:", jsonData.event, jsonData.channel);

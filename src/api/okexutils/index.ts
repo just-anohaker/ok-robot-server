@@ -57,7 +57,7 @@ async function getWallet(data: MarkedMap): Promise<APIReturn> {
         const resp = await ProxyHelper.OkexUtilsProxy.getWallet(data.account, data.currencies);
         return apiSuccess(resp);
     } catch (error) {
-        apiFailure(error.toString());
+        return apiFailure(error.toString());
     }
 }
 
@@ -71,7 +71,7 @@ async function getWalletList(data: MarkedMap): Promise<APIReturn> {
         const resp = await ProxyHelper.OkexUtilsProxy.getWalletList(data.account);
         return apiSuccess(resp);
     } catch (error) {
-        apiFailure(error.toString());
+        return apiFailure(error.toString());
     }
 }
 

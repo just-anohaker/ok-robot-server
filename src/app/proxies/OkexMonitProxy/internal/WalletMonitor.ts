@@ -8,6 +8,7 @@ class WalletMonitor {
     private connection?: V3WebsocketClient;
     private _expiredTimeoutHandler?: NodeJS.Timeout;
     private _isLogined: boolean = false;
+    private _isValidable: boolean = true;
 
     private _subscribeEvents: string[] = [];
     private _pendingSubscribeEvents: string[] = [];
@@ -23,7 +24,7 @@ class WalletMonitor {
     }
 
     private _checkOkexConnection(): V3WebsocketClient {
-        if (this.connection === undefined) {
+        if (this._isValidable && this.connection === undefined) {
             this.connection = new V3WebsocketClient();
 
             this.connection.on("open",
@@ -41,7 +42,7 @@ class WalletMonitor {
 
     private _login() {
         const connection = this._checkOkexConnection();
-        if (!this._isLogined) {
+        if (connection && !this._isLogined) {
             connection.login(this.httpKey, this.httpSecret, this.passphrase);
         }
     }
@@ -75,21 +76,23 @@ class WalletMonitor {
         console.log("monit:")
         const connection = this._checkOkexConnection();
         const subscribeEvent = "spot/account:" + currency;
-        if (this._subscribeEvents.includes(subscribeEvent) ||
-            this._pendingSubscribeEvents.includes(subscribeEvent)) {
-            return subscribeEvent;
-        }
-
-        if (this._isLogined) {
-            try {
-                connection.subscribe(subscribeEvent);
-                this._subscribeEvents.push(subscribeEvent)
-            } catch (error) {
-                this._pendingSubscribeEvents.push(subscribeEvent);
-                this.onOkexConnectionClosed();
+        if (connection) {
+            if (this._subscribeEvents.includes(subscribeEvent) ||
+                this._pendingSubscribeEvents.includes(subscribeEvent)) {
+                return subscribeEvent;
             }
-        } else {
-            this._pendingSubscribeEvents.push(subscribeEvent);
+
+            if (this._isLogined) {
+                try {
+                    connection.subscribe(subscribeEvent);
+                    this._subscribeEvents.push(subscribeEvent)
+                } catch (error) {
+                    this._pendingSubscribeEvents.push(subscribeEvent);
+                    this.onOkexConnectionClosed();
+                }
+            } else {
+                this._pendingSubscribeEvents.push(subscribeEvent);
+            }
         }
 
         return subscribeEvent;
@@ -99,16 +102,18 @@ class WalletMonitor {
         console.log("unmonit:");
         const connection = this._checkOkexConnection();
         const subscribeEvent = "spot/account:" + currency;
-        if (this._subscribeEvents.includes(subscribeEvent)) {
-            if (this._isLogined) {
-                connection.unsubscribe(subscribeEvent);
+        if (connection) {
+            if (this._subscribeEvents.includes(subscribeEvent)) {
+                if (this._isLogined) {
+                    connection.unsubscribe(subscribeEvent);
+                }
+                this._subscribeEvents.splice(this._subscribeEvents.findIndex(value => value === subscribeEvent), 1);
+            } else if (this._pendingSubscribeEvents.includes(subscribeEvent)) {
+                this._pendingSubscribeEvents.splice(this._pendingSubscribeEvents.findIndex(value => value === subscribeEvent), 1);
             }
-            this._subscribeEvents.splice(this._subscribeEvents.findIndex(value => value === subscribeEvent), 1);
-        } else if (this._pendingSubscribeEvents.includes(subscribeEvent)) {
-            this._pendingSubscribeEvents.splice(this._pendingSubscribeEvents.findIndex(value => value === subscribeEvent), 1);
         }
 
-        return "spot/account:" + currency;
+        return subscribeEvent;
     }
 
     private onOkexConnectionOpened() {
@@ -137,12 +142,14 @@ class WalletMonitor {
 
         // this._initializeSubscribes();
         const connection = this._checkOkexConnection();
-        this._pendingSubscribeEvents.forEach(eventName => {
-            console.log("[WalletMonitor] okexConnection subscribe pending:", eventName);
-            connection.subscribe(eventName);
-            this._subscribeEvents.push(eventName);
-        });
-        this._pendingSubscribeEvents = [];
+        if (connection) {
+            this._pendingSubscribeEvents.forEach(eventName => {
+                console.log("[WalletMonitor] okexConnection subscribe pending:", eventName);
+                connection.subscribe(eventName);
+                this._subscribeEvents.push(eventName);
+            });
+            this._pendingSubscribeEvents = [];
+        }
     }
 
     private onOkexConnectionMessage(data: any) {
@@ -154,6 +161,7 @@ class WalletMonitor {
                     this.onOkexConnectionLogined();
                 } else if (jsonData.event === "error") {
                     console.log("[WalletMonitor] okexConnection error:", jsonData.errorCode, jsonData.message);
+                    this._isValidable = false;
                 } else {
                     console.log("[WalletMonitor] okexConnection message:", jsonData.event, jsonData.channel);
                 }

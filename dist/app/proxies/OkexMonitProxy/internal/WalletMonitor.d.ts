@@ -6,6 +6,7 @@ declare class WalletMonitor {
     private connection?;
     private _expiredTimeoutHandler?;
     private _isLogined;
+    private _isValidable;
     private _subscribeEvents;
     private _pendingSubscribeEvents;
     constructor(httpKey: string, httpSecret: string, passphrase: string);

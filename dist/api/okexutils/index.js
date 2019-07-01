@@ -69,7 +69,7 @@ function getWallet(data) {
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
-            Utils_1.apiFailure(error.toString());
+            return Utils_1.apiFailure(error.toString());
         }
     });
 }
@@ -84,7 +84,7 @@ function getWalletList(data) {
             return Utils_1.apiSuccess(resp);
         }
         catch (error) {
-            Utils_1.apiFailure(error.toString());
+            return Utils_1.apiFailure(error.toString());
         }
     });
 }

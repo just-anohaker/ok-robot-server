@@ -39,6 +39,7 @@ class DepthMonitor {
     private authClient: any;
     private _expiredTimeoutHandler?: NodeJS.Timeout;
     private _isLogined = false;
+    private _isValidable: boolean = true;
 
     private _isInitializedDataFlag = false;
     private _subscribeEvents: string[];
@@ -67,7 +68,7 @@ class DepthMonitor {
     }
 
     private _checkOkexConnection(): V3WebsocketClient {
-        if (this.connection === undefined) {
+        if (this._isValidable && this.connection === undefined) {
             this.connection = new V3WebsocketClient();
 
             this.connection.on("open",
@@ -85,7 +86,7 @@ class DepthMonitor {
 
     private _login() {
         const connection = this._checkOkexConnection();
-        if (!this._isLogined) {
+        if (connection && !this._isLogined) {
             connection.login(this.httpKey, this.httpSecret, this.passphrase);
         }
     }
@@ -210,20 +211,22 @@ class DepthMonitor {
         const connection = this._checkOkexConnection();
         const subscribeOrderEvent = ORDER_PREFIX + this._subscribeInstrumentId.toUpperCase();
         const subscribeDepthEvent = DEPTH_PREFIX + this._subscribeInstrumentId.toUpperCase();
-        if (this._isLogined) {
-            try {
-                connection.subscribe(subscribeOrderEvent);
-                connection.subscribe(subscribeDepthEvent);
-                this._subscribeEvents.push(subscribeOrderEvent);
-                this._subscribeEvents.push(subscribeDepthEvent);
-            } catch (error) {
+        if (connection) {
+            if (this._isLogined) {
+                try {
+                    connection.subscribe(subscribeOrderEvent);
+                    connection.subscribe(subscribeDepthEvent);
+                    this._subscribeEvents.push(subscribeOrderEvent);
+                    this._subscribeEvents.push(subscribeDepthEvent);
+                } catch (error) {
+                    this._pendingSubscribeEvents.push(subscribeOrderEvent);
+                    this._pendingSubscribeEvents.push(subscribeDepthEvent);
+                    this.onOkexConnectionClosed();
+                }
+            } else {
                 this._pendingSubscribeEvents.push(subscribeOrderEvent);
                 this._pendingSubscribeEvents.push(subscribeDepthEvent);
-                this.onOkexConnectionClosed();
             }
-        } else {
-            this._pendingSubscribeEvents.push(subscribeOrderEvent);
-            this._pendingSubscribeEvents.push(subscribeDepthEvent);
         }
     }
 
@@ -235,12 +238,14 @@ class DepthMonitor {
     async _uninitializeSubscribes() {
         const connection = this._checkOkexConnection();
         console.log("_uninitializeSubscribes:", connection.toString(), this._isLogined, this._subscribeEvents);
-        if (this._isLogined) {
-            this._subscribeEvents.forEach(subscribeEventName => {
-                connection.unsubscribe(subscribeEventName);
-            });
-            // TODO
-            this._subscribeEvents = [];
+        if (connection) {
+            if (this._isLogined) {
+                this._subscribeEvents.forEach(subscribeEventName => {
+                    connection.unsubscribe(subscribeEventName);
+                });
+                // TODO
+                this._subscribeEvents = [];
+            }
         }
     }
 
@@ -295,6 +300,7 @@ class DepthMonitor {
                     this.onOkexConnectionLogined();
                 } else if (jsonData.event === "error") {
                     console.log("[DepthMonitor] okexConnection error:", jsonData.errorCode, jsonData.message);
+                    this._isValidable = false;
                 } else {
                     console.log("[DepthMonitor] okexConnection message:", jsonData.event, jsonData.channel);
                 }

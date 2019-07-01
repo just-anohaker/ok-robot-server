@@ -7,6 +7,7 @@ declare class DepthMonitor {
     private authClient;
     private _expiredTimeoutHandler?;
     private _isLogined;
+    private _isValidable;
     private _isInitializedDataFlag;
     private _subscribeEvents;
     private _pendingSubscribeEvents;

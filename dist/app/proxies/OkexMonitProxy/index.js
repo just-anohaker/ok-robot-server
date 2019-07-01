@@ -20,6 +20,7 @@ const ExpiredTimeout = 30000;
 class OkexMonitProxy extends Proxy_1.default {
     constructor() {
         super(OkexMonitProxy.NAME);
+        this._isValidable = true;
         this._registerChannels = new Map();
         this._okexDepthMonitor = [];
         this._okexWalletMonitor = [];
@@ -52,7 +53,7 @@ class OkexMonitProxy extends Proxy_1.default {
         }
     }
     _checkOkexConnection() {
-        if (this._okexConnection === undefined) {
+        if (this._isValidable && this._okexConnection === undefined) {
             this._okexConnection = new okex_node_1.V3WebsocketClient();
             this._okexConnection.on("open", () => this.onOkexConnectionOpened());
             this._okexConnection.on("close", () => this.onOkexConnectionClosed());
@@ -82,33 +83,37 @@ class OkexMonitProxy extends Proxy_1.default {
     }
     monitChannel(channelName) {
         const okexConnection = this._checkOkexConnection();
-        if (!this._registerChannels.has(channelName) ||
-            this._registerChannels.get(channelName) === false) {
-            try {
-                okexConnection.subscribe(channelName);
-                this._registerChannels.set(channelName, true);
-                console.log(`[OkexMonitProxy] subscribe(${channelName}) success.`);
-            }
-            catch (error) {
-                console.log(`[OkexMonitProxy] subscribe(${channelName}) failure, exception: ${error}.`);
-                this.onOkexConnectionClosed();
-                throw error;
+        if (okexConnection) {
+            if (!this._registerChannels.has(channelName) ||
+                this._registerChannels.get(channelName) === false) {
+                try {
+                    okexConnection.subscribe(channelName);
+                    this._registerChannels.set(channelName, true);
+                    console.log(`[OkexMonitProxy] subscribe(${channelName}) success.`);
+                }
+                catch (error) {
+                    console.log(`[OkexMonitProxy] subscribe(${channelName}) failure, exception: ${error}.`);
+                    this.onOkexConnectionClosed();
+                    throw error;
+                }
             }
         }
         return channelName;
     }
     unmonitChannel(channelName) {
         const okexConnection = this._checkOkexConnection();
-        if (this._registerChannels.has(channelName) &&
-            this._registerChannels.get(channelName) === true) {
-            try {
-                okexConnection.unsubscribe(channelName);
-                this._registerChannels.set(channelName, false);
-                console.log(`[OkexMonitProxy] unsubscribe(${channelName}) success.`);
-            }
-            catch (error) {
-                console.log(`[OkexMonitProxy] unsubscribe(${channelName}) failure, exception: ${error}.`);
-                throw error;
+        if (okexConnection) {
+            if (this._registerChannels.has(channelName) &&
+                this._registerChannels.get(channelName) === true) {
+                try {
+                    okexConnection.unsubscribe(channelName);
+                    this._registerChannels.set(channelName, false);
+                    console.log(`[OkexMonitProxy] unsubscribe(${channelName}) success.`);
+                }
+                catch (error) {
+                    console.log(`[OkexMonitProxy] unsubscribe(${channelName}) failure, exception: ${error}.`);
+                    throw error;
+                }
             }
         }
         return channelName;
@@ -184,6 +189,7 @@ class OkexMonitProxy extends Proxy_1.default {
                 }
                 else if (jsonData.event === "error") {
                     console.log("[OkexMonitProxy] okexConnection error:", jsonData.errorCode, jsonData.message);
+                    this._isValidable = false;
                 }
                 else {
                     console.log("[OkexMonitProxy] okexConnection message:", jsonData.event, jsonData.channel);
