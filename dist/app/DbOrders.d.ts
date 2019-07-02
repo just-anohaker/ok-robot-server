@@ -9,5 +9,6 @@ export declare class DbOrders {
     update(sql: any, params: any): boolean;
     updateAllInfo(params: any): boolean;
     add(newOrder: Order): boolean;
+    addInMonitor(newOrder: Order): boolean;
     addBatchOrder(newOrder: Order): boolean;
 }

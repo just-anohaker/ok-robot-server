@@ -52,11 +52,21 @@ async function optionAndAccount(): Promise<APIReturn> {
         return apiFailure(error.toString());
     }
 }
+async function getOrderInfo(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = ProxyHelper.AutoMakerProxy.getOrderInfo(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
 
 export default {
     init,
     start,
     stop,
     isrunning,
-    optionAndAccount
+    optionAndAccount,
+    getOrderInfo
+
 }

@@ -29,7 +29,11 @@ class AutoMakerProxy extends Proxy {
     isRunning(): boolean {
         return autoMaker.isRunning();
     }
-
+    getOrderInfo(options: any /* AutoMakerOptions*/, account: any /*OKexAccount*/): any {
+        console.log("getOrderInfo")
+        return autoMaker.getOrderInfo(options, account)
+    }
+    
     get OptionsAndAccount(): { options: any /*AutoMakerOptions*/; account: any /*OKexAccount*/ } | undefined {
         let p = autoMaker.getParamsAndAcct()
         return {

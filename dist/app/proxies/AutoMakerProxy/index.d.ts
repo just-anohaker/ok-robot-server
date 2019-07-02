@@ -7,6 +7,7 @@ declare class AutoMakerProxy extends Proxy {
     stop(): boolean;
     start(): boolean;
     isRunning(): boolean;
+    getOrderInfo(options: any, account: any): any;
     readonly OptionsAndAccount: {
         options: any;
         account: any;

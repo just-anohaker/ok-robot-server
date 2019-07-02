@@ -33,7 +33,8 @@ class AutoMakerAPI implements IHttp, ISockerIO {
         router.post("/api/auto_maker/stop", this.stopAutoMaker);
         router.post("/api/auto_maker/isRunning", this.isAutoMakerRunning);
         router.get("/api/auto_maker", this.getAutoMakerOptionsAndAccount);
-
+        router.post("/api/auto_maker/getOrderInfo", this.getOrderInfo);
+        
         this._http!.use(router.routes());
     }
 
@@ -66,7 +67,10 @@ class AutoMakerAPI implements IHttp, ISockerIO {
     private getAutoMakerOptionsAndAccount = async (ctx: Koa.Context) => {
         koaResponse(ctx, await apiAutoMaker.optionAndAccount());
     }
-
+    private getOrderInfo = async (ctx: Koa.Context) => {
+        koaResponse(ctx, await apiAutoMaker.getOrderInfo(ctx.body || {}));
+    }
+    
     private onNotification = (notification: INotification): void => {
         console.log("[AutoMakerAPI] onNotification:", notification.getName());
         this._io!.emit(notification.getName(), notification.getBody());

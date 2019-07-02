@@ -60,11 +60,21 @@ declare function getParamsAndAcct(): {
     params: any;
     acct: any;
 };
+/***
+ * {params:{state:'-1' ,limit: 2,offset: 0},
+ * acct:{}
+ * }
+ */
+declare function getOrderInfo(_params: any, _acct: any): {
+    list: any;
+    count: any;
+};
 declare const _default: {
     initAutoMaker: typeof initAutoMaker;
     startAutoTrade: typeof startAutoTrade;
     stopAutoTrade: typeof stopAutoTrade;
     isRunning: typeof isRunning;
     getParamsAndAcct: typeof getParamsAndAcct;
+    getOrderInfo: typeof getOrderInfo;
 };
 export default _default;

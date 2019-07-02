@@ -25,6 +25,10 @@ class AutoMakerProxy extends Proxy_1.default {
     isRunning() {
         return autoMaker_1.default.isRunning();
     }
+    getOrderInfo(options /* AutoMakerOptions*/, account /*OKexAccount*/) {
+        console.log("getOrderInfo");
+        return autoMaker_1.default.getOrderInfo(options, account);
+    }
     get OptionsAndAccount() {
         let p = autoMaker_1.default.getParamsAndAcct();
         return {

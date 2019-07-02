@@ -72,10 +72,22 @@ function optionAndAccount() {
         }
     });
 }
+function getOrderInfo(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = Utils_1.ProxyHelper.AutoMakerProxy.getOrderInfo(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     init,
     start,
     stop,
     isrunning,
-    optionAndAccount
+    optionAndAccount,
+    getOrderInfo
 };

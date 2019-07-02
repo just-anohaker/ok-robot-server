@@ -98,6 +98,28 @@ export class DbOrders {
         }
         return success;
     }
+    addInMonitor(newOrder: Order): boolean {
+        let success = true;
+        try {
+            const stmt = this.handler.prepare(
+                `INSERT INTO orders (order_id,client_oid,   filled_notional, filled_size
+                                     , instrument_id, notional, order_type, price, side, size, status, state
+                                    , timestamp, type, acct_key)
+                                VALUES ($order_id, $client_oid,  $filled_notional, $filled_size
+                                    , $instrument_id, $notional, $order_type, $price 
+                                    ,  $side, $size, $status, $state
+                                    , $timestamp, $type,$acct_key);`);
+            newOrder.acct_key = this.acct.httpkey
+            const runResult = stmt.run(newOrder);
+            if (runResult.changes <= 0) {
+                success = false;
+            }
+        } catch (error) {
+            success = false;
+            console.log("[addorders] ", error);
+        }
+        return success;
+    }
     addBatchOrder(newOrder: Order): boolean {
         let success = true;
         try {

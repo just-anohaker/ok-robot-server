@@ -144,7 +144,6 @@ class AccountInfo {
         }));
         this.event.on(config.channel_order, (info => {
             var d = info.data[0];
-            // console.log("订单情况:"+JSON.stringify(d) );  
             // if(d.state == -1 ){
             //     console.log("订单监听:撤单成功---"+JSON.stringify(d.order_id) );  
             // }else if(d.state == 0 ){
@@ -153,6 +152,16 @@ class AccountInfo {
             if (d.state == -1 || d.state == 2) { //撤单成功或者完全成交
                 if (this.pendingOrders.has(d.order_id)) {
                     this.pendingOrders.delete(d.order_id);
+                }
+                if (d.state == -1 && d.client_oid.substring(0, 1) == config.orderType.autoMaker) {
+                    console.log("订单监听 state= -1:" + JSON.stringify(d));
+                    // d.created_at  ="",  d.funds="", d.price_avg="",  d.product_id="",d.acct_key = this.httpkey;
+                    if (this.order_db.getOrderByOrderId(d.order_id).length < 1) {
+                        this.order_db.addInMonitor(d);
+                    }
+                    else {
+                        this.order_db.updateAllInfo(d);
+                    }
                 }
             }
             else if (d.state == 0 || d.state == 1) { //部分成交或者等待成交的单子

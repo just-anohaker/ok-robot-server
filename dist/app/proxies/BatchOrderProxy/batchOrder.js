@@ -462,7 +462,8 @@ function stopDepInfo(params) {
 function getOrderData(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
         const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
-        params.state = 2;
+        if (params.state == undefined)
+            params.state = 2;
         let result;
         try {
             result = yield authClient.spot().getOrders(params);

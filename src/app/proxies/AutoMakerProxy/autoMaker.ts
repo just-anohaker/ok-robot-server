@@ -6,6 +6,8 @@ import acctInfo, { AccountInfo } from "../../acctInfo2";
 var config = require('../../config');
 // var publicInfo = require('../../publicInfo');
 import publicInfo from "../../publicInfo";
+import Database from "../../../sqlite3";
+import { DbOrders } from "../../DbOrders";
 let authClient;
 
 let orderData = new Map();
@@ -207,8 +209,27 @@ function startTakeOrder() {
 
     }, params.intervalTime)
 }
-
-
+/***
+ * {params:{state:'-1' ,limit: 2,offset: 0}, 
+ * acct:{}
+ * }
+ */
+function getOrderInfo(_params,_acct){
+     let sql = `select * from orders where state = $state and acct_key = $acct_key  and instrument_id =$instrument_id order by order_id desc limit $limit offset $offset ;`
+     let sql_count = `select count(1) as count from orders where state = $state and acct_key = $acct_key and instrument_id =$instrument_id ;`
+     const order_db = new DbOrders(Database.getInstance().Sqlite3Handler, { 'httpkey':_acct.httpkey});
+     _params.acct_key =_acct.httpkey
+     let res = order_db.getOrders(sql, _params);
+     let res_count = order_db.getOrders(sql_count, _params);
+    
+    // console.log("getOrderInfo res_count", res_count[0].count)
+    // console.log("getOrderInfo",res)
+     return {
+         list:res,
+         count: res_count[0].count
+     }
+    //let res = order_db.getOrders(sql, { state: params.state });
+}
 
 // initAutoMaker({intervalTime:5*1000},{httpkey:config.httpkey,
 //     httpsecret:config.httpsecret, passphrase:config.passphrase});
@@ -218,5 +239,6 @@ export default {
     startAutoTrade,
     stopAutoTrade,
     isRunning,
-    getParamsAndAcct
+    getParamsAndAcct,
+    getOrderInfo
 }
