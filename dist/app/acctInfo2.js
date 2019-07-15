@@ -140,6 +140,7 @@ class AccountInfo {
         this.event.on(config.channel_ticker, (info => {
             var d = info.data[0];
             this.tickerData = d;
+            //console.log("tickerData---"+d.instrument_id + `买一 ` + d.best_bid + ' 卖一 ' + d.best_ask );  
             this.event.emit("ticker", d);
         }));
         this.event.on(config.channel_order, (info => {
@@ -312,6 +313,12 @@ class AccountInfo {
         let orderMap = new Map();
         console.log("order_interval", order_interval);
         this.interval_autoMaker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+            let t = new Date(this.tickerData.timestamp).getTime();
+            // console.log( Math.abs(Date.now() - t) )
+            if (this.tickerData && Math.abs(Date.now() - t) > 10 * 1000) {
+                console.log("无法刷量下单! ticker data time exceed", Math.abs(Date.now() - t) / 1000, "s");
+                return;
+            }
             if (this.tickerData && Number(this.tickerData.best_ask) - Number(this.tickerData.best_bid) > 0.00019) { //TODO 确认tickerdata 短期内有更新  TODO 精度确认
                 // var instrument_id = tickerData.instrument_id
                 // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
@@ -355,7 +362,7 @@ class AccountInfo {
                 order_array.push(toOrder);
                 order_array.push(toTaker);
                 let batch_o = yield this.authClient.spot().postBatchOrders(order_array);
-                console.log("下单 ---", JSON.stringify(order_array));
+                // console.log("下单 ---", JSON.stringify(order_array))
                 let order_ids = [];
                 batch_o[this.instrument_id.toLowerCase()].forEach(function (ele) {
                     //  console.log("interval_autoMaker" + ele.result + "---" + ele.order_id)
@@ -365,7 +372,7 @@ class AccountInfo {
                 });
                 // console.log("撤单 ---", JSON.stringify(order_ids))
                 let result = yield this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': this.instrument_id, 'order_ids': order_ids }]);
-                console.log("撤单 ---后o2", JSON.stringify(result));
+                // console.log("撤单 ---后o2", JSON.stringify(result))
             }
             else {
                 this.tickerData == undefined ? console.log("无法获取当前盘口价格!")

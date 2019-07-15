@@ -169,6 +169,12 @@ async function rangeTrading(params, acct) {
 
     if (interval_rangeTaker != undefined) return
     interval_rangeTaker = setInterval(async () => {
+        let t=new Date(pci.tickerData.timestamp).getTime();
+         // console.log( Math.abs(Date.now() - t) )
+         if(pci.tickerData &&  Math.abs(Date.now() - t) > 10*1000){
+             console.log("无法自动补单! ticker data time exceed ",Math.abs(Date.now() - t), "s")
+             return 
+         }
         if (pci.asks && pci.bids) {
             let asks = pci.asks.slice(params.distance, params.distance + 1);
             let bids = pci.bids.slice(params.distance, params.distance + 1);
@@ -213,7 +219,7 @@ async function rangeTrading(params, acct) {
                 }
             }
             let orderss = asks_o.concat(bids_o)
-
+            console.log("market orders price:",JSON.stringify(orderss.map(x=>x.price)));
             try {
                 authClient.spot().postBatchOrders(orderss).then(async batch_o => {
                     let order_ids = []
@@ -225,7 +231,7 @@ async function rangeTrading(params, acct) {
                         }
                     })
                     await sleep(200)
-                    // console.log("下单 orderss---", JSON.stringify(orderss))
+                   // console.log("下单 orderss---", JSON.stringify(orderss))
                     try {
                         authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': order_ids }]).then(async batch_o => {
                             batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
@@ -261,23 +267,23 @@ async function rangeTrading(params, acct) {
             })
             // console.log("自动补单,取消未完成订单:", order_ids)
             if (order_ids.length <= 0) return;
-
-            try {
-                authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': order_ids }]).then(async batch_o => {
-                    batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
-                        if (ele.result == true) {//没有成功撤单就交给垃圾回收
-                            // console.log("Cancel Order ok------:" + ele.order_id)
-                            toCancel = toCancel.filter(o => o != ele.order_id)
-                        }
-                    })
-                });
-            } catch (error) {
-                console.log("CancelBatchOrders orderss interval_canelOrder " + error)
+            for (let j = 0; j < order_ids.length; j += 10) {
+                let tmp = order_ids.slice(j, j + 10)
+                let batch_o = await authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]);
+                batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                    if (ele.result == true) {//没有成功撤单就交给垃圾回收
+                        // console.log("Cancel Order ok------:" + ele.order_id)
+                        toCancel = toCancel.filter(o => o != ele.order_id)
+                    }
+                })
+                await sleep(50);//每秒20次 限制是每2秒50次
+               // console.log("撤消订单 only maker---" + JSON.stringify(batch_o))//
             }
+     
         } catch (e) {
-            console.log(e)
+            console.log(e+ '')
         }
-    }, 10 * 1000);
+    }, 3 * 1000);
 }
 /**********  稳定市价  end  ***********************/
 export default {
