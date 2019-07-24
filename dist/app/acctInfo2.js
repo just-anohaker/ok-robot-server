@@ -172,6 +172,7 @@ class AccountInfo {
             //console.log(d.instrument_id+`买一 `+d.best_bid + ' 卖一 ' +d.best_ask + ' 最新成交价:'+d.last  );  
             //orderPrice.set()
         }));
+        let in_flag = false;
         this.event.on(config.channel_depth, (info => {
             var d = info.data[0];
             if (!this.asks) {
@@ -222,15 +223,21 @@ class AccountInfo {
                     }
                 });
             }
-            if (this.checksum(this.asks, this.bids) != d.checksum) {
-                console.log("checksum error unsubscribe channel_depth ", this.instrument_id);
-                this.wss.unsubscribe(config.channel_depth + ':' + this.instrument_id);
-                this.asks = undefined;
-                this.bids = undefined;
-                this.sleep(2000);
-                console.log("checksum  resubscribe channel_depth ", this.instrument_id);
-                this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
-                return;
+            if (this.checksum(this.asks, this.bids) != d.checksum && !in_flag) { //this.checksum(this.asks, this.bids) != d.checksum
+                console.log("checksum error unsubscribe channel_depth ", this.instrument_id, Date.now());
+                const resubscribe = () => __awaiter(this, void 0, void 0, function* () {
+                    // await this.sleep(30*1000)
+                    in_flag = true;
+                    this.wss.unsubscribe(config.channel_depth + ':' + this.instrument_id);
+                    yield this.sleep(5 * 1000);
+                    console.log("checksum  resubscribe channel_depth ", this.instrument_id, Date.now());
+                    this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
+                    this.asks = undefined;
+                    this.bids = undefined;
+                    //await this.sleep(30*1000)
+                    in_flag = false;
+                });
+                resubscribe();
             }
             if (sendDepthTime == undefined || Date.now() - sendDepthTime > config.SendDepTime) {
                 this.orderPrice.clear();
@@ -273,7 +280,7 @@ class AccountInfo {
                     "asks": tem_a,
                     "bids": tem_b
                 });
-                //  console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
+                //console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
                 //  console.log("bids:", JSON.stringify(tem_b.slice(0, 5)))
             }
         }));
@@ -411,6 +418,8 @@ class AccountInfo {
     stopAutoMaker() {
         clearInterval(this.interval_autoMaker);
         clearInterval(this.interval_reconnet);
+        this.asks = undefined;
+        this.bids = undefined;
         this.interval_autoMaker = undefined;
     }
     isAutoMaker() {

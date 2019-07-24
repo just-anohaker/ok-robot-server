@@ -3,6 +3,7 @@ const { V3WebsocketClient } = require('@okfe/okex-node');
 const { PublicClient } = require('@okfe/okex-node');
 var config = require('./config');
 let publics = new Map();
+var CRC32 = require('crc-32');   
 let channel;
 async function initPublicInfo(pamams): Promise<PublicInfo> {
     if (publics.has(pamams.instrument_id)) {
@@ -81,6 +82,7 @@ export class PublicInfo {
             var d = info.data[0];
             this.tickerData = d
         }))
+        let in_flag = false;
         this.event.on(config.channel_depth, (info => {
             var d = info.data[0];
             if (!this.asks) {
@@ -126,7 +128,25 @@ export class PublicInfo {
                         this.bids.push(new_d)
                     }
                 })
+
+                if (this.checksum(this.asks, this.bids) != d.checksum && !in_flag) {//this.checksum(this.asks, this.bids) != d.checksum
+                    console.log("checksum error unsubscribe channel_depth ", this.instrument_id, Date.now())
+                    const resubscribe = async () => {
+                        // await this.sleep(30*1000)
+                        in_flag = true;
+                        this.wss.unsubscribe(config.channel_depth + ':' + this.instrument_id);
+                        await this.sleep(5 * 1000)
+                        console.log("checksum  resubscribe channel_depth ", this.instrument_id, Date.now())
+                        this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
+                        this.asks = undefined;
+                        this.bids = undefined;
+                        //await this.sleep(30*1000)
+                        in_flag = false;
+                    };
+                    resubscribe();
+                }
             }
+
         }))
         let ins = await this.pClient.spot().getSpotInstruments();
         ins.forEach(element => {
@@ -139,9 +159,16 @@ export class PublicInfo {
     }
     stopWebsocket() {
         this.wss.close();
+        this.asks = undefined;
+        this.bids = undefined;
         clearInterval(this.interval_reconnet)
     }
-
+    checksum(asks,bids){
+        let tempa= asks.slice(0,25);
+        let tempb= bids.slice(0,25);
+        let arr = tempb.map((x,index )=> tempb[index][0]+":"+tempb[index][1] +":"+tempa[index][0]+":"+tempa[index][1]);
+       return CRC32.str( arr.join(":"))    
+    }
     startWebsocket() {
         if (this.isClosed == false) {
             return

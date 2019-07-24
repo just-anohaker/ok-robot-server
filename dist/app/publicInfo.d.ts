@@ -15,6 +15,7 @@ export declare class PublicInfo {
     constructor(instrument_id: any);
     initData(): Promise<void>;
     stopWebsocket(): void;
+    checksum(asks: any, bids: any): any;
     startWebsocket(): void;
     sleep(ms: any): Promise<unknown>;
     isStoped(): any;

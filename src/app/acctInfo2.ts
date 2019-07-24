@@ -181,7 +181,8 @@ export class AccountInfo {
 
             //orderPrice.set()
         }))
-        this.event.on(config.channel_depth, (info => {
+        let in_flag = false;
+        this.event.on(config.channel_depth, (  info => {
             var d = info.data[0];
             if (!this.asks) {
                 this.asks = d.asks;
@@ -228,15 +229,21 @@ export class AccountInfo {
                 })
             }
             
-            if(this.checksum(this.asks,this.bids)!=d.checksum){
-                console.log("checksum error unsubscribe channel_depth ",this.instrument_id )
-                this.wss.unsubscribe(config.channel_depth + ':' + this.instrument_id);
-                this.asks = undefined;
-                this.bids = undefined;
-                this.sleep(2000)
-                console.log("checksum  resubscribe channel_depth ",this.instrument_id )
-                this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
-                return
+            if (this.checksum(this.asks, this.bids) != d.checksum && !in_flag) {//this.checksum(this.asks, this.bids) != d.checksum
+                console.log("checksum error unsubscribe channel_depth ", this.instrument_id, Date.now())
+                const resubscribe = async () => {
+                    // await this.sleep(30*1000)
+                    in_flag = true;
+                    this.wss.unsubscribe(config.channel_depth + ':' + this.instrument_id);
+                    await this.sleep(5 * 1000)
+                    console.log("checksum  resubscribe channel_depth ", this.instrument_id, Date.now())
+                    this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
+                    this.asks = undefined;
+                    this.bids = undefined;
+                    //await this.sleep(30*1000)
+                    in_flag = false;
+                };
+                resubscribe();
             }
             if (sendDepthTime == undefined || Date.now() - sendDepthTime > config.SendDepTime) {
                 this.orderPrice.clear();
@@ -279,7 +286,7 @@ export class AccountInfo {
                     "bids": tem_b
                 });
 
-                //  console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
+                 //console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
                 //  console.log("bids:", JSON.stringify(tem_b.slice(0, 5)))
             }
 
@@ -415,6 +422,8 @@ export class AccountInfo {
     stopAutoMaker() {
         clearInterval(this.interval_autoMaker)
         clearInterval(this.interval_reconnet)
+        this.asks = undefined;
+        this.bids = undefined;
         this.interval_autoMaker = undefined;
     }
     isAutoMaker() {
