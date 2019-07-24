@@ -166,10 +166,12 @@ function getRandomIntInclusive(min, max) {
 }
 /* params:
 * {
+* type // 1 双边，2 买方 ，3 卖方
 * distance  //盘口距离
 * startSize //开始数量
 * topSize //最大数量
 * countPerM //每分钟挂撤次数
+* count //随机个数
 * }
 * acct:{}
 * */
@@ -183,8 +185,8 @@ function rangeTrading(params, acct) {
         interval_rangeTaker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
             let t = new Date(pci.tickerData.timestamp).getTime();
             // console.log( Math.abs(Date.now() - t) )
-            if (pci.tickerData && Math.abs(Date.now() - t) > 10 * 1000) {
-                console.log("无法自动补单! ticker data time exceed ", Math.abs(Date.now() - t), "s");
+            if (pci.tickerData && Math.abs(Date.now() - t) > 60 * 1000) {
+                console.log("无法自动补单! ticker data time exceed ", Math.abs(Date.now() - t) / 1000, "s");
                 return;
             }
             if (pci.asks && pci.bids) {
@@ -221,8 +223,18 @@ function rangeTrading(params, acct) {
                 }
                 let asks_o = new Array();
                 let bids_o = new Array();
-                for (let j = 0; j < 10; j++) {
-                    let randInt = getRandomIntInclusive(0, 19);
+                params.count = params.count < 10 ? params.count : 10;
+                for (let j = 0; j < params.count; j++) {
+                    let randInt = 1;
+                    if (params.type == 1) {
+                        randInt = getRandomIntInclusive(0, 19);
+                    }
+                    else if (params.type == 2) {
+                        randInt = getRandomIntInclusive(0, 9);
+                    }
+                    else if (params.type == 3) {
+                        randInt = getRandomIntInclusive(10, 19);
+                    }
                     if (randInt < 10) {
                         bids_o = bids_o.concat(bids_orders.slice(randInt, randInt + 1));
                     }
@@ -243,7 +255,8 @@ function rangeTrading(params, acct) {
                                 toCancel.push(ele.order_id);
                             }
                         });
-                        yield sleep(200);
+                        let randSleepT = getRandomIntInclusive(0, 400);
+                        yield sleep(randSleepT);
                         // console.log("下单 orderss---", JSON.stringify(orderss))
                         try {
                             authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': order_ids }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {

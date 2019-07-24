@@ -26,6 +26,7 @@ export declare class AccountInfo {
     stopWebsocket(): void;
     initData(): void;
     startWebsocket(): void;
+    checksum(asks: any, bids: any): any;
     sleep(ms: any): Promise<unknown>;
     getRandomIntInclusive(min: any, max: any): any;
     getRandomArbitrary(min: any, max: any): any;

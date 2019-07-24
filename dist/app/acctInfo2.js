@@ -19,6 +19,7 @@ var config = require('./config');
 const sqlite3_1 = __importDefault(require("./../sqlite3"));
 const DbOrders_1 = require("./DbOrders");
 const __1 = require("./..");
+var CRC32 = require('crc-32');
 let accouts = new Map();
 function acctInfo(pamams) {
     if (accouts.has(pamams.instrument_id + pamams.httpkey)) {
@@ -221,6 +222,16 @@ class AccountInfo {
                     }
                 });
             }
+            if (this.checksum(this.asks, this.bids) != d.checksum) {
+                console.log("checksum error unsubscribe channel_depth ", this.instrument_id);
+                this.wss.unsubscribe(config.channel_depth + ':' + this.instrument_id);
+                this.asks = undefined;
+                this.bids = undefined;
+                this.sleep(2000);
+                console.log("checksum  resubscribe channel_depth ", this.instrument_id);
+                this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
+                return;
+            }
             if (sendDepthTime == undefined || Date.now() - sendDepthTime > config.SendDepTime) {
                 this.orderPrice.clear();
                 //合并订单价格
@@ -237,12 +248,23 @@ class AccountInfo {
                 let tem_b = this.bids.slice();
                 tem_a.forEach((element, index, array) => {
                     if (this.orderPrice.has(element[0])) {
+                        if (array[index].length > 3) {
+                            console.log("before error1111", array[index]);
+                        }
+                        let tempv = Object.assign([], array[index]);
+                        tempv[3] = this.orderPrice.get(element[0]);
+                        array[index] = tempv;
                         array[index][3] = this.orderPrice.get(element[0]);
                     }
                 });
                 tem_b.forEach((element, index, array) => {
                     if (this.orderPrice.has(element[0])) {
-                        array[index][3] = this.orderPrice.get(element[0]);
+                        if (array[index].length > 3) {
+                            console.log("before error2222", array[index]);
+                        }
+                        let tempv = Object.assign([], array[index]);
+                        tempv[3] = this.orderPrice.get(element[0]);
+                        array[index] = tempv;
                     }
                 });
                 //console.log("now:", Date.now(), sendDepthTime, Date.now() - sendDepthTime)
@@ -251,8 +273,8 @@ class AccountInfo {
                     "asks": tem_a,
                     "bids": tem_b
                 });
-                // console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
-                // console.log("bids:", JSON.stringify(tem_b.slice(0, 5)))
+                //  console.log("asks:", JSON.stringify(tem_a.slice(0, 5)))
+                //  console.log("bids:", JSON.stringify(tem_b.slice(0, 5)))
             }
         }));
     }
@@ -262,6 +284,12 @@ class AccountInfo {
             return;
         }
         this.wss.connect();
+    }
+    checksum(asks, bids) {
+        let tempa = asks.slice(0, 25);
+        let tempb = bids.slice(0, 25);
+        let arr = tempb.map((x, index) => tempb[index][0] + ":" + tempb[index][1] + ":" + tempa[index][0] + ":" + tempa[index][1]);
+        return CRC32.str(arr.join(":"));
     }
     sleep(ms) {
         return new Promise(resolve => {
@@ -315,7 +343,7 @@ class AccountInfo {
         this.interval_autoMaker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
             let t = new Date(this.tickerData.timestamp).getTime();
             // console.log( Math.abs(Date.now() - t) )
-            if (this.tickerData && Math.abs(Date.now() - t) > 10 * 1000) {
+            if (this.tickerData && Math.abs(Date.now() - t) > 5 * 60 * 1000) {
                 console.log("无法刷量下单! ticker data time exceed", Math.abs(Date.now() - t) / 1000, "s");
                 return;
             }
