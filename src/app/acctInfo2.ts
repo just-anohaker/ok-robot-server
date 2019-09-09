@@ -352,72 +352,92 @@ export class AccountInfo {
             }
         }
         let order_interval = 60 * 1000 / params.countPerM
-        let orderMap = new Map();
-        console.log("order_interval", order_interval)
-        this.interval_autoMaker = setInterval(async () => {
-            let t=new Date(this.tickerData.timestamp).getTime();
-           // console.log( Math.abs(Date.now() - t) )
-            if(this.tickerData &&  Math.abs(Date.now() - t) > 5*60*1000){
-                console.log("无法刷量下单! ticker data time exceed", Math.abs(Date.now() - t)/1000,"s")
-                return 
-            }
-            if (this.tickerData && Number(this.tickerData.best_ask) - Number(this.tickerData.best_bid) > 0.00019) {//TODO 确认tickerdata 短期内有更新  TODO 精度确认
-                // var instrument_id = tickerData.instrument_id
-                // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
-                console.log("interval ---" + this.tickerData.instrument_id + `买一 ` + this.tickerData.best_bid + ' 卖一 ' + this.tickerData.best_ask);
-                let randomPrice = this.getRandomArbitrary(parseFloat(this.tickerData.best_bid) + 0.0001, parseFloat(this.tickerData.best_ask))
-                let perSize = this.getRandomArbitrary(parseFloat(params.perStartSize), parseFloat(params.perTopSize))
-
-                console.log("random randomPrice ---", randomPrice)
-                let side1;
-                let side2;
-                if (params.type == 1) {
-                    side1 = 'buy';
-                    side2 = 'sell';
-                } else if (params.type == 2) {
-                    side1 = 'sell';
-                    side2 = 'buy';
-                } else if (params.type == 3) {
-                    let randomint = this.getRandomIntInclusive(0, 1);
-                    console.log("randomint ---", JSON.stringify(randomint));
-                    if (randomint == 0) {
-                        side1 = 'buy';
-                        side2 = 'sell';
-                    } else {
-                        side1 = 'sell';
-                        side2 = 'buy';
-                    }
+        // console.log("order_interval", order_interval)
+        var async_to_order =async () => {            
+            let to_wait = []
+            for (let i =0;i<params.countPerM;i++){//in range( params['countPerM']):#一分钟内随机时间
+                 let ranint = this.getRandomIntInclusive(1,order_interval)
+                let j = i - 1
+                if (j >= 0){
+                    to_wait.push([order_interval-to_wait[j][1],ranint])
+                }else{
+                    to_wait.push([0,ranint])
                 }
-                let toOrder = {
-                    'type': 'limit', 'side': side1,
-                    'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.orderType.autoMaker + Date.now() + 'M',
-                    'price': randomPrice, 'margin_trading': 1, 'order_type': '0'
-                };
-                let toTaker = {
-                    'type': 'limit', 'side': side2,
-                    'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.orderType.autoMaker + Date.now() + 'T',
-                    'price': randomPrice, 'margin_trading': 1, 'order_type': '3'//立即成交并取消剩余（IOC）
-                };
-                let order_array = new Array();
-                order_array.push(toOrder);
-                order_array.push(toTaker);
-                let batch_o = await this.authClient.spot().postBatchOrders(order_array);
-               // console.log("下单 ---", JSON.stringify(order_array))
-                let order_ids = []
-                batch_o[this.instrument_id.toLowerCase()].forEach(function (ele) {
-                    //  console.log("interval_autoMaker" + ele.result + "---" + ele.order_id)
-                    if (ele.result) {
-                        order_ids.push(ele.order_id)
+            } 
+            for (let w = 0;w<to_wait.length;w++ ){//w in range(len(to_wait)){
+                // console.log("sleep :", (to_wait[w][0]+to_wait[w][1])/1000 ,new Date().toISOString())
+                await this.sleep(to_wait[w][0]+to_wait[w][1])
+                
+                try {
+                    let t=new Date(this.tickerData.timestamp).getTime();
+                    if(this.tickerData &&  Math.abs(Date.now() - t) > 5*60*1000){
+                        console.log("无法刷量下单! ticker data time exceed", Math.abs(Date.now() - t)/1000,"s")
+                        continue 
                     }
-                })
-                // console.log("撤单 ---", JSON.stringify(order_ids))
-                let result = await this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': this.instrument_id, 'order_ids': order_ids }]);
-               // console.log("撤单 ---后o2", JSON.stringify(result))
-            } else {
-                this.tickerData == undefined ? console.log("无法获取当前盘口价格!")
-                    : console.log("无法刷量下单!", this.tickerData.best_bid, this.tickerData.best_ask)
+                    if (this.tickerData && Number(this.tickerData.best_ask) - Number(this.tickerData.best_bid) > 0.00019) {//TODO 确认tickerdata 短期内有更新  TODO 精度确认
+                        // var instrument_id = tickerData.instrument_id
+                        // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
+                        
+                        let randomPrice = this.getRandomArbitrary(parseFloat(this.tickerData.best_bid) + 0.0001, parseFloat(this.tickerData.best_ask))
+                        let perSize = this.getRandomArbitrary(parseFloat(params.perStartSize), parseFloat(params.perTopSize))
+                        console.log(new Date().toISOString(),"interval ---" + this.tickerData.instrument_id + `买一 ` + this.tickerData.best_bid + ' 卖一 ' + this.tickerData.best_ask,randomPrice);
+                        // console.log("random randomPrice ---", randomPrice)
+                        let side1;
+                        let side2;
+                        if (params.type == 1) {
+                            side1 = 'buy';
+                            side2 = 'sell';
+                        } else if (params.type == 2) {
+                            side1 = 'sell';
+                            side2 = 'buy';
+                        } else if (params.type == 3) {
+                            let randomint = this.getRandomIntInclusive(0, 1);
+                            console.log("randomint ---", JSON.stringify(randomint));
+                            if (randomint == 0) {
+                                side1 = 'buy';
+                                side2 = 'sell';
+                            } else {
+                                side1 = 'sell';
+                                side2 = 'buy';
+                            }
+                        }
+                        let toOrder = {
+                            'type': 'limit', 'side': side1,
+                            'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.orderType.autoMaker + Date.now() + 'M',
+                            'price': randomPrice, 'margin_trading': 1, 'order_type': '0'
+                        };
+                        let toTaker = {
+                            'type': 'limit', 'side': side2,
+                            'instrument_id': this.instrument_id, 'size': perSize, 'client_oid': config.orderType.autoMaker + Date.now() + 'T',
+                            'price': randomPrice, 'margin_trading': 1, 'order_type': '3'//立即成交并取消剩余（IOC）
+                        };
+                        let order_array = new Array();
+                        order_array.push(toOrder);
+                        order_array.push(toTaker);
+                        let batch_o = await this.authClient.spot().postBatchOrders(order_array);
+                        // console.log("下单 ---:", new Date().toISOString())
+                        // console.log("下单 ---", JSON.stringify(order_array))
+                        let order_ids = []
+                        batch_o[this.instrument_id.toLowerCase()].forEach(function (ele) {
+                            //  console.log("interval_autoMaker" + ele.result + "---" + ele.order_id)
+                            if (ele.result) {
+                                order_ids.push(ele.order_id)
+                            }
+                        })
+                        // console.log("撤单 ---", JSON.stringify(order_ids))
+                        await this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': this.instrument_id, 'order_ids': order_ids }]);
+                    // console.log("撤单 ---后o2", JSON.stringify(result))
+                    } else {
+                        this.tickerData == undefined ? console.log("无法获取当前盘口价格!")
+                            : console.log("无法刷量下单!", this.tickerData.best_bid, this.tickerData.best_ask)
+                    }
+                } catch (error) {
+                    console.log(error+'')
+                }
             }
-        }, order_interval)
+        }
+        async_to_order()
+        this.interval_autoMaker = setInterval(async_to_order, 60 * 1000)
     }
     stopAutoMaker() {
         clearInterval(this.interval_autoMaker)
