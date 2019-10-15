@@ -185,6 +185,72 @@ function getCandlesData(data) {
         }
     });
 }
+function addWarnings(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.addWarnings(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function isWarnings(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.isWarnings(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function startWarnings(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.startWarnings(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function stopWarnings(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.stopWarnings(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function removeWarnings(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.removeWarnings(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
+function listWarnings(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const resp = yield Utils_1.ProxyHelper.BatchOrderProxy.listWarnings(data.options, data.account);
+            return Utils_1.apiSuccess(resp);
+        }
+        catch (error) {
+            return Utils_1.apiFailure(error.toString());
+        }
+    });
+}
 exports.default = {
     generate,
     toBatchOrder,
@@ -197,5 +263,11 @@ exports.default = {
     pageInfo,
     pageKline,
     getTradeData,
-    getCandlesData
+    getCandlesData,
+    addWarnings,
+    removeWarnings,
+    startWarnings,
+    isWarnings,
+    stopWarnings,
+    listWarnings
 };

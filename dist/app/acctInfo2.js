@@ -48,6 +48,7 @@ class AccountInfo {
         this.passphrase = passphrase;
         this.instrument_id = instrument_id;
         this.tickerData;
+        this.tickerDataMap = new Map();
         this.bids;
         this.asks;
         this.isClosed;
@@ -137,12 +138,27 @@ class AccountInfo {
             this.wss.subscribe(config.channel_order + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_ticker + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
+            this.wss.subscribe(config.channel_ticker + ':' + "BTC-USDT");
         });
         this.event.on(config.channel_ticker, (info => {
             var d = info.data[0];
-            this.tickerData = d;
             //console.log("tickerData---"+d.instrument_id + `买一 ` + d.best_bid + ' 卖一 ' + d.best_ask );  
-            this.event.emit("ticker", d);
+            let tickerDataTmp = this.tickerDataMap.get(d.instrument_id);
+            if (tickerDataTmp && tickerDataTmp.ticker.last != d.last) { //价格有变化
+                this.tickerDataMap.set(d.instrument_id, { "ticker": d, "update_time": Date.now() });
+            }
+            else {
+                if (tickerDataTmp) {
+                    this.tickerDataMap.get(d.instrument_id).ticker = d; //价格没有变化不更新时间
+                }
+                else {
+                    this.tickerDataMap.set(d.instrument_id, { "ticker": d, "update_time": Date.now() });
+                }
+            }
+            if (d.instrument_id == this.instrument_id) {
+                this.tickerData = d;
+                this.event.emit("ticker", d);
+            }
         }));
         this.event.on(config.channel_order, (info => {
             var d = info.data[0];

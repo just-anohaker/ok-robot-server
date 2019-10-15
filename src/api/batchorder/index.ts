@@ -157,6 +157,54 @@ async function getCandlesData(data: MarkedMap): Promise<APIReturn> {
     }
 }
 
+async function addWarnings(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.addWarnings(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+async function isWarnings(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.isWarnings(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+async function startWarnings(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.startWarnings(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+async function stopWarnings(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.stopWarnings(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+async function removeWarnings(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.removeWarnings(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
+async function listWarnings(data: MarkedMap): Promise<APIReturn> {
+    try {
+        const resp = await ProxyHelper.BatchOrderProxy.listWarnings(data.options, data.account);
+        return apiSuccess(resp);
+    } catch (error) {
+        return apiFailure(error.toString());
+    }
+}
 export default {
     generate,
     toBatchOrder,
@@ -169,5 +217,11 @@ export default {
     pageInfo,
     pageKline,
     getTradeData,
-    getCandlesData
+    getCandlesData,
+    addWarnings,
+    removeWarnings,
+    startWarnings,
+    isWarnings,
+    stopWarnings,
+    listWarnings
 }

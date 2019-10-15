@@ -19,7 +19,19 @@ export const sqlTables = [
         "status" text,
         "state" text,
         "timestamp" text,
-        "type" text);`
+        "type" text);`,
+        `create table if not exists warnings (
+            "wid" text primary key,
+            "acct_key" text ,
+            "instrument_id" text ,
+            "filepath" text ,
+            "maxprice" text ,
+            "minprice" text ,
+            "utime" text ,
+            "pecent" text ,
+            "status" text,
+            "timestamp" text,
+            "type" text);`
 ];
 
 export const sqlAfterTables = [

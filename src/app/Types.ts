@@ -92,6 +92,19 @@ export interface Order {
     "type": string
 }
 
+export interface Warning {
+    'wid': String,
+    'acct_key': String,
+    'instrument_id':String,
+    'filepath': String,
+    'minprice': String,
+    'maxprice': String,
+    'utime': String,
+    'pecent': String,
+    'status': String,
+    'timestamp': String,
+    'type': String
+}
 export const NotificationDeep = "spot/depth";
 export const NotificationTicker = "spot/ticker";
 export const NotificationOrder = "spot/order";

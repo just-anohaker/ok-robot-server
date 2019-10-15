@@ -9,6 +9,7 @@ export declare class AccountInfo {
     private passphrase;
     instrument_id: any;
     tickerData: any;
+    tickerDataMap: any;
     asks: any;
     bids: any;
     isClosed: any;

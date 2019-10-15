@@ -18,6 +18,10 @@ const { AuthenticatedClient } = require('@okfe/okex-node');
 const { PublicClient } = require('@okfe/okex-node');
 const sqlite3_1 = __importDefault(require("../../../sqlite3"));
 const DbOrders_1 = require("../../DbOrders");
+const DbWarnings_1 = require("../../DbWarnings");
+const uuid_1 = __importDefault(require("uuid"));
+const __1 = require("../../..");
+const fs = require('fs');
 //let acctinfo;
 //批量挂单   生成订单  ------------------------------- batchOrder.js
 /**
@@ -213,58 +217,6 @@ function cancelBatchOrder(params, acct) {
         };
     });
 }
-//冰山委托
-/****
-  * params:
- * {
- * type   //1 买入  2 卖出
- * depth  //深度
- * size //数量
- * perSize //单笔数量
- * priceLimit //价格限制
- * instrument_id
- * }
- * acct:
- * {
- * name
- * httpkey
- * httpsecret
- * passphrase
- * }
- * return string
- */
-// function icebergOrder(params, acct) {
-//     //var pci = acctInfo(acct.httpkey, acct.httpsecret, acct.passphrase);
-//     var pci = new AccountInfo(params.instrument_id, params.httpkey, params.httpsecret, params.passphrase);
-//     pci.event.on(config.channel_ticker, (info => {
-//         var d = info.data[0];
-//         console.log(d.instrument_id + `买一  ` + d.best_bid + ' 卖一 ' + d.best_ask + ' 最新成交价======:' + d.last);
-//     }))
-//     var interval_autoMaker = setInterval(() => {
-//         if (pci.tickerData) {
-//             // var instrument_id = tickerData.instrument_id
-//             // var bid = tickerData.best_bid//买一 tickerData.best_ask//卖一
-//             console.log("interval ---" + pci.tickerData.instrument_id + `买一 ` + pci.tickerData.best_bid + ' 卖一 ' + pci.tickerData.best_ask + ' 最新成交价:' + pci.tickerData.last);
-//             // authClient.spot().postOrder({
-//             //     'type': 'limit', 'side': 'buy',
-//             //     'instrument_id': params.instrument_id, 'size': 1, 'client_oid': 'spot123',
-//             //     'price': 0.01, 'margin_trading': 1, 'order_type': '1'
-//             // }).then(res => {
-//             //     if (res.result && res.order_id) {
-//             //         authClient.spot().getOrder(res.order_id, { 'instrument_id': params.instrument_id })
-//             //             .then(res => {
-//             //                 // console.log(JSON.stringify(res));
-//             //                 console.log("下单成功---" + JSON.stringify(res))
-//             //                 orderData.set(res.order_id, res);
-//             //             });
-//             //         // console.log("下单成功---"+JSON.stringify(res))
-//             //     }
-//             // })
-//         } else {
-//             console.log("无法获取当前盘口价格!")
-//         }
-//     }, 5000)
-// }
 /***
  * params:
  * {
@@ -521,33 +473,6 @@ function getCandlesData(params) {
         };
     });
 }
-function freshOrderInfo(params, acct) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
-        let sql = `select * from orders where state != $state;`;
-        const order_db = new DbOrders_1.DbOrders(sqlite3_1.default.getInstance().Sqlite3Handler, acct);
-        let res = order_db.getOrders(sql, { state: '2' });
-        try {
-            for (var i = 0; i < res.length; i++) {
-                let o = yield authClient.spot().getOrder(res[i].order_id, { 'instrument_id': params.instrument_id });
-                if (o.length == 1) {
-                    order_db.updateAllInfo(o[0]);
-                }
-                yield sleep(100);
-            }
-        }
-        catch (error) {
-            console.log(error);
-            return {
-                result: false,
-                error_message: error
-            };
-        }
-        return {
-            result: true
-        };
-    });
-}
 /***
 * params:
  * {
@@ -563,12 +488,197 @@ function freshOrderInfo(params, acct) {
  * passphrase
  * }
  */
-function startMaker(params, acct) {
+function loadWarnings(httpkey) {
+    const warning_db = new DbWarnings_1.DbWarnings(sqlite3_1.default.getInstance().Sqlite3Handler);
+    let sql = `select * from warnings where status = $status  and acct_key = $httpkey`;
+    let wn = warning_db.getWarnings(sql, { status: "1", httpkey });
+    return wn;
+}
+let warnings_g;
+let interval_warning;
+function startWarnings(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
         acct.instrument_id = params.instrument_id;
         let acctinfo = acctInfo2_1.default.acctInfo(acct);
-        acctinfo.startAutoMaker(params);
-        return acctinfo;
+        warnings_g = loadWarnings(acct.httpkey);
+        // if (interval_rangeTaker != undefined) return
+        interval_warning = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+            let warnings = warnings_g;
+            console.log("warnings data---" + warnings.length);
+            for (let index = 0; index < warnings.length; index++) {
+                const element = warnings[index];
+                let tickdata = acctinfo.tickerDataMap.get(element.instrument_id);
+                if (!tickdata) {
+                    continue;
+                }
+                fs.exists(element.filepath, function (exists) {
+                    if (!exists) {
+                        __1.Facade.getInstance().sendNotification("warning_error" + ":" + element.instrument_id, {
+                            msg: element.filepath + " 文件不存在! ",
+                            instrument_id: element.instrument_id,
+                            type: element.type,
+                            httpkey: acct.httpkey
+                        });
+                        console.log(element.filepath, "播放文件不存在");
+                    }
+                });
+                // console.log("tickdata data---" + JSON.stringify(tickdata))
+                switch (element.type) {
+                    case "1":
+                        if (parseFloat(tickdata.ticker.last) > parseFloat(element.maxprice)) {
+                            console.log("type" + 1, "warning" + ":" + element.instrument_id);
+                            __1.Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
+                                warn: element.filepath,
+                                type: element.type,
+                                httpkey: acct.httpkey
+                            });
+                        }
+                        break;
+                    case "2":
+                        if (parseFloat(tickdata.ticker.last) < parseFloat(element.minprice)) {
+                            console.log("type" + 2, "warning" + ":" + element.instrument_id);
+                            __1.Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
+                                warn: element.filepath,
+                                type: element.type,
+                                httpkey: acct.httpkey
+                            });
+                        }
+                        break;
+                    case "3":
+                        let t = tickdata.updateTime;
+                        if (Date.now() - t > parseInt(element.utime) * 60) {
+                            console.log("type" + 3, "warning" + ":" + element.instrument_id);
+                            __1.Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
+                                warn: element.filepath,
+                                type: element.type,
+                                httpkey: acct.httpkey
+                            });
+                        }
+                        break;
+                    case "4":
+                        let minpecent = 1, maxpecent = 1;
+                        if (element.pecent) {
+                            minpecent -= parseFloat(element.pecent);
+                            maxpecent += parseFloat(element.pecent);
+                        }
+                        if (parseFloat(tickdata.ticker.last) < parseFloat(element.minprice) * minpecent ||
+                            parseFloat(tickdata.ticker.last) > parseFloat(element.maxprice) * maxpecent) {
+                            console.log("type" + 4, "warning" + ":" + element.instrument_id);
+                            __1.Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
+                                warn: element.filepath,
+                                type: element.type,
+                                httpkey: acct.httpkey
+                            });
+                        }
+                        break;
+                }
+            }
+        }), 2000);
+        return;
+    });
+}
+/**
+ * 如果有wid 那么就
+ *
+ *
+ *
+ */
+function stopWarnings(params, acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (params.wid) {
+            const warning_db = new DbWarnings_1.DbWarnings(sqlite3_1.default.getInstance().Sqlite3Handler);
+            let flag = false;
+            try {
+                let sql = `UPDATE warnings
+                        SET 
+                            status = $status
+                        WHERE  wid = $wid and acct_key = $acct_key `;
+                flag = warning_db.update(sql, { status: 0, wid: params.wid, acct_key: acct.httpkey });
+            }
+            catch (error) {
+                console.log(error);
+                return {
+                    result: false,
+                    error_message: error
+                };
+            }
+            warnings_g = loadWarnings(acct.httpkey);
+            return {
+                result: flag
+            };
+        }
+        else {
+            if (interval_warning) {
+                clearInterval(interval_warning);
+                interval_warning = undefined;
+            }
+        }
+        return {
+            result: true
+        };
+    });
+}
+function isWarnings(params, acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return interval_warning != undefined;
+    });
+}
+function listWarnings(params, acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let l = loadWarnings(acct.httpkey);
+        return l;
+    });
+}
+function removeWarnings(params, acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const warning_db = new DbWarnings_1.DbWarnings(sqlite3_1.default.getInstance().Sqlite3Handler);
+        let flag = false;
+        try {
+            flag = warning_db.remove(params.wid);
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        warnings_g = loadWarnings(acct.httpkey);
+        return {
+            result: flag
+        };
+    });
+}
+function addWarnings(params, acct) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const warning_db = new DbWarnings_1.DbWarnings(sqlite3_1.default.getInstance().Sqlite3Handler);
+        try {
+            let warning = {
+                'wid': uuid_1.default.v1(),
+                'acct_key': acct.httpkey,
+                'filepath': params.filepath,
+                'maxprice': params.maxprice,
+                'instrument_id': params.instrument_id,
+                'minprice': params.minprice,
+                'utime': params.utime,
+                'pecent': params.pecent,
+                'status': '1',
+                'timestamp': Date.now() + '',
+                'type': params.type
+            };
+            warning_db.add(warning);
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        warnings_g = loadWarnings(acct.httpkey);
+        return {
+            result: true
+        };
     });
 }
 // console.log(genBatchOrder({type:2,topPrice:0.04,startPrice:0.03,incr:0.2,size:1,sizeIncr:1},
@@ -592,5 +702,11 @@ exports.default = {
     pageInfo,
     pageKline,
     getTradeData,
-    getCandlesData
+    getCandlesData,
+    addWarnings,
+    startWarnings,
+    isWarnings,
+    stopWarnings,
+    removeWarnings,
+    listWarnings
 };

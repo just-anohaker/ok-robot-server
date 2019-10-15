@@ -61,25 +61,6 @@ declare function cancelBatchOrder(params: any, acct: any): Promise<{
     result: boolean;
     error_message?: undefined;
 }>;
-/****
-  * params:
- * {
- * type   //1 买入  2 卖出
- * depth  //深度
- * size //数量
- * perSize //单笔数量
- * priceLimit //价格限制
- * instrument_id
- * }
- * acct:
- * {
- * name
- * httpkey
- * httpsecret
- * passphrase
- * }
- * return string
- */
 /***
  * params:
  * {
@@ -203,6 +184,36 @@ declare function getCandlesData(params: any): Promise<{
     result: any;
     error_message?: undefined;
 }>;
+declare function startWarnings(params: any, acct: any): Promise<void>;
+/**
+ * 如果有wid 那么就
+ *
+ *
+ *
+ */
+declare function stopWarnings(params: any, acct: any): Promise<{
+    result: boolean;
+    error_message: any;
+} | {
+    result: boolean;
+    error_message?: undefined;
+}>;
+declare function isWarnings(params: any, acct: any): Promise<boolean>;
+declare function listWarnings(params: any, acct: any): Promise<any>;
+declare function removeWarnings(params: any, acct: any): Promise<{
+    result: boolean;
+    error_message: any;
+} | {
+    result: boolean;
+    error_message?: undefined;
+}>;
+declare function addWarnings(params: any, acct: any): Promise<{
+    result: boolean;
+    error_message: any;
+} | {
+    result: boolean;
+    error_message?: undefined;
+}>;
 declare const _default: {
     genBatchOrder: typeof genBatchOrder;
     toBatchOrder: typeof toBatchOrder;
@@ -216,5 +227,11 @@ declare const _default: {
     pageKline: typeof pageKline;
     getTradeData: typeof getTradeData;
     getCandlesData: typeof getCandlesData;
+    addWarnings: typeof addWarnings;
+    startWarnings: typeof startWarnings;
+    isWarnings: typeof isWarnings;
+    stopWarnings: typeof stopWarnings;
+    removeWarnings: typeof removeWarnings;
+    listWarnings: typeof listWarnings;
 };
 export default _default;

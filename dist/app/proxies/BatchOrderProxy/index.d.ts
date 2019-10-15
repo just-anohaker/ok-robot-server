@@ -16,6 +16,12 @@ declare class BatchOrderProxy extends Proxy {
     getTradeData(options: any): Promise<any>;
     getCandlesData(options: any): Promise<any>;
     startDepInfo(options: any): Promise<any>;
+    addWarnings(options: any, account: any): Promise<any>;
+    removeWarnings(options: any, account: any): Promise<any>;
+    stopWarnings(options: any, account: any): Promise<any>;
+    isWarnings(options: any, account: any): Promise<any>;
+    startWarnings(options: any, account: any): Promise<any>;
+    listWarnings(options: any, account: any): Promise<any>;
     private onEventHandler;
 }
 export default BatchOrderProxy;

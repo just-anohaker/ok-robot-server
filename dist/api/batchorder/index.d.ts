@@ -12,6 +12,12 @@ declare function pageInfo(data: MarkedMap): Promise<APIReturn>;
 declare function getOrderData(data: MarkedMap): Promise<APIReturn>;
 declare function getTradeData(data: MarkedMap): Promise<APIReturn>;
 declare function getCandlesData(data: MarkedMap): Promise<APIReturn>;
+declare function addWarnings(data: MarkedMap): Promise<APIReturn>;
+declare function isWarnings(data: MarkedMap): Promise<APIReturn>;
+declare function startWarnings(data: MarkedMap): Promise<APIReturn>;
+declare function stopWarnings(data: MarkedMap): Promise<APIReturn>;
+declare function removeWarnings(data: MarkedMap): Promise<APIReturn>;
+declare function listWarnings(data: MarkedMap): Promise<APIReturn>;
 declare const _default: {
     generate: typeof generate;
     toBatchOrder: typeof toBatchOrder;
@@ -25,5 +31,11 @@ declare const _default: {
     pageKline: typeof pageKline;
     getTradeData: typeof getTradeData;
     getCandlesData: typeof getCandlesData;
+    addWarnings: typeof addWarnings;
+    removeWarnings: typeof removeWarnings;
+    startWarnings: typeof startWarnings;
+    isWarnings: typeof isWarnings;
+    stopWarnings: typeof stopWarnings;
+    listWarnings: typeof listWarnings;
 };
 export default _default;

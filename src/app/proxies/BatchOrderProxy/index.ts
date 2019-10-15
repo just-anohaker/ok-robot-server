@@ -103,7 +103,25 @@ class BatchOrderProxy extends Proxy {
         }
         return { result: true };
     }
+    async addWarnings(options: any, account: any ): Promise<any> {
+        return await batchOrder.addWarnings(options,account);
+    } 
+    async removeWarnings(options: any, account: any ): Promise<any> {
+        return await batchOrder.removeWarnings(options,account);
+    } 
 
+    async  stopWarnings(options: any, account: any ): Promise<any> {
+        return await batchOrder.stopWarnings(options, account);
+    }
+    async  isWarnings(options: any, account: any ): Promise<any> {
+        return await batchOrder.isWarnings(options, account);
+    }
+    async  startWarnings(options: any, account: any ): Promise<any> {
+        return await batchOrder.startWarnings(options, account);
+    }
+    async  listWarnings(options: any, account: any ): Promise<any> {
+        return await batchOrder.listWarnings(options, account);
+    }
     private onEventHandler(eventName) {
         return data => {
             Facade.getInstance().sendNotification(eventName, data);

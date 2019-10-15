@@ -123,6 +123,36 @@ class BatchOrderProxy extends Proxy_1.default {
             return { result: true };
         });
     }
+    addWarnings(options, account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.addWarnings(options, account);
+        });
+    }
+    removeWarnings(options, account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.removeWarnings(options, account);
+        });
+    }
+    stopWarnings(options, account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.stopWarnings(options, account);
+        });
+    }
+    isWarnings(options, account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.isWarnings(options, account);
+        });
+    }
+    startWarnings(options, account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.startWarnings(options, account);
+        });
+    }
+    listWarnings(options, account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield batchOrder_1.default.listWarnings(options, account);
+        });
+    }
     onEventHandler(eventName) {
         return data => {
             __1.Facade.getInstance().sendNotification(eventName, data);
