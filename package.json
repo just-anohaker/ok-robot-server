@@ -10,6 +10,7 @@
     "crc-32": "^1.2.0",
     "koa-body": "^4.1.1",
     "koa-send": "^5.0.0",
+    "koa2-cors": "^2.0.6",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

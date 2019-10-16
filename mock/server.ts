@@ -1,7 +1,9 @@
 import program = require("commander");
 import Koa = require("koa");
 // import KoaBodyParser = require("koa-bodyparser")
-import KoaCors = require("@koa/cors");
+// import KoaCors = require("@koa/cors");
+const Cors = require('koa2-cors');
+
 import SocketIO = require("socket.io");
 import { Server } from "http";
 import * as ParsedPath from "path";
@@ -60,7 +62,20 @@ function initApp(): boolean {
         }
         console.error(`[KOA] Error: ${err.toString()}${reqInfo == null ? "" : ", " + reqInfo}`);
     });
-    
+    koa.use(Cors({
+        // origin: function(ctx) {
+        //     if (ctx.url === 'api') {
+        //         return '*';
+        //     }
+        //     return 'http://localhost:8030';
+        // },
+        origin: '*',
+        exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
+        maxAge: 5,
+        credentials: true,
+        allowMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Authorization', 'Accept',"X-Requested-With","Origin"]
+    }))
     // koa.use(KoaBodyParser( {
     //     formLimit:"10mb",
     //     jsonLimit:"10mb",
@@ -83,6 +98,7 @@ function initApp(): boolean {
         const ext = file.name.split('.').pop();   
         let fname= uuid.v1()+"."+ext;
         let fileResource =ParsedPath.join(filePath, fname)// __dirname + "/static/upload/";
+        ctx.set("Content-disposition", "attachment; filename=" +fname)
         // let fileResource = filePath + `/${file.name}`;
         if (!fs.existsSync(filePath)) {  //判断staic/upload文件夹是否存在，如果不存在就新建一个
             fs.mkdir(filePath, (err) => {
@@ -136,10 +152,17 @@ function initApp(): boolean {
 
     koa.use(async (ctx, next) => {
         ctx.body = ctx.request.body;
-        await next();
+        ctx.set("Access-Control-Allow-Origin", "*");
+        ctx.set("Access-Control-Allow-Methods", "OPTIONS, GET, PUT, POST, DELETE");
+        ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With');
+        if (ctx.method == 'OPTIONS') {
+            ctx.body = 200; 
+          } else {
+            await next();
+          }
     });
 
-    koa.use(KoaCors());
+
   
     if (!app.initHttps()) {
         return false;
