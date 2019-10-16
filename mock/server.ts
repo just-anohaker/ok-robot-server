@@ -1,10 +1,16 @@
 import program = require("commander");
 import Koa = require("koa");
-import KoaBodyParser = require("koa-bodyparser")
+// import KoaBodyParser = require("koa-bodyparser")
 import KoaCors = require("@koa/cors");
 import SocketIO = require("socket.io");
 import { Server } from "http";
-
+import * as ParsedPath from "path";
+import uuid from "uuid";
+const router = require('koa-router')();
+const koaBody = require('koa-body');
+const fs = require('fs');
+// import { send } from 'koa-send';
+const send = require('koa-send');
 import { Facade } from "../src";
 import {
     UserMediator
@@ -54,9 +60,73 @@ function initApp(): boolean {
         }
         console.error(`[KOA] Error: ${err.toString()}${reqInfo == null ? "" : ", " + reqInfo}`);
     });
+    
+    // koa.use(KoaBodyParser( {
+    //     formLimit:"10mb",
+    //     jsonLimit:"10mb",
+    //     textLimit:"10mb"
+    // }));
+    koa.use(  koaBody({
+        multipart: true,
+        formidable: {
+            maxFileSize: 1000*1024*1024   // 设置上传文件大小最大限制，默认10M
+        }
+    }));
+    router.post('/upload',
+    
+    async (ctx)=>{
 
-    koa.use(KoaBodyParser());
-
+        const file = ctx.request.files.file;
+        const reader = fs.createReadStream(file.path);
+        const ownDirName = ".etm_okex_datas";
+        const filePath = ParsedPath.resolve(ParsedPath.join(process.cwd(), ownDirName,"upload"));
+        const ext = file.name.split('.').pop();   
+        let fname= uuid.v1()+"."+ext;
+        let fileResource =ParsedPath.join(filePath, fname)// __dirname + "/static/upload/";
+        // let fileResource = filePath + `/${file.name}`;
+        if (!fs.existsSync(filePath)) {  //判断staic/upload文件夹是否存在，如果不存在就新建一个
+            fs.mkdir(filePath, (err) => {
+                if (err) {
+                    ctx.response.body =  {
+                        success: false,
+                        error:err+""
+                    }
+                    throw new Error(err)
+                } else {
+                    let upstream = fs.createWriteStream(fileResource);
+                    reader.pipe(upstream);
+                    ctx.response.body =  {
+                        success: true,
+                        result:{
+                            filename: `${fname}` 
+                        }
+                    }
+                }
+            })
+        } else {
+            let upstream = fs.createWriteStream(fileResource)
+            reader.pipe(upstream);
+            ctx.response.body =  {
+                success: true,
+                result:{
+                    filename: `${fname}` 
+                }
+            }
+        }
+    }
+    );
+    router.get('/download/:name', async (ctx)=>{
+        const name = ctx.params.name;
+        const ownDirName = ".etm_okex_datas";
+        const filePath = ParsedPath.resolve(ParsedPath.join(process.cwd(), ownDirName,"upload"));
+        let file =ParsedPath.join(filePath, name)
+        // const path = `upload/${name}`;
+        ctx.set("Content-disposition", "attachment; filename=" +name)
+        ctx.attachment(file);
+        await send(ctx,  name ,{ root: filePath });
+    })
+    koa.use(router.routes());
+    koa.use(router.allowedMethods());
     koa.use(async (ctx, next) => {
         // Logger
         console.log(`[HTTP] ${ctx.method}: ${ctx.path}`);
@@ -70,7 +140,7 @@ function initApp(): boolean {
     });
 
     koa.use(KoaCors());
-
+  
     if (!app.initHttps()) {
         return false;
     }
