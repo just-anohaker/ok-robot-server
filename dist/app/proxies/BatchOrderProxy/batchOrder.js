@@ -495,7 +495,7 @@ function loadWarnings(httpkey) {
     return wn;
 }
 let warnings_g;
-let interval_warning;
+let interval_warning = undefined;
 function startWarnings(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!params.instrument_id || !acct.httpkey) {
@@ -505,6 +505,9 @@ function startWarnings(params, acct) {
         let acctinfo = acctInfo2_1.default.acctInfo(acct);
         warnings_g = loadWarnings(acct.httpkey);
         // if (interval_rangeTaker != undefined) return
+        if (interval_warning != undefined) {
+            throw new Error("warning is running");
+        }
         interval_warning = setInterval(() => __awaiter(this, void 0, void 0, function* () {
             let warnings = warnings_g;
             console.log("warnings data---" + warnings.length);
@@ -583,7 +586,7 @@ function stopWarnings(params, acct) {
                         SET 
                             status = $status
                         WHERE  wid = $wid and acct_key = $acct_key `;
-                flag = warning_db.update(sql, { status: 0, wid: params.wid, acct_key: acct.httpkey });
+                flag = warning_db.update(sql, { status: "0", wid: params.wid, acct_key: acct.httpkey });
             }
             catch (error) {
                 console.log(error);
