@@ -463,6 +463,9 @@ function loadWarnings(httpkey:String){
 let warnings_g
 let interval_warning
 async function startWarnings(params, acct) {
+    if(!params.instrument_id || !acct.httpkey){
+        throw new Error("params error")
+    }
     acct.instrument_id = params.instrument_id;
     let acctinfo = acctInfo.acctInfo(acct);
     warnings_g =loadWarnings(acct.httpkey)
@@ -476,48 +479,37 @@ async function startWarnings(params, acct) {
             if(!tickdata){
                 continue;
             }
-            fs.exists(element.filepath,function(exists){
-                if(!exists){
-                    Facade.getInstance().sendNotification("warning_error" + ":" + element.instrument_id, {
-                        msg:element.filepath +" 文件不存在! ",
-                        instrument_id:element.instrument_id,
-                        type:element.type,
-                        httpkey:acct.httpkey
-                    })
-                    console.log(element.filepath,"播放文件不存在")
-                }
-                })
+            element.httpkey = element.acct_key
+            // fs.exists(element.filepath,function(exists){
+            //     if(!exists){
+            //         Facade.getInstance().sendNotification("warning_error" + ":" + element.instrument_id, {
+            //             msg:element.filepath +" 文件不存在! ",
+            //             instrument_id:element.instrument_id,
+            //             type:element.type,
+            //             httpkey:acct.httpkey
+            //         })
+            //         console.log(element.filepath,"播放文件不存在")
+            //     }
+            //     })
             // console.log("tickdata data---" + JSON.stringify(tickdata))
             switch(element.type){
                 case "1":
                         if(parseFloat(tickdata.ticker.last)  > parseFloat(element.maxprice)){
                             console.log("type"+ 1,"warning" + ":" + element.instrument_id )
-                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
-                                warn:element.filepath,
-                                type:element.type,
-                                httpkey:acct.httpkey
-                            })
+                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
                         }
                     break;
                 case "2":
                         if(parseFloat(tickdata.ticker.last)  < parseFloat(element.minprice)){
                             console.log("type"+ 2,"warning" + ":" + element.instrument_id )
-                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
-                                warn:element.filepath,
-                                type:element.type,
-                                httpkey:acct.httpkey
-                            })
+                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
                         }
                     break;
                 case "3":
                         let t = tickdata.updateTime;
                         if( Date.now() - t > parseInt(element.utime) *60 ){
                             console.log("type"+ 3,"warning" + ":" + element.instrument_id )
-                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
-                                warn:element.filepath,
-                                type:element.type,
-                                httpkey:acct.httpkey
-                            })
+                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
                         }
                     break;
                 case "4":
@@ -527,13 +519,9 @@ async function startWarnings(params, acct) {
                             maxpecent += parseFloat(element.pecent)
                         }
                         if(parseFloat(tickdata.ticker.last)  < parseFloat(element.minprice)*minpecent ||
-                             parseFloat(tickdata.ticker.last)  > parseFloat(element.maxprice)*maxpecent){
+                            parseFloat(tickdata.ticker.last)  > parseFloat(element.maxprice)*maxpecent){
                             console.log("type"+ 4,"warning" + ":" + element.instrument_id )
-                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, {
-                                warn:element.filepath,
-                                type:element.type,
-                                httpkey:acct.httpkey
-                            })
+                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
                         }
                     break;
             }
@@ -541,7 +529,9 @@ async function startWarnings(params, acct) {
         
     },2000)
     
-    return ;
+    return  {
+        result: true
+    };
 }
 /**
  * 如果有wid 那么就
@@ -568,7 +558,8 @@ async function stopWarnings(params, acct) {
         }
         warnings_g =loadWarnings(acct.httpkey)
         return {
-            result: flag
+            result: flag,
+            wid:params.wid
         };
     }else{
         if(interval_warning){
@@ -577,14 +568,17 @@ async function stopWarnings(params, acct) {
         }
     }
     return {
-        result: true
+        result: true,
+        wid:params.wid
     };
 }
 async function isWarnings(params, acct) {
     return interval_warning != undefined;
 }
 async function listWarnings(params, acct) {
-    let l=loadWarnings(acct.httpkey);
+    const warning_db = new DbWarnings(Database.getInstance().Sqlite3Handler);
+    let sql = `select * from warnings where acct_key = $httpkey`;
+    let l=warning_db.getWarnings(sql,{httpkey:acct.httpkey});
     return l;
 }
 async function removeWarnings(params, acct) {
@@ -596,16 +590,39 @@ async function removeWarnings(params, acct) {
         console.log(error)
         return {
             result: false,
-            error_message: error
+            error_message: error,
+            wid:params.wid
         };
     }
     warnings_g =loadWarnings(acct.httpkey)
     return {
-        result: flag
+        result: flag,
+        wid:params.wid
     };
 }
 
 async function addWarnings(params, acct) {
+    if(params.wid){
+        const warning_db = new DbWarnings(Database.getInstance().Sqlite3Handler);
+        let flag =false;
+        try {
+            let sql = `UPDATE warnings
+                        SET 
+                            status = $status
+                        WHERE  wid = $wid and acct_key = $acct_key `;
+           flag = warning_db.update(sql,{status:1,wid:params.wid,acct_key:acct.httpkey});
+        } catch (error) {
+            console.log(error)
+            return {
+                result: false,
+                error_message: error
+            };
+        }
+        warnings_g =loadWarnings(acct.httpkey)
+        return {
+            result: flag
+        };
+    }
     const warning_db = new DbWarnings(Database.getInstance().Sqlite3Handler);
     try {
         let warning = {//移动文件到data文件夹并且重命名

@@ -184,7 +184,9 @@ declare function getCandlesData(params: any): Promise<{
     result: any;
     error_message?: undefined;
 }>;
-declare function startWarnings(params: any, acct: any): Promise<void>;
+declare function startWarnings(params: any, acct: any): Promise<{
+    result: boolean;
+}>;
 /**
  * 如果有wid 那么就
  *
@@ -194,8 +196,10 @@ declare function startWarnings(params: any, acct: any): Promise<void>;
 declare function stopWarnings(params: any, acct: any): Promise<{
     result: boolean;
     error_message: any;
+    wid?: undefined;
 } | {
     result: boolean;
+    wid: any;
     error_message?: undefined;
 }>;
 declare function isWarnings(params: any, acct: any): Promise<boolean>;
@@ -203,8 +207,10 @@ declare function listWarnings(params: any, acct: any): Promise<any>;
 declare function removeWarnings(params: any, acct: any): Promise<{
     result: boolean;
     error_message: any;
+    wid: any;
 } | {
     result: boolean;
+    wid: any;
     error_message?: undefined;
 }>;
 declare function addWarnings(params: any, acct: any): Promise<{
