@@ -454,10 +454,10 @@ async function getCandlesData(params) {
  * passphrase
  * }
  */
-function loadWarnings(httpkey:String){
+function loadWarnings(){
     const warning_db = new DbWarnings(Database.getInstance().Sqlite3Handler);
-    let sql = `select * from warnings where status = $status  and acct_key = $httpkey`;
-    let wn=warning_db.getWarnings(sql,{status:"1",httpkey});
+    let sql = `select * from warnings where status = $status `;
+    let wn=warning_db.getWarnings(sql,{status:"1"});
     return wn;
 }
 let warnings_g
@@ -468,7 +468,7 @@ async function startWarnings(params, acct) {
     }
     acct.instrument_id = params.instrument_id;
     let acctinfo = acctInfo.acctInfo(acct);
-    warnings_g =loadWarnings(acct.httpkey)
+    warnings_g =loadWarnings()
     // if (interval_rangeTaker != undefined) return
     if (interval_warning != undefined){
         throw new Error("warning is running")
@@ -550,8 +550,8 @@ async function stopWarnings(params, acct) {
             let sql = `UPDATE warnings
                         SET 
                             status = $status
-                        WHERE  wid = $wid and acct_key = $acct_key `;
-           flag = warning_db.update(sql,{status:"0",wid:params.wid,acct_key:acct.httpkey});
+                        WHERE  wid = $wid  `;
+           flag = warning_db.update(sql,{status:"0",wid:params.wid});
         } catch (error) {
             console.log(error)
             return {
@@ -559,7 +559,7 @@ async function stopWarnings(params, acct) {
                 error_message: error
             };
         }
-        warnings_g =loadWarnings(acct.httpkey)
+        warnings_g =loadWarnings()
         return {
             result: flag,
             wid:params.wid
@@ -580,8 +580,8 @@ async function isWarnings(params, acct) {
 }
 async function listWarnings(params, acct) {
     const warning_db = new DbWarnings(Database.getInstance().Sqlite3Handler);
-    let sql = `select * from warnings where acct_key = $httpkey`;
-    let l=warning_db.getWarnings(sql,{httpkey:acct.httpkey});
+    let sql = `select * from warnings`;
+    let l=warning_db.getWarnings(sql,{});
     return l;
 }
 async function removeWarnings(params, acct) {
@@ -597,7 +597,7 @@ async function removeWarnings(params, acct) {
             wid:params.wid
         };
     }
-    warnings_g =loadWarnings(acct.httpkey)
+    warnings_g =loadWarnings()
     return {
         result: flag,
         wid:params.wid
@@ -612,8 +612,8 @@ async function addWarnings(params, acct) {
             let sql = `UPDATE warnings
                         SET 
                             status = $status
-                        WHERE  wid = $wid and acct_key = $acct_key `;
-           flag = warning_db.update(sql,{status:1,wid:params.wid,acct_key:acct.httpkey});
+                        WHERE  wid = $wid  `;
+           flag = warning_db.update(sql,{status:1,wid:params.wid});
         } catch (error) {
             console.log(error)
             return {
@@ -621,7 +621,7 @@ async function addWarnings(params, acct) {
                 error_message: error
             };
         }
-        warnings_g =loadWarnings(acct.httpkey)
+        warnings_g =loadWarnings()
         return {
             result: flag
         };
@@ -649,7 +649,7 @@ async function addWarnings(params, acct) {
             error_message: error
         };
     }
-    warnings_g =loadWarnings(acct.httpkey)
+    warnings_g =loadWarnings()
     return {
         result: true
     };
