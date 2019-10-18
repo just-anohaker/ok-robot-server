@@ -615,7 +615,10 @@ function stopWarnings(params, acct) {
 }
 function isWarnings(params, acct) {
     return __awaiter(this, void 0, void 0, function* () {
-        return interval_warning != undefined;
+        let res_flag = interval_warning != undefined;
+        return {
+            result: res_flag
+        };
     });
 }
 function listWarnings(params, acct) {
@@ -658,7 +661,7 @@ function addWarnings(params, acct) {
                         SET 
                             status = $status
                         WHERE  wid = $wid  `;
-                flag = warning_db.update(sql, { status: 1, wid: params.wid });
+                flag = warning_db.update(sql, { status: "1", wid: params.wid });
             }
             catch (error) {
                 console.log(error);

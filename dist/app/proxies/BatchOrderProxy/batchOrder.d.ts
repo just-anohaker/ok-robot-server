@@ -202,7 +202,9 @@ declare function stopWarnings(params: any, acct: any): Promise<{
     wid: any;
     error_message?: undefined;
 }>;
-declare function isWarnings(params: any, acct: any): Promise<boolean>;
+declare function isWarnings(params: any, acct: any): Promise<{
+    result: boolean;
+}>;
 declare function listWarnings(params: any, acct: any): Promise<any>;
 declare function removeWarnings(params: any, acct: any): Promise<{
     result: boolean;
