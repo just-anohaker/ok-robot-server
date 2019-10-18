@@ -139,6 +139,7 @@ class AccountInfo {
             this.wss.subscribe(config.channel_ticker + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_ticker + ':' + "BTC-USDT");
+            this.wss.subscribe(config.channel_ticker + ':' + "ETM-USDK");
         });
         this.event.on(config.channel_ticker, (info => {
             var d = info.data[0];

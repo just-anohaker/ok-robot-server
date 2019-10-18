@@ -544,7 +544,7 @@ function startWarnings(params, acct) {
                         }
                         break;
                     case "3":
-                        let t = tickdata.updateTime;
+                        let t = tickdata.update_time;
                         if (Date.now() - t > parseInt(element.utime) * 60) {
                             console.log("type" + 3, "warning" + ":" + element.instrument_id);
                             __1.Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element);
