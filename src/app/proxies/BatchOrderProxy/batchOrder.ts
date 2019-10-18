@@ -576,7 +576,10 @@ async function stopWarnings(params, acct) {
     };
 }
 async function isWarnings(params, acct) {
-    return interval_warning != undefined;
+   let res_flag =interval_warning != undefined
+    return {
+        result: res_flag    
+    }
 }
 async function listWarnings(params, acct) {
     const warning_db = new DbWarnings(Database.getInstance().Sqlite3Handler);
@@ -613,7 +616,7 @@ async function addWarnings(params, acct) {
                         SET 
                             status = $status
                         WHERE  wid = $wid  `;
-           flag = warning_db.update(sql,{status:1,wid:params.wid});
+           flag = warning_db.update(sql,{status:"1",wid:params.wid});
         } catch (error) {
             console.log(error)
             return {
