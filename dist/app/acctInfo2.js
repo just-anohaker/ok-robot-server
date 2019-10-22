@@ -20,6 +20,7 @@ const sqlite3_1 = __importDefault(require("./../sqlite3"));
 const DbOrders_1 = require("./DbOrders");
 const __1 = require("./..");
 var CRC32 = require('crc-32');
+var LRU = require("lru-cache");
 let accouts = new Map();
 function acctInfo(pamams) {
     if (accouts.has(pamams.instrument_id + pamams.httpkey)) {
@@ -48,13 +49,17 @@ class AccountInfo {
         this.passphrase = passphrase;
         this.instrument_id = instrument_id;
         this.tickerData;
-        this.tickerDataMap = new Map();
+        this.dataMap = new Map();
+        this.candleMap = new Map();
         this.bids;
         this.asks;
         this.isClosed;
         this.pendingOrders = new Map();
         this.orderPrice = new Map();
         this.event = new events_1.EventEmitter();
+        this.candleMap.set(config.channel_candle60s + ':' + "ETM-USDK", new LRU(200));
+        this.candleMap.set(config.channel_candle60s + ':' + "ETM-USDT", new LRU(200));
+        this.candleMap.set(config.channel_candle60s + ':' + "BTC-USDT", new LRU(200));
         this.order_db = new DbOrders_1.DbOrders(sqlite3_1.default.getInstance().Sqlite3Handler, {
             instrument_id, httpkey, httpsecret, passphrase
         });
@@ -99,6 +104,11 @@ class AccountInfo {
             this.wss.login(this.httpkey, this.httpsecret, this.passphrase);
         });
     }
+    clearCandleMap() {
+        this.candleMap.get(config.channel_candle60s + ':' + "ETM-USDK").reset();
+        this.candleMap.get(config.channel_candle60s + ':' + "ETM-USDT").reset();
+        this.candleMap.get(config.channel_candle60s + ':' + "BTC-USDT").reset();
+    }
     stopWebsocket() {
         this.wss.close();
         this.tickerData = undefined;
@@ -139,21 +149,33 @@ class AccountInfo {
             this.wss.subscribe(config.channel_ticker + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_depth + ':' + this.instrument_id);
             this.wss.subscribe(config.channel_ticker + ':' + "BTC-USDT");
-            this.wss.subscribe(config.channel_ticker + ':' + "ETM-USDK");
+            this.wss.subscribe(config.channel_candle60s + ':' + "ETM-USDK");
+            this.wss.subscribe(config.channel_candle60s + ':' + "ETM-USDT");
+            this.wss.subscribe(config.channel_candle60s + ':' + "BTC-USDT");
         });
+        this.event.on(config.channel_candle60s, (info => {
+            var d = info.data[0];
+            let open = parseFloat(d.candle[1]);
+            let high = parseFloat(d.candle[2]);
+            let low = parseFloat(d.candle[3]);
+            let rangeTmp = (high - open) / open + (open - low) / open;
+            this.candleMap.get(config.channel_candle60s + ':' + d.instrument_id).set(d.candle[0], rangeTmp);
+            // console.log(  JSON.stringify( d.candle),rangeTmp ,this.candleMap.get(config.channel_candle60s + ':'+ d.instrument_id ).length);  
+            // console.log( this.candleMap.get(config.channel_candle60s + ':'+ d.instrument_id ).keys());  
+        }));
         this.event.on(config.channel_ticker, (info => {
             var d = info.data[0];
             //console.log("tickerData---"+d.instrument_id + `买一 ` + d.best_bid + ' 卖一 ' + d.best_ask );  
-            let tickerDataTmp = this.tickerDataMap.get(d.instrument_id);
+            let tickerDataTmp = this.dataMap.get(d.instrument_id);
             if (tickerDataTmp && tickerDataTmp.ticker.last != d.last) { //价格有变化
-                this.tickerDataMap.set(d.instrument_id, { "ticker": d, "update_time": Date.now() });
+                this.dataMap.set(d.instrument_id, { "ticker": d, "update_time": Date.now() });
             }
             else {
                 if (tickerDataTmp) {
-                    this.tickerDataMap.get(d.instrument_id).ticker = d; //价格没有变化不更新时间
+                    this.dataMap.get(d.instrument_id).ticker = d; //价格没有变化不更新时间
                 }
                 else {
-                    this.tickerDataMap.set(d.instrument_id, { "ticker": d, "update_time": Date.now() });
+                    this.dataMap.set(d.instrument_id, { "ticker": d, "update_time": Date.now() });
                 }
             }
             if (d.instrument_id == this.instrument_id) {

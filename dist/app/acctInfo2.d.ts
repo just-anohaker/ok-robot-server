@@ -9,7 +9,8 @@ export declare class AccountInfo {
     private passphrase;
     instrument_id: any;
     tickerData: any;
-    tickerDataMap: any;
+    dataMap: any;
+    candleMap: any;
     asks: any;
     bids: any;
     isClosed: any;
@@ -24,6 +25,7 @@ export declare class AccountInfo {
     private autoMakerOrder;
     constructor(instrument_id: any, httpkey: any, httpsecret: any, passphrase: any);
     initOrderData(): Promise<void>;
+    clearCandleMap(): void;
     stopWebsocket(): void;
     initData(): void;
     startWebsocket(): void;

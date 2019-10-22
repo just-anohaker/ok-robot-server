@@ -10,6 +10,7 @@ module.exports = {
     channel_order: "spot/order",
     channel_trade: "spot/trade",
     channel_candle: "spot/candle",
+    channel_candle60s: "spot/candle60s",
     //instrument_id : "ETM-USDT",
     currency: 'ETM',
     SendDepTime: 200,

@@ -462,23 +462,25 @@ function loadWarnings(){
 }
 let warnings_g
 let interval_warning = undefined;
+// let acctinfo = undefined;
 async function startWarnings(params, acct) {
     if(!params.instrument_id || !acct.httpkey){
         throw new Error("params error")
     }
     acct.instrument_id = params.instrument_id;
-    let acctinfo = acctInfo.acctInfo(acct);
+    let acctinfo =acctInfo.acctInfo(acct);
     warnings_g =loadWarnings()
     // if (interval_rangeTaker != undefined) return
     if (interval_warning != undefined){
         throw new Error("warning is running")
     } 
+    acctinfo.clearCandleMap()
     interval_warning = setInterval(async () =>{
         let warnings = warnings_g
-         console.log("warnings data---" + warnings.length)
+        // console.log("warnings data length ---" + warnings.length)
         for (let index = 0; index < warnings.length; index++) {
             const element = warnings[index];
-            let tickdata = acctinfo.tickerDataMap.get(element.instrument_id);
+            let tickdata = acctinfo.dataMap.get(element.instrument_id);
             if(!tickdata){
                 continue;
             }
@@ -495,35 +497,48 @@ async function startWarnings(params, acct) {
             //     }
             //     })
             // console.log("tickdata data---" + JSON.stringify(tickdata))
+            let cache1 = acctinfo.candleMap.get(config.channel_candle60s + ':'+element.instrument_id);
+            // console.log("cache ===",JSON.stringify(cache1.keys()),JSON.stringify(cache1.values()))
             switch(element.type){
                 case "1":
                         if(parseFloat(tickdata.ticker.last)  > parseFloat(element.maxprice)){
-                            console.log("type"+ 1,"warning" + ":" + element.instrument_id )
-                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
+                            console.log("type"+ 1,"warning" + ":" + element.instrument_id );
+                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element);
                         }
                     break;
                 case "2":
                         if(parseFloat(tickdata.ticker.last)  < parseFloat(element.minprice)){
-                            console.log("type"+ 2,"warning" + ":" + element.instrument_id )
-                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
+                            console.log("type"+ 2,"warning" + ":" + element.instrument_id );
+                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element);
                         }
                     break;
                 case "3":
                         let t = tickdata.update_time;
-                        if( Date.now() - t > parseInt(element.utime) *60 ){
-                            console.log("type"+ 3,"warning" + ":" + element.instrument_id )
-                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
+                        if( Date.now() - t > parseInt(element.utime) *60*1000 ){
+                            console.log("type"+ 3,"warning" + ":" + element.instrument_id );
+                            Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element);
                         }
                     break;
                 case "4":
-                        let minpecent = 1,maxpecent= 1;
-                        if(element.pecent){
-                            minpecent -= parseFloat(element.pecent)
-                            maxpecent += parseFloat(element.pecent)
-                        }
-                        if(parseFloat(tickdata.ticker.last)  < parseFloat(element.minprice)*minpecent ||
-                            parseFloat(tickdata.ticker.last)  > parseFloat(element.maxprice)*maxpecent){
-                            console.log("type"+ 4,"warning" + ":" + element.instrument_id )
+                        // let minpecent = 1,maxpecent= 1;
+                        let cache = acctinfo.candleMap.get(config.channel_candle60s + ':'+element.instrument_id);
+                        // console.log("cache.keys ===",JSON.stringify(cache))
+                        let minutes = parseInt(element.utime)// ;
+                        let ks = cache.keys();
+                        ks.sort();
+                        let k = ks.slice(-minutes)
+                        // console.log("cache.keys ===",JSON.stringify(k))
+                        let isWarn = true;
+                        let count = 0
+                        k.forEach(c => {
+                           let range = cache.get(c);
+                           if(range <= parseFloat(element.pecent)){ //有一个记录的振幅比它小就不提醒
+                                 isWarn = false
+                           }
+                           count++
+                        });
+                        if(k && minutes == count &&isWarn){
+                            console.log("type"+ 4,"warning" + ":" + element.instrument_id );
                             Facade.getInstance().sendNotification("warning" + ":" + element.instrument_id, element)
                         }
                     break;
