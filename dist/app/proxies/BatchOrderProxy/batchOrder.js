@@ -416,6 +416,8 @@ function getOrderData(params, acct) {
         const authClient = new AuthenticatedClient(acct.httpkey, acct.httpsecret, acct.passphrase, config.urlHost);
         if (params.state == undefined)
             params.state = 2;
+        if (params.limit == undefined)
+            params.limit = 50;
         let result;
         try {
             result = yield authClient.spot().getOrders(params);
