@@ -55,6 +55,7 @@ class AccountInfo {
         this.asks;
         this.isClosed;
         this.pendingOrders = new Map();
+        this.toCancel = new Array();
         this.orderPrice = new Map();
         this.event = new events_1.EventEmitter();
         this.candleMap.set(config.channel_candle60s + ':' + "ETM-USDK", new LRU(200));
@@ -195,7 +196,7 @@ class AccountInfo {
                     this.pendingOrders.delete(d.order_id);
                 }
                 if (d.state == -1 && d.client_oid.substring(0, 1) == config.orderType.autoMaker) {
-                    console.log("订单监听 state= -1:" + JSON.stringify(d));
+                    // console.log("订单监听 state= -1:"+JSON.stringify(d) );  
                     // d.created_at  ="",  d.funds="", d.price_avg="",  d.product_id="",d.acct_key = this.httpkey;
                     if (this.order_db.getOrderByOrderId(d.order_id).length < 1) {
                         this.order_db.addInMonitor(d);
@@ -452,15 +453,29 @@ class AccountInfo {
                         // console.log("下单 ---:", new Date().toISOString())
                         // console.log("下单 ---", JSON.stringify(order_array))
                         let order_ids = [];
-                        batch_o[this.instrument_id.toLowerCase()].forEach(function (ele) {
+                        let m_id = undefined;
+                        batch_o[this.instrument_id.toLowerCase()].forEach((ele) => {
                             //  console.log("interval_autoMaker" + ele.result + "---" + ele.order_id)
                             if (ele.result) {
                                 order_ids.push(ele.order_id);
+                                if (ele.client_oid && ele.client_oid.slice(-1) == 'M') {
+                                    this.toCancel.push(ele.order_id);
+                                    m_id = ele.order_id;
+                                }
                             }
                         });
-                        // console.log("撤单 ---", JSON.stringify(order_ids))
-                        yield this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': this.instrument_id, 'order_ids': order_ids }]);
-                        // console.log("撤单 ---后o2", JSON.stringify(result))
+                        // console.log("toCancel ---", JSON.stringify(this.toCancel))
+                        try {
+                            this.authClient.spot().postCancelOrder(m_id, { 'instrument_id': this.instrument_id }).then((ele) => __awaiter(this, void 0, void 0, function* () {
+                                if (ele.result == true) { //没有成功撤单就交给垃圾回收
+                                    console.log("Cancel make Order ok------:" + ele.order_id);
+                                    this.toCancel = this.toCancel.filter(o => o != ele.order_id);
+                                }
+                            }));
+                        }
+                        catch (error) {
+                            console.log("make orders CancelBatchOrders  error " + error);
+                        }
                     }
                     else {
                         this.tickerData == undefined ? console.log("无法获取当前盘口价格!")
@@ -474,13 +489,83 @@ class AccountInfo {
         });
         async_to_order();
         this.interval_autoMaker = setInterval(async_to_order, 60 * 1000);
+        this.interval_canelOrder = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+            // console.log("撤消订单 auto maker---" + JSON.stringify(this.toCancel ))//
+            let res;
+            let limit = 100;
+            try {
+                for (let j = 0; j < this.toCancel.length; j += 10) {
+                    let tmp = this.toCancel.slice(j, j + 10);
+                    // console.log("CancelBatchOrders interval_canelOrder:" + tmp)
+                    this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
+                        batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                            if (ele.result == true) {
+                                // console.log("Cancel Order ok:" + ele.order_id)
+                                this.toCancel = this.toCancel.filter(o => o != ele.order_id);
+                            }
+                        });
+                    }));
+                    yield this.sleep(100);
+                }
+            }
+            catch (error) {
+                console.log("error when cancel ---" + error + '');
+            }
+            try {
+                let order_ids = [];
+                res = yield this.authClient.spot().getOrdersPending({ 'instrument_id': params.instrument_id, 'limit': limit });
+                res.forEach((ele) => {
+                    if (ele.client_oid && ele.client_oid.slice(-1) == 'M') {
+                        console.log("需要撤消订单 ---" + JSON.stringify(ele));
+                        order_ids.push(ele.order_id);
+                    }
+                });
+                // console.log("自动补单,取消未完成订单:", order_ids)
+                if (order_ids.length <= 0)
+                    return;
+                for (let j = 0; j < order_ids.length; j += 10) {
+                    let tmp = order_ids.slice(j, j + 10);
+                    let batch_o = yield this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]);
+                    batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                        if (ele.result == true) { //没有成功撤单就交给垃圾回收
+                            // console.log("Cancel Order ok------:" + ele.order_id)
+                            this.toCancel = this.toCancel.filter(o => o != ele.order_id);
+                        }
+                    });
+                    yield this.sleep(50); //每秒20次 限制是每2秒50次
+                    // console.log("撤消订单 only maker---" + JSON.stringify(batch_o))//
+                }
+            }
+            catch (e) {
+                console.log("catch ---" + e + '');
+            }
+        }), 3 * 1000);
     }
     stopAutoMaker() {
         clearInterval(this.interval_autoMaker);
         clearInterval(this.interval_reconnet);
+        clearInterval(this.interval_canelOrder);
         this.asks = undefined;
         this.bids = undefined;
         this.interval_autoMaker = undefined;
+        this.interval_canelOrder = undefined;
+        try {
+            for (let j = 0; j < this.toCancel.length; j += 10) {
+                let tmp = this.toCancel.slice(j, j + 10);
+                // console.log("CancelBatchOrders interval_canelOrder:" + tmp)
+                this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': this.instrument_id, 'order_ids': tmp }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
+                    batch_o[this.instrument_id.toLowerCase()].forEach(function (ele) {
+                        if (ele.result == true) {
+                            console.log("stop Cancel Order:" + ele.order_id);
+                            this.toCancel = this.toCancel.filter(o => o != ele.order_id);
+                        }
+                    });
+                }));
+            }
+        }
+        catch (error) {
+            console.log("error when cancel ---" + error + '');
+        }
     }
     isAutoMaker() {
         return this.interval_autoMaker != undefined;

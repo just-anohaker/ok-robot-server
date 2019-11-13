@@ -15,12 +15,14 @@ export declare class AccountInfo {
     bids: any;
     isClosed: any;
     pendingOrders: any;
+    toCancel: any;
     orderPrice: any;
     private wss;
     private pClient;
     private authClient;
     private interval_autoMaker;
     private interval_reconnet;
+    private interval_canelOrder;
     private order_db;
     private autoMakerOrder;
     constructor(instrument_id: any, httpkey: any, httpsecret: any, passphrase: any);

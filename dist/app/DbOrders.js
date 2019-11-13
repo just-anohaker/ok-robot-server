@@ -47,7 +47,7 @@ class DbOrders {
         let success = true;
         try {
             let sql = `update orders set created_at = $created_at,filled_notional= $filled_notional, filled_size = $filled_size
-                , funds = $funds, instrument_id = $instrument_id, notional = $notional, order_type = $order_type, price = $price,price_avg = $price_avg
+                ,instrument_id = $instrument_id, notional = $notional, order_type = $order_type, price = $price,price_avg = $price_avg
                 , product_id = $product_id, side = $side,size = $size, status = $status,state = $state
                 , timestamp = $timestamp, type = $type where order_id = $order_id and acct_key = $acct_key`;
             const stmt = this.handler.prepare(sql);
