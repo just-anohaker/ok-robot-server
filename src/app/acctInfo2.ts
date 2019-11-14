@@ -523,7 +523,7 @@ export class AccountInfo {
                         this.authClient.spot().postCancelOrder(element,{ 'instrument_id': this.instrument_id}).then(async ele => {
                             if (ele.result == true) {//没有成功撤单就交给垃圾回收
                                 console.log("Cancel make Order ok------:" + ele.order_id)
-                                // this.toCancel = this.toCancel.filter(o => o != ele.order_id)
+                                this.toCancel = this.toCancel.filter(o => o != ele.order_id)
                             }
                         }).catch(error => {
                             if(error.response && error.response !== undefined && error.response.data){
