@@ -402,9 +402,15 @@ class AccountInfo {
                 // console.log("sleep :", (to_wait[w][0]+to_wait[w][1])/1000 ,new Date().toISOString())
                 yield this.sleep(to_wait[w][0] + to_wait[w][1]);
                 try {
-                    let t = new Date(this.tickerData.timestamp).getTime();
-                    if (this.tickerData && Math.abs(Date.now() - t) > 5 * 60 * 1000) {
-                        console.log("无法刷量下单! ticker data time exceed", Math.abs(Date.now() - t) / 1000, "s");
+                    if (this.tickerData) {
+                        let t = new Date(this.tickerData.timestamp).getTime();
+                        if (Math.abs(Date.now() - t) > 5 * 60 * 1000) {
+                            console.log("无法刷量下单! ticker data time exceed", Math.abs(Date.now() - t) / 1000, "s");
+                            continue;
+                        }
+                    }
+                    else {
+                        console.log("无法刷量下单! ticker data error");
                         continue;
                     }
                     if (this.tickerData && Number(this.tickerData.best_ask) - Number(this.tickerData.best_bid) > 0.00019) { //TODO 确认tickerdata 短期内有更新  TODO 精度确认
@@ -465,17 +471,24 @@ class AccountInfo {
                             }
                         });
                         // console.log("toCancel ---", JSON.stringify(this.toCancel))
-                        try {
-                            this.authClient.spot().postCancelOrder(m_id, { 'instrument_id': this.instrument_id }).then((ele) => __awaiter(this, void 0, void 0, function* () {
-                                if (ele.result == true) { //没有成功撤单就交给垃圾回收
-                                    console.log("Cancel make Order ok------:" + ele.order_id);
-                                    this.toCancel = this.toCancel.filter(o => o != ele.order_id);
+                        this.authClient.spot().postCancelOrder(m_id, { 'instrument_id': this.instrument_id }).then((ele) => __awaiter(this, void 0, void 0, function* () {
+                            if (ele.result == true) { //没有成功撤单就交给垃圾回收
+                                console.log("Cancel make Order ok------:" + ele.order_id);
+                                this.toCancel = this.toCancel.filter(o => o != ele.order_id);
+                            }
+                        })).catch(error => {
+                            if (error.response && error.response !== undefined && error.response.data) {
+                                switch (error.response.data.code) {
+                                    case 33014:
+                                    case 33012:
+                                    case 33026:
+                                    case 33027:
+                                        console.log("Canceled ------:" + m_id);
+                                        this.toCancel = this.toCancel.filter(o => o != m_id);
+                                        break;
                                 }
-                            }));
-                        }
-                        catch (error) {
-                            console.log("make orders CancelBatchOrders  error " + error);
-                        }
+                            }
+                        });
                     }
                     else {
                         this.tickerData == undefined ? console.log("无法获取当前盘口价格!")
@@ -490,23 +503,31 @@ class AccountInfo {
         async_to_order();
         this.interval_autoMaker = setInterval(async_to_order, 60 * 1000);
         this.interval_canelOrder = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-            // console.log("撤消订单 auto maker---" + JSON.stringify(this.toCancel ))//
+            console.log("撤消订单 auto maker---" + JSON.stringify(this.toCancel));
             let res;
             let limit = 100;
             try {
-                for (let j = 0; j < this.toCancel.length; j += 10) {
-                    let tmp = this.toCancel.slice(j, j + 10);
-                    // console.log("CancelBatchOrders interval_canelOrder:" + tmp)
-                    this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]).then((batch_o) => __awaiter(this, void 0, void 0, function* () {
-                        batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
-                            if (ele.result == true) {
-                                // console.log("Cancel Order ok:" + ele.order_id)
-                                this.toCancel = this.toCancel.filter(o => o != ele.order_id);
+                this.toCancel.forEach(element => {
+                    this.authClient.spot().postCancelOrder(element, { 'instrument_id': this.instrument_id }).then((ele) => __awaiter(this, void 0, void 0, function* () {
+                        if (ele.result == true) { //没有成功撤单就交给垃圾回收
+                            console.log("Cancel make Order ok------:" + ele.order_id);
+                            // this.toCancel = this.toCancel.filter(o => o != ele.order_id)
+                        }
+                    })).catch(error => {
+                        if (error.response && error.response !== undefined && error.response.data) {
+                            switch (error.response.data.code) {
+                                case 33014:
+                                case 33012:
+                                case 33026:
+                                case 33027:
+                                    console.log("Canceled ------:" + element);
+                                    this.toCancel = this.toCancel.filter(o => o != element);
+                                    break;
                             }
-                        });
-                    }));
-                    yield this.sleep(100);
-                }
+                        }
+                    });
+                });
+                // }
             }
             catch (error) {
                 console.log("error when cancel ---" + error + '');
@@ -516,17 +537,21 @@ class AccountInfo {
                 res = yield this.authClient.spot().getOrdersPending({ 'instrument_id': params.instrument_id, 'limit': limit });
                 res.forEach((ele) => {
                     if (ele.client_oid && ele.client_oid.slice(-1) == 'M') {
-                        console.log("需要撤消订单 ---" + JSON.stringify(ele));
+                        // console.log("需要撤消订单 ---" + JSON.stringify(ele))
                         order_ids.push(ele.order_id);
                     }
                 });
                 // console.log("自动补单,取消未完成订单:", order_ids)
-                if (order_ids.length <= 0)
+                if (order_ids.length <= 0) {
+                    while (this.toCancel.length > 0) {
+                        this.toCancel.pop();
+                    }
                     return;
+                }
                 for (let j = 0; j < order_ids.length; j += 10) {
                     let tmp = order_ids.slice(j, j + 10);
                     let batch_o = yield this.authClient.spot().postCancelBatchOrders([{ 'instrument_id': params.instrument_id, 'order_ids': tmp }]);
-                    batch_o[params.instrument_id.toLowerCase()].forEach(function (ele) {
+                    batch_o[params.instrument_id.toLowerCase()].forEach((ele) => {
                         if (ele.result == true) { //没有成功撤单就交给垃圾回收
                             // console.log("Cancel Order ok------:" + ele.order_id)
                             this.toCancel = this.toCancel.filter(o => o != ele.order_id);

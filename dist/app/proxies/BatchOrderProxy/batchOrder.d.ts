@@ -166,8 +166,8 @@ declare function getOrderData(params: any, acct: any): Promise<{
     length?: undefined;
 } | {
     result: boolean;
-    list: any;
-    length: any;
+    list: any[];
+    length: number;
     error_message?: undefined;
 }>;
 declare function getTradeData(params: any): Promise<{

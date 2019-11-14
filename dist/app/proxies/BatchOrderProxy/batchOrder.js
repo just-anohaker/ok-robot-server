@@ -438,13 +438,13 @@ function getOrderData(params, acct) {
             };
         }
         else {
-            console.log("getOrderData result -----", result);
-            result = JSON.parse(result);
-            console.log("getOrderData result ----- 2", result);
+            // console.log("getOrderData result -----",result)
+            // result = JSON.parse(result)
+            // console.log("getOrderData result ----- 2",result)
             return {
                 result: true,
-                list: result,
-                length: result ? result.length : 0
+                list: [],
+                length: 0
             };
         }
         // result.length = result[0].length
