@@ -429,12 +429,26 @@ function getOrderData(params, acct) {
                 error_message: error + ''
             };
         }
+        if (Array.isArray(result)) {
+            console.log("getOrderData Array -----", result);
+            return {
+                result: true,
+                list: result,
+                length: result ? result.length : 0
+            };
+        }
+        else {
+            console.log("getOrderData result -----", result);
+            result = JSON.parse(result);
+            console.log("getOrderData result ----- 2", result);
+            return {
+                result: true,
+                list: result,
+                length: result ? result.length : 0
+            };
+        }
         // result.length = result[0].length
-        console.log("getOrderData len----" + result.length);
-        return {
-            list: result,
-            length: result ? result.length : 0
-        };
+        // console.log("getOrderData len----"+result.length)
     });
 }
 function getTradeData(params) {
